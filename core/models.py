@@ -1,0 +1,85 @@
+from django.db import models
+from simple_history.models import HistoricalRecords
+from .mixins import *
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+
+#-----------------------------------------------------------------------------------------------------
+# País 
+#-----------------------------------------------------------------------------------------------------
+
+class Country(TimestampedMixin, models.Model):
+    name = models.CharField(max_length=255, verbose_name='Nombre')
+    abbreviation = models.CharField(max_length=10, blank=True, null=True, verbose_name='Abreviación')
+    dialing_code = models.CharField(max_length=20, blank=True, null=True, verbose_name='Código Telefónico')
+    
+    class Meta:
+        db_table = 'countries' 
+        verbose_name = 'País'
+        verbose_name_plural = 'Paises'
+
+    def __str__(self):
+        return self.name
+    
+
+#-----------------------------------------------------------------------------------------------------
+# User Manager
+#-----------------------------------------------------------------------------------------------------
+
+class UserManager(BaseUserManager):
+    def _create_user(self, username, email, name, password, is_staff, is_superuser, **extra_fields):
+        user = self.model(
+            username=username,
+            email=email,
+            name=name,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+            **extra_fields
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, username, email, name, password=None, **extra_fields):
+        return self._create_user(username, email, name, password, False, False, **extra_fields)
+
+    def create_superuser(self, username, email, name, password=None, **extra_fields):
+        user = self._create_user(username, email, name, password, True, True, **extra_fields)
+        
+        # Asignar el superusuario al grupo con ID 1
+        admin_group = Group.objects.get(id=1)
+        user.groups.add(admin_group)
+        
+        return user
+
+#-----------------------------------------------------------------------------------------------------
+# Usuario 
+#-----------------------------------------------------------------------------------------------------
+
+class User(TimestampedMixin, SoftDeleteMixin, AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=255, unique=True, verbose_name='Usuario')
+    name = models.CharField(max_length=255, verbose_name='Nombre y Apellido')
+    biography = models.TextField(blank=True, null=True, verbose_name='Biografía')
+    password = models.CharField(max_length=255, verbose_name='Contraseña')
+    email = models.EmailField(max_length=255, unique=True, verbose_name='Correo Electrónico')
+    is_email_verified = models.BooleanField(default=False, verbose_name='El correo está verificado')
+    verification_code = models.CharField(max_length=10, blank=True, null=True, verbose_name='Código de verificación')
+    phone_number = models.CharField(max_length=255, unique=True, blank=True, null=True, verbose_name='Número de teléfono')
+    birthdate = models.DateField(blank=True, null=True, verbose_name='Fecha de Nacimiento') 
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, blank=True, null=True, related_name='users', verbose_name='País')
+    is_active = models.BooleanField(default=True, verbose_name='¿Está Activo?')
+    is_staff = models.BooleanField(default=False, verbose_name='¿Es Admin?')
+    historical = HistoricalRecords()
+    objects = UserManager()
+    
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'name']
+    
+    class Meta:
+        db_table = 'users' 
+        verbose_name = 'Usuario'
+        verbose_name_plural = 'Usuarios'
+
+    def __str__(self):
+        return self.name

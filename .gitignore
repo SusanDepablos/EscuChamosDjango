@@ -1,0 +1,13 @@
+# Archivos de caché de Python
+__pycache__/
+
+# Carpetas de caché de Python
+*.pyc
+
+media
+
+staticfiles
+
+static
+
+.env
