@@ -334,7 +334,7 @@ class UserIndexAPIView(APIView):
                 return pagination.get_paginated_response({'users': serializer.data})
             
             serializer = UserSerializer(filtered_users, many=True, context={'request': request})
-            return Response({'users': serializer.data})
+            return Response({'data': serializer.data})
         
         except Exception as e:
             return Response({
