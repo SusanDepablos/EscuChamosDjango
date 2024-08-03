@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EscuChamos - Verificación de Correo Electrónico</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f2f2f2; padding: 20px; margin: 0; color: #000;">
+    <div style="background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <p style="font-size: 16px;">¡Bienvenido a EscuChamos!</p>
+        <p style="font-size: 16px;">Hola {{ username }},</p>
+        <p style="font-size: 16px;">Por favor, utiliza el siguiente código para verificar tu dirección de correo electrónico:</p>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p style="font-size: 24px; font-weight: bold; color: #5f6b9f;">{{ verification_code }}</p>
+        </div>
+        <p style="font-size: 16px;">Si no solicitaste este correo electrónico, puedes ignorarlo de forma segura.</p>
+        <p style="font-size: 16px;">Tu dirección de correo electrónico: {{ user_email }}</p>
+        <div class="footer" style="margin-top: 20px;">
+            <p class="text" style="font-size: 16px;">Si tienes alguna pregunta, no dudes en contactarnos en escuchamos2024@gmail.com</p>
+        </div>
+    </div>
+</body>
+</html>
