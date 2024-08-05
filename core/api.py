@@ -412,7 +412,7 @@ class UserUploadPhotoAPIView(APIView, FileUploadMixin):
             existing_file = user.files.filter(type=file_type).first()
 
             # Almacenar el archivo usando el mixin
-            file_info = self.put_file(file_data, 'profile_photos', file_type=file_type)
+            file_info = self.put_file(file_data, 'photos_user', file_type=file_type)
 
             if existing_file:
                 # Actualizar el archivo existente
@@ -457,6 +457,128 @@ class UserUploadPhotoAPIView(APIView, FileUploadMixin):
                 return Response({'message': 'El archivo ha sido eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response({'error': 'No se encontró un archivo de este tipo para el usuario'}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Seguir y dejar de seguir
+#-----------------------------------------------------------------------------------------------------
+class FollowUserAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Obtener el usuario autenticado
+            user = request.user
+            
+            # Obtener el ID del usuario a seguir desde los datos de la solicitud
+            followed_user_id = request.data.get('followed_user_id')
+
+            if not followed_user_id:
+                return Response({'validation': 'El ID del usuario a seguir es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                followed_user = User.objects.get(id=followed_user_id)
+            except User.DoesNotExist:
+                return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+            if user.id == followed_user.id:
+                return Response({'validation': 'No puedes seguirte a ti mismo'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verificar si ya sigue a este usuario
+            existing_follow = Follow.objects.filter(following_user=user, followed_user=followed_user).first()
+
+            if existing_follow:
+                return Response({'error': 'Ya sigues a este usuario'}, status=status.HTTP_409_CONFLICT)
+
+            # Crear una nueva relación de seguimiento
+            follow_instance = Follow.objects.create(following_user=user, followed_user=followed_user)
+
+            # Serializar la relación creada
+            serializer = FollowSerializer(follow_instance)
+
+            return Response({'message': 'Ahora sigues a este usuario'}, status=status.HTTP_201_CREATED)
+        
+        except Exception as e:
+            return handle_exception(e)
+
+    def delete(self, request):
+        try:
+            # Obtener el usuario autenticado
+            user = request.user
+            
+            # Obtener el ID del usuario a dejar de seguir desde los datos de la solicitud
+            followed_user_id = request.data.get('followed_user_id')
+
+            if not followed_user_id:
+                return Response({'validation': 'El ID del usuario a dejar de seguir es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                followed_user = User.objects.get(id=followed_user_id)
+            except User.DoesNotExist:
+                return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+            if user.id == followed_user.id:
+                return Response({'validation': 'No puedes dejar de seguirte a ti mismo'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verificar si existe una relación de seguimiento
+            follow_instance = Follow.objects.filter(following_user=user, followed_user=followed_user).first()
+
+            if not follow_instance:
+                return Response({'validation': 'No estás siguiendo a este usuario'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Eliminar la relación de seguimiento
+            follow_instance.delete()
+
+            return Response({'message': 'Has dejado de seguir a este usuario'}, status=status.HTTP_204_NO_CONTENT)
+        
+        except Exception as e:
+            return handle_exception(e)
+    def get(self, request):
+            try:
+                follows = Follow.objects.all()
+                
+                # Aplicar paginación si se requiere
+                if 'pag' in request.query_params:
+                    pagination = CustomPagination()
+                    paginated_follows = pagination.paginate_queryset(follows, request)
+                    serializer = FollowSerializer(paginated_follows, many=True, context={'request': request})
+                    return pagination.get_paginated_response({'data': serializer.data})
+                
+                # Serializar todos los seguimientos
+                serializer = FollowSerializer(follows, many=True, context={'request': request})
+                return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return handle_exception(e)
+        
+class ShowUserFollowersFollowingAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            try:
+                user = User.objects.filter(pk=pk).first()
+            except User.DoesNotExist:
+                return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Obtener seguidores y seguidos
+            following = Follow.objects.filter(following_user=user)
+            followers = Follow.objects.filter(followed_user=user)
+
+            # Serializar los datos
+            following_serializer = FollowSerializer(following, many=True, context={'request': request})
+            followers_serializer = FollowSerializer(followers, many=True, context={'request': request})
+
+            return Response({
+                'data': {
+                    'following': following_serializer.data,
+                    'followers': followers_serializer.data,
+                }
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return handle_exception(e)

@@ -86,6 +86,9 @@ class User(TimestampedMixin, SoftDeleteMixin, AbstractBaseUser, PermissionsMixin
     def __str__(self):
         return self.name
     
+#-----------------------------------------------------------------------------------------------------
+# Archivo 
+#-----------------------------------------------------------------------------------------------------
 class File(TimestampedMixin, SoftDeleteMixin, models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
     object_id = models.PositiveIntegerField(verbose_name='ID del objeto')
@@ -102,3 +105,19 @@ class File(TimestampedMixin, SoftDeleteMixin, models.Model):
         
     def __str__(self):
         return self.path
+    
+#-----------------------------------------------------------------------------------------------------
+# Seguimiento
+#-----------------------------------------------------------------------------------------------------
+class Follow(TimestampedMixin, models.Model):
+    following_user = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE, verbose_name='Usuario que sigue')
+    followed_user = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE, verbose_name='Usuario seguido')
+
+    class Meta:
+        db_table = 'follows'
+        unique_together = ('following_user', 'followed_user')
+        verbose_name = 'Seguimiento'
+        verbose_name_plural = 'Seguimientos'
+
+    def __str__(self):
+        return f"{self.following_user} sigue a {self.followed_user}"

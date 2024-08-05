@@ -25,4 +25,10 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
     path('user/change/password/', UserChangePasswordAPIView.as_view(), name='user-change-password'),
     path('user/upload/photo/', UserUploadPhotoAPIView.as_view(), name='user-upload-photo'),
+    
+#--------------------------------------------------------------------------------------------------#
+# Usuario-Seguimiento
+#--------------------------------------------------------------------------------------------------#
+    path('follow/', FollowUserAPIView.as_view(), name='follow-user'),
+    path('follow/show/<int:pk>/', ShowUserFollowersFollowingAPIView.as_view(), name='follow-show'),
 ]

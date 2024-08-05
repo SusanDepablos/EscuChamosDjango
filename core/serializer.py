@@ -93,6 +93,56 @@ class FileSerializer(serializers.ModelSerializer):
         }
     
 #-----------------------------------------------------------------------------------------------------
+# Seguimientos
+#-----------------------------------------------------------------------------------------------------
+class FollowSerializer(serializers.ModelSerializer):
+    following_user = serializers.SerializerMethodField()
+    followed_user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Follow
+        fields = ('id', 
+                'following_user',
+                'followed_user',
+                'created_at',
+                'updated_at',
+                )
+
+    def get_following_user(self, obj):
+        return self.get_user_with_profile_photo(obj.following_user)
+
+    def get_followed_user(self, obj):
+        return self.get_user_with_profile_photo(obj.followed_user)
+
+    def get_user_with_profile_photo(self, user):
+        # Obtener el archivo de perfil del usuario
+        profile_file = user.files.filter(type='profile').first()
+        profile_photo_url = None
+        if profile_file:
+            request = self.context.get('request')
+            if request:
+                profile_photo_url = request.build_absolute_uri(settings.MEDIA_URL + profile_file.path)
+        
+        return {
+            'id': user.id,
+            'username': user.username,
+            'name': user.name,
+            'profile_photo_url': profile_photo_url
+        }
+        
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'following_user': representation['following_user'],
+                'followed_user': representation['followed_user'],
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+        }
+
+#-----------------------------------------------------------------------------------------------------
 # Usuarios
 #-----------------------------------------------------------------------------------------------------
 class UserSerializer(serializers.ModelSerializer):
@@ -100,6 +150,10 @@ class UserSerializer(serializers.ModelSerializer):
     country = CountrySerializer(read_only=True)
     country_id = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), write_only=True, allow_null=True, source='country')
     files = FileSerializer(many=True, read_only=True)
+    
+    # Campos añadidos para los seguidores y seguidos
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -118,7 +172,9 @@ class UserSerializer(serializers.ModelSerializer):
                 'country',
                 'birthdate',
                 'groups',
-                'files'
+                'files',
+                'following',    
+                'followers'
                 ]
         
     def to_representation(self, instance):
@@ -138,9 +194,19 @@ class UserSerializer(serializers.ModelSerializer):
             'relationships': {
                 'country': representation['country'],
                 'groups': representation['groups'],
-                'files': representation['files'] 
+                'files': representation['files'],
+                'following': representation['following'],
+                'followers': representation['followers']
             }
         }
+        
+    def get_following(self, obj):
+        follows = Follow.objects.filter(following_user=obj)
+        return FollowSerializer(follows, many=True, context=self.context).data
+
+    def get_followers(self, obj):
+        follows = Follow.objects.filter(followed_user=obj)
+        return FollowSerializer(follows, many=True, context=self.context).data
         
 #-----------------------------------------------------------------------------------------------------
 # Registro de usuario
@@ -174,7 +240,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
-
     class Meta:
         model = User
         fields = ['id', 'username', 'name', 'email', 'biography', 'password', 'phone_number',
