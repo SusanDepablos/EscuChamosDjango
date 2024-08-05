@@ -27,7 +27,9 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = ('id',
                 'name', 
                 'abbreviation', 
-                'dialing_code', 
+                'dialing_code',
+                'created_at',
+                'updated_at', 
                 )
         
     def to_representation(self, instance):
@@ -38,12 +40,14 @@ class CountrySerializer(serializers.ModelSerializer):
                 'name': representation['name'],
                 'abbreviation': representation['abbreviation'],
                 'dialing_code': representation['dialing_code'],
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
             },
         }
         
 class UserSerializer(serializers.ModelSerializer):
     country = CountrySerializer(read_only=True)
-    country_id = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), write_only=True, source='country')
+    country_id = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), write_only=True, allow_null=True, source='country')
     groups = GroupSerializer(many=True, read_only=True)
     
     class Meta:
