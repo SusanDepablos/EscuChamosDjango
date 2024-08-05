@@ -5,18 +5,17 @@ from .filters import *
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
-import random
-import string
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password, make_password
+import random
+import string
 
 #-----------------------------------------------------------------------------------------------------
 # Funciones Auxiliares
@@ -80,6 +79,7 @@ def validate_and_update_password(user, new_password):
     user.save()
     
     return {'message': 'Contraseña actualizada exitosamente'}, status.HTTP_200_OK
+
 #-----------------------------------------------------------------------------------------------------
 # Autenticación
 #-----------------------------------------------------------------------------------------------------   
@@ -383,6 +383,80 @@ class UserChangePasswordAPIView(APIView):
 
             response, status_code = validate_and_update_password(user, new_password)
             return Response(response, status=status_code)
+
+        except Exception as e:
+            return handle_exception(e)
+
+#-----------------------------------------------------------------------------------------------------
+# Subir foto y borrar foto
+#-----------------------------------------------------------------------------------------------------
+
+class UserUploadPhotoAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user = request.user
+
+            file_data = request.FILES.get('file')  # Nombre del campo de archivo en la solicitud
+            file_type = request.data.get('type')  # Tipo de archivo en la solicitud
+
+            if not file_data:
+                return Response({'validation': 'Sube un archivo'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if file_type not in ['cover', 'profile']:
+                return Response({'validation': 'El tipo de archivo es inválido. Solo se permiten "cover" o "profile".'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verificar si ya existe un archivo del mismo tipo para el usuario
+            existing_file = user.files.filter(type=file_type).first()
+
+            # Almacenar el archivo usando el mixin
+            file_info = self.put_file(file_data, 'profile_photos', file_type=file_type)
+
+            if existing_file:
+                # Actualizar el archivo existente
+                existing_file.path = file_info['path']
+                existing_file.extension = file_info['extension']
+                existing_file.size = file_info['size']
+                existing_file.save()
+                file_instance = existing_file
+            else:
+                # Crear un nuevo registro de archivo
+                file_instance = File.objects.create(
+                    content_object=user,  # Relaciona el archivo con el usuario
+                    path=file_info['path'],
+                    extension=file_info['extension'],
+                    size=file_info['size'],
+                    type=file_info['type']
+                )
+
+            # Ajusta según tu estructura de serializadores
+            serializer = FileSerializer(file_instance, context={'request': request})
+            return Response({'message': 'El archivo ha sido subido correctamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return handle_exception(e)
+    def delete(self, request):
+        try:
+            user = request.user
+            file_type = request.data.get('type')  # Tipo de archivo en la solicitud
+
+            if file_type not in ['cover', 'profile']:
+                return Response({'validation': 'El tipo de archivo es inválido. Solo se permiten "cover" o "profile".'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verificar si ya existe un archivo del mismo tipo para el usuario
+            existing_file = user.files.filter(type=file_type).first()
+
+            if existing_file:
+                # Eliminar el archivo existente del sistema de archivos
+                self.delete_file(existing_file.path)
+
+                # Eliminar el registro del archivo de la base de datos
+                existing_file.delete()
+                return Response({'message': 'El archivo ha sido eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({'error': 'No se encontró un archivo de este tipo para el usuario'}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             return handle_exception(e)

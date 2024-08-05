@@ -20,5 +20,9 @@ urlpatterns = [
     path('user/', UserIndexAPIView.as_view(), name='user-index'),
     path('user/update/', UserUpdateAPIView.as_view(), name='user-update'),
     path('user/show/', UserShowAPIView.as_view(), name='user-show'),
+#--------------------------------------------------------------------------------------------------#
+# Usuario-Perfil
+#--------------------------------------------------------------------------------------------------#
     path('user/change/password/', UserChangePasswordAPIView.as_view(), name='user-change-password'),
+    path('user/upload/photo/', UserUploadPhotoAPIView.as_view(), name='user-upload-photo'),
 ]

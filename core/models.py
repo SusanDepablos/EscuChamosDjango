@@ -73,6 +73,8 @@ class User(TimestampedMixin, SoftDeleteMixin, AbstractBaseUser, PermissionsMixin
     historical = HistoricalRecords()
     objects = UserManager()
     
+    files = GenericRelation('File')
+    
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'name']
     
@@ -83,3 +85,20 @@ class User(TimestampedMixin, SoftDeleteMixin, AbstractBaseUser, PermissionsMixin
 
     def __str__(self):
         return self.name
+    
+class File(TimestampedMixin, SoftDeleteMixin, models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
+    object_id = models.PositiveIntegerField(verbose_name='ID del objeto')
+    content_object = GenericForeignKey('content_type', 'object_id')
+    path = models.CharField(max_length=255, verbose_name='Ruta')
+    extension = models.CharField(max_length=10, verbose_name='Extensión')
+    size = models.CharField(max_length=20, verbose_name='Tamaño')
+    type = models.CharField(max_length=100, null=True, blank=True, verbose_name='Tipo')
+    
+    class Meta:
+        db_table = 'files'
+        verbose_name = 'Archivo'
+        verbose_name_plural = 'Archivos'
+        
+    def __str__(self):
+        return self.path

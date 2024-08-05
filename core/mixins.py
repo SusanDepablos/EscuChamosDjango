@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
+import os
+import math
 
 class TimestampedMixin(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
@@ -29,3 +32,47 @@ class SoftDeleteMixin(models.Model):
     @property
     def is_deleted(self):
         return self.deleted_at is not None
+    
+class FileUploadMixin:
+    def store_file(self, destination_path, uploaded_file):
+        media_root = settings.MEDIA_ROOT
+        file_name = uploaded_file.name
+        file_path = os.path.join(media_root, destination_path, file_name)
+        
+        # Asegurarse de que el directorio de destino exista
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        with open(file_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+        
+        return os.path.normpath(os.path.join(destination_path, file_name)).replace('\\', '/')
+
+    def put_file(self, uploaded_file, destination_path='', file_type=''):
+        destination_path = destination_path if destination_path else ''
+        path = self.store_file(destination_path, uploaded_file)
+
+        file_extension = uploaded_file.name.split('.')[-1]
+        file_size = self.convert_size(uploaded_file.size)
+
+        return {
+            'path': path,
+            'extension': file_extension,
+            'size': file_size,
+            'type': file_type,
+        }
+        
+    def delete_file(self, file_path):
+        full_path = os.path.join(settings.MEDIA_ROOT, file_path)
+        if os.path.exists(full_path):
+            os.remove(full_path)
+        
+    def convert_size(self, size_bytes):
+        if size_bytes == 0:
+            return "0B"
+        size_name = ("B", "KB", "MB", "GB", "TB")
+        i = int(math.floor(math.log(size_bytes, 1024)))
+        p = math.pow(1024, i)
+        s = round(size_bytes / p, 2)
+        return f"{s} {size_name[i]}"
+

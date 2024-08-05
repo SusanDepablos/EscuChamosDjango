@@ -3,6 +3,9 @@ from django.contrib.auth.models import *
 from .models import *
 from django.contrib.auth.hashers import make_password
 
+#-----------------------------------------------------------------------------------------------------
+# Grupo o Roles
+#-----------------------------------------------------------------------------------------------------
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
@@ -45,10 +48,58 @@ class CountrySerializer(serializers.ModelSerializer):
             },
         }
         
+#-----------------------------------------------------------------------------------------------------
+# Archivos
+#-----------------------------------------------------------------------------------------------------
+class FileSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = File
+        fields = ('id', 
+                'content_type',
+                'object_id',
+                'path',
+                'extension',
+                'size',
+                'type',
+                'url',
+                'created_at',
+                'updated_at',
+                )
+        
+    def get_url(self, obj):
+        if obj is not None and obj.path:
+            request = self.context.get('request')
+            if request is not None:
+                return request.build_absolute_uri(settings.MEDIA_URL + obj.path)
+        return None
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'content_type': representation['content_type'],
+                'object_id': representation['object_id'],
+                'path': representation['path'],
+                'extension': representation['extension'],
+                'size': representation['size'],
+                'type': representation['type'],
+                'url': representation['url'],
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+        }
+    
+#-----------------------------------------------------------------------------------------------------
+# Usuarios
+#-----------------------------------------------------------------------------------------------------
 class UserSerializer(serializers.ModelSerializer):
+    groups = GroupSerializer(many=True, read_only=True)
     country = CountrySerializer(read_only=True)
     country_id = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), write_only=True, allow_null=True, source='country')
-    groups = GroupSerializer(many=True, read_only=True)
+    files = FileSerializer(many=True, read_only=True)
     
     class Meta:
         model = User
@@ -66,7 +117,8 @@ class UserSerializer(serializers.ModelSerializer):
                 'deleted_at',  
                 'country',
                 'birthdate',
-                'groups'
+                'groups',
+                'files'
                 ]
         
     def to_representation(self, instance):
@@ -85,10 +137,14 @@ class UserSerializer(serializers.ModelSerializer):
             },
             'relationships': {
                 'country': representation['country'],
-                'groups': representation['groups'] 
+                'groups': representation['groups'],
+                'files': representation['files'] 
             }
         }
         
+#-----------------------------------------------------------------------------------------------------
+# Registro de usuario
+#-----------------------------------------------------------------------------------------------------
 class RegisterSerializer(serializers.ModelSerializer):
     country_id = serializers.PrimaryKeyRelatedField(
         queryset=Country.objects.all(), write_only=True, source='country', required=False
