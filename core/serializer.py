@@ -66,6 +66,7 @@ class FileSerializer(serializers.ModelSerializer):
                 'url',
                 'created_at',
                 'updated_at',
+                'deleted_at',
                 )
         
     def get_url(self, obj):
@@ -91,6 +92,25 @@ class FileSerializer(serializers.ModelSerializer):
                 'updated_at': representation['updated_at'],
             },
         }
+#-----------------------------------------------------------------------------------------------------
+# Funcion para usuario con la foto de perfil
+#-----------------------------------------------------------------------------------------------------
+
+def get_user_with_profile_photo(user, context):
+    # Obtener el archivo de perfil del usuario
+    profile_file = user.files.filter(type='profile').first()
+    profile_photo_url = None
+    if profile_file:
+        request = context.get('request')
+        if request:
+            profile_photo_url = request.build_absolute_uri(settings.MEDIA_URL + profile_file.path)
+    
+    return {
+        'id': user.id,
+        'username': user.username,
+        'name': user.name,
+        'profile_photo_url': profile_photo_url
+    }
     
 #-----------------------------------------------------------------------------------------------------
 # Seguimientos
@@ -140,6 +160,40 @@ class FollowSerializer(serializers.ModelSerializer):
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
+        }
+        
+#-----------------------------------------------------------------------------------------------------
+# Reacciones
+#-----------------------------------------------------------------------------------------------------
+class ReactionSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, allow_null=True, source='user')
+
+    class Meta:
+        model = Reaction
+        fields = (
+            'id', 
+            'user_id',
+            'content_type',
+            'object_id',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        user_representation = get_user_with_profile_photo(instance.user, self.context)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'content_type': representation['content_type'],
+                'object_id': representation['object_id'],
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+            'relationships': {
+                'user': user_representation,
+            }
         }
 
 #-----------------------------------------------------------------------------------------------------
@@ -277,3 +331,4 @@ class StatusSerializer(serializers.ModelSerializer):
                 'updated_at': representation['updated_at'],
             },
         }
+        

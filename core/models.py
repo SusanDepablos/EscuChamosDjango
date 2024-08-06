@@ -137,3 +137,20 @@ class Status(TimestampedMixin, SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return self.name
+
+#-----------------------------------------------------------------------------------------------------
+# Reacciones 
+#-----------------------------------------------------------------------------------------------------
+class Reaction(TimestampedMixin, SoftDeleteMixin, models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
+    object_id = models.PositiveIntegerField(verbose_name='ID del objeto')
+    content_object = GenericForeignKey('content_type', 'object_id')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario', related_name='reactions')
+
+    class Meta:
+        db_table = 'reactions'
+        verbose_name = 'Reacción'
+        verbose_name_plural = 'Reacciones'
+
+    def __str__(self):
+        return f'{self.user.username} reaccionó a {self.content_type} con ID {self.object_id}'
