@@ -121,3 +121,19 @@ class Follow(TimestampedMixin, models.Model):
 
     def __str__(self):
         return f"{self.following_user} sigue a {self.followed_user}"
+    
+#-----------------------------------------------------------------------------------------------------
+# Estado
+#-----------------------------------------------------------------------------------------------------
+
+class Status(TimestampedMixin, SoftDeleteMixin, models.Model):
+    name = models.CharField(max_length=255, verbose_name='Nombre')
+    description = models.TextField(blank=True, null=True, verbose_name='Descripción')
+    
+    class Meta:
+        db_table = 'statuses' 
+        verbose_name = 'Estado'
+        verbose_name_plural = 'Estados'
+
+    def __str__(self):
+        return self.name

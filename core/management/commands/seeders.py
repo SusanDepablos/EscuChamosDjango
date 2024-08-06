@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from core.models import Country
+from core.models import *
 from django.contrib.auth.models import Group
 
 class Command(BaseCommand):
@@ -8,6 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.seed_groups()
         self.seed_countries()
+        self.seed_statuses()
         
     def seed_groups(self):
         groups = [
@@ -58,3 +59,15 @@ class Command(BaseCommand):
         ]
         for country_data in countries:
             Country.objects.get_or_create(**country_data)
+
+    def seed_statuses(self):
+        statuses = [
+            ('Activo', 'Estado normal sin infracciones'),
+            ('Infracción', 'Estado de infracción por violación de reglas'),
+            ('En revisión', 'Estado de revisión pendiente'),
+            ('Resuelto', 'Estado de infracción resuelto'),
+            ('Bloqueado', 'Estado de contenido bloqueado'),
+            ('Reportado', 'Estado de contenido reportado'),
+        ]
+        for name, description in statuses:
+            Status.objects.get_or_create(name=name, description=description)

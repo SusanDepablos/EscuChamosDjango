@@ -7,6 +7,9 @@ def apply_icontains_filter(filter_set):
             filter_obj.lookup_expr = 'icontains'
             filter_obj.label = f'{filter_obj.label} (similarity)'
 
+#-----------------------------------------------------------------------------------------------------
+# Usuario
+#-----------------------------------------------------------------------------------------------------
 class UserFilter(django_filters.FilterSet):
     username = django_filters.CharFilter()
     name = django_filters.CharFilter()
@@ -30,6 +33,9 @@ class UserFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
         
+#-----------------------------------------------------------------------------------------------------
+# Pais
+#-----------------------------------------------------------------------------------------------------
 class CountryFilter(django_filters.FilterSet):
     name = django_filters.CharFilter()
     abbreviation = django_filters.CharFilter()
@@ -41,6 +47,24 @@ class CountryFilter(django_filters.FilterSet):
             'name',
             'abbreviation',
             'dialing_code',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        apply_icontains_filter(self)
+
+#-----------------------------------------------------------------------------------------------------
+# Estado
+#-----------------------------------------------------------------------------------------------------
+class StatusFilter(django_filters.FilterSet):
+    name = django_filters.CharFilter()
+    description = django_filters.CharFilter()
+
+    class Meta:
+        model = Status
+        fields = [
+            'name',
+            'description',
         ]
 
     def __init__(self, *args, **kwargs):
