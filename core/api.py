@@ -304,10 +304,10 @@ class UserIndexAPIView(APIView):
                 pagination = CustomPagination()
                 paginated_users = pagination.paginate_queryset(filtered_users, request)
                 serializer = UserSerializer(paginated_users, many=True)
-                return pagination.get_paginated_response({'users': serializer.data})
+                return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = UserSerializer(filtered_users, many=True, context={'request': request})
-            return Response({'data': serializer.data})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
             return handle_exception(e)
@@ -358,7 +358,7 @@ class UserShowAPIView(APIView):
             if not user:
                 return Response({'error': 'El ID de usuario no está registrado'}, status=status.HTTP_404_NOT_FOUND)
             serializer = UserSerializer(user, context={'request': request})
-            return Response({'data': serializer.data})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return handle_exception(e)
@@ -584,3 +584,104 @@ class ShowUserFollowersFollowingAPIView(APIView):
 
         except Exception as e:
             return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Paises
+#-----------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------
+# Index Paises
+#-----------------------------------------------------------------------------------------------------
+class CountryIndexAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_country'
+
+    def get(self, request):
+        try:
+            countries = Country.objects.all()
+
+            country_filter = CountryFilter(request.query_params, queryset=countries)
+            filtered_countries = country_filter.qs
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_countries = pagination.paginate_queryset(filtered_countries, request)
+                serializer = CountrySerializer(paginated_countries, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = CountrySerializer(filtered_countries, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Información de Paises
+#-----------------------------------------------------------------------------------------------------
+class CountryShowAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_country'
+
+    def get(self, request, pk):
+        try:
+            country = Country.objects.filter(pk=pk).first()
+            if not country:
+                return Response({'error': 'El ID de país no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = CountrySerializer(country, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
+            
+#-----------------------------------------------------------------------------------------------------
+# Estados
+#-----------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------
+# Index Estados
+#-----------------------------------------------------------------------------------------------------
+class StatusIndexAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_status'
+
+    def get(self, request):
+        try:
+            status_p = Status.objects.all()
+
+            status_filter = StatusFilter(request.query_params, queryset=status_p)
+            filtered_status_p = status_filter.qs
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_status_p = pagination.paginate_queryset(filtered_status_p, request)
+                serializer = StatusSerializer(paginated_status_p, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = StatusSerializer(filtered_status_p, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Información de Estados
+#-----------------------------------------------------------------------------------------------------
+class StatusShowAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_status'
+
+    def get(self, request, pk):
+        try:
+            status_p = Status.objects.filter(pk=pk).first()
+            if not status_p:
+                return Response({'error': 'El ID de estado no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = StatusSerializer(status_p, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
+            

@@ -20,6 +20,7 @@ urlpatterns = [
     path('user/', UserIndexAPIView.as_view(), name='user-index'),
     path('user/update/', UserUpdateAPIView.as_view(), name='user-update'),
     path('user/show/<int:pk>/', UserShowAPIView.as_view(), name='user-show'),
+    
 #--------------------------------------------------------------------------------------------------#
 # Usuario-Perfil
 #--------------------------------------------------------------------------------------------------#
@@ -31,4 +32,18 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
     path('follow/', FollowUserAPIView.as_view(), name='follow-user'),
     path('follow/show/<int:pk>/', ShowUserFollowersFollowingAPIView.as_view(), name='follow-show'),
+
+#--------------------------------------------------------------------------------------------------#
+# Paises
+#--------------------------------------------------------------------------------------------------#
+    path('country/', CountryIndexAPIView.as_view(), name='country-index'),
+    path('country/show/<int:pk>/', CountryShowAPIView.as_view(), name='country-show'),
+
+#--------------------------------------------------------------------------------------------------#
+# Estados
+#--------------------------------------------------------------------------------------------------#
+    path('status/', StatusIndexAPIView.as_view(), name='status-index'),
+    path('status/show/<int:pk>/', StatusShowAPIView.as_view(), name='status-show'),
+
+
 ]
