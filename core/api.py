@@ -112,7 +112,7 @@ class UserLoginAPIView(APIView):
                 else:
                     return Response({'error': 'Este usuario está inactivo'}, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                return Response({'validation': 'Nombre de usuario o contraseña inválidos.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'Nombre de usuario o contraseña inválidos'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return handle_exception(e)
 
@@ -352,9 +352,11 @@ class UserShowAPIView(APIView):
     permission_classes = [IsAuthenticated]
     # required_permissions = 'view_user'
 
-    def get(self, request):
+    def get(self, request, pk):
         try:
-            user = request.user
+            user = User.objects.filter(pk=pk).first()
+            if not user:
+                return Response({'error': 'El ID de usuario no está registrado'}, status=status.HTTP_404_NOT_FOUND)
             serializer = UserSerializer(user, context={'request': request})
             return Response({'data': serializer.data})
 
@@ -406,7 +408,7 @@ class UserUploadPhotoAPIView(APIView, FileUploadMixin):
                 return Response({'validation': 'Sube un archivo'}, status=status.HTTP_400_BAD_REQUEST)
 
             if file_type not in ['cover', 'profile']:
-                return Response({'validation': 'El tipo de archivo es inválido. Solo se permiten "cover" o "profile".'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'El tipo de archivo es inválido. Solo se permiten "cover" o "profile"'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Verificar si ya existe un archivo del mismo tipo para el usuario
             existing_file = user.files.filter(type=file_type).first()

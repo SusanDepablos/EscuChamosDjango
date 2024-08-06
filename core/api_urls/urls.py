@@ -19,7 +19,7 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
     path('user/', UserIndexAPIView.as_view(), name='user-index'),
     path('user/update/', UserUpdateAPIView.as_view(), name='user-update'),
-    path('user/show/', UserShowAPIView.as_view(), name='user-show'),
+    path('user/show/<int:pk>/', UserShowAPIView.as_view(), name='user-show'),
 #--------------------------------------------------------------------------------------------------#
 # Usuario-Perfil
 #--------------------------------------------------------------------------------------------------#
