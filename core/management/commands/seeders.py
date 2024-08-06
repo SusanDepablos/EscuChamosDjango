@@ -9,6 +9,7 @@ class Command(BaseCommand):
         self.seed_groups()
         self.seed_countries()
         self.seed_statuses()
+        self.seed_type_post()
         
     def seed_groups(self):
         groups = [
@@ -71,3 +72,14 @@ class Command(BaseCommand):
         ]
         for name, description in statuses:
             Status.objects.get_or_create(name=name, description=description)
+            
+    def seed_type_post(self):
+        type_posts = [
+            ('Normal', 'Publicación normal de texto'),
+            ('Multimedia', 'Publicación que contiene imágenes, videos o audios'),
+            ('Podcast', 'Publicación de podcast')
+        ]
+        for name, description in type_posts:
+            TypePost.objects.get_or_create(name=name, description=description)
+            
+            

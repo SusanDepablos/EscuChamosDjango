@@ -139,7 +139,7 @@ class Status(TimestampedMixin, SoftDeleteMixin, models.Model):
         return self.name
 
 #-----------------------------------------------------------------------------------------------------
-# Reacciones 
+# Reacción 
 #-----------------------------------------------------------------------------------------------------
 class Reaction(TimestampedMixin, SoftDeleteMixin, models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
@@ -170,3 +170,21 @@ class TypePost(TimestampedMixin, SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return self.name
+    
+#-----------------------------------------------------------------------------------------------------
+# Reporte 
+#-----------------------------------------------------------------------------------------------------
+class Report(TimestampedMixin, SoftDeleteMixin, models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
+    object_id = models.PositiveIntegerField(verbose_name='ID del objeto')
+    content_object = GenericForeignKey('content_type', 'object_id')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario', related_name='reports')
+    observation = models.TextField(verbose_name='Observación')
+
+    class Meta:
+        db_table = 'reports'
+        verbose_name = 'Reporte'
+        verbose_name_plural = 'Reportes'
+
+    def __str__(self):
+        return f'{self.user.username} reporto a {self.content_type} con ID {self.object_id}'

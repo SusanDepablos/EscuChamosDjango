@@ -88,3 +88,19 @@ class TypePostFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
+        
+#-----------------------------------------------------------------------------------------------------
+# Reportes
+#-----------------------------------------------------------------------------------------------------
+class ReportFilter(django_filters.FilterSet):
+    observation = django_filters.CharFilter()
+
+    class Meta:
+        model = TypePost
+        fields = [
+            'observation',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        apply_icontains_filter(self)

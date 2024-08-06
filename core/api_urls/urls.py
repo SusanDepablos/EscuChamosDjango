@@ -19,7 +19,7 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
     path('user/', UserIndexAPIView.as_view(), name='user-index'),
     path('user/update/', UserUpdateAPIView.as_view(), name='user-update'),
-    path('user/show/<int:pk>/', UserShowAPIView.as_view(), name='user-show'),
+    path('user/<int:pk>/', UserShowAPIView.as_view(), name='user-show'),
     
 #--------------------------------------------------------------------------------------------------#
 # Usuario-Perfil
@@ -31,24 +31,30 @@ urlpatterns = [
 # Usuario-Seguimiento
 #--------------------------------------------------------------------------------------------------#
     path('follow/', FollowUserAPIView.as_view(), name='follow-user'),
-    path('follow/show/<int:pk>/', ShowUserFollowersFollowingAPIView.as_view(), name='follow-show'),
+    path('follow/<int:pk>/', ShowUserFollowersFollowingAPIView.as_view(), name='follow-show'),
 
 #--------------------------------------------------------------------------------------------------#
 # Paises
 #--------------------------------------------------------------------------------------------------#
     path('country/', CountryIndexAPIView.as_view(), name='country-index'),
-    path('country/show/<int:pk>/', CountryShowAPIView.as_view(), name='country-show'),
+    path('country/<int:pk>/', CountryShowAPIView.as_view(), name='country-show'),
 
 #--------------------------------------------------------------------------------------------------#
 # Estados
 #--------------------------------------------------------------------------------------------------#
     path('status/', StatusIndexAPIView.as_view(), name='status-index'),
-    path('status/show/<int:pk>/', StatusShowAPIView.as_view(), name='status-show'),
+    path('status/<int:pk>/', StatusShowAPIView.as_view(), name='status-show'),
 
 #--------------------------------------------------------------------------------------------------#
 # Tipos de publicación
 #--------------------------------------------------------------------------------------------------#
     path('type-post/', TypePostIndexAPIView.as_view(), name='type-post-index'),
-    path('type-post/show/<int:pk>/', TypePostShowAPIView.as_view(), name='type-post-show'),
+    path('type-post/<int:pk>/', TypePostShowAPIView.as_view(), name='type-post-show'),
+    
+#--------------------------------------------------------------------------------------------------#
+# Reportes
+#--------------------------------------------------------------------------------------------------#
+    path('report/', ReportAPIView.as_view(), name='report'),
+    path('report/<int:pk>/', ReportShowAPIView.as_view(), name='report-show'),
 
 ]

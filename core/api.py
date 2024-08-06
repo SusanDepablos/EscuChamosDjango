@@ -696,7 +696,7 @@ class StatusShowAPIView(APIView):
 class TypePostIndexAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    # required_permissions = 'view_type_post'
+    # required_permissions = 'view_typepost'
 
     def get(self, request):
         try:
@@ -723,7 +723,7 @@ class TypePostIndexAPIView(APIView):
 class TypePostShowAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    # required_permissions = 'view_type_post'
+    # required_permissions = 'view_typepost'
 
     def get(self, request, pk):
         try:
@@ -735,3 +735,55 @@ class TypePostShowAPIView(APIView):
 
         except Exception as e:
             return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Reportes
+#-----------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------
+# Index de Reportes
+#-----------------------------------------------------------------------------------------------------
+
+class ReportAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_report'
+
+    def get(self, request):
+        try:
+            report = Report.objects.all()
+
+            report_filter = ReportFilter(request.query_params, queryset=report)
+            filtered_report = report_filter.qs
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_report = pagination.paginate_queryset(filtered_report, request)
+                serializer = ReportSerializer(paginated_report, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = ReportSerializer(filtered_report, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+
+#-----------------------------------------------------------------------------------------------------
+# Información de Reportes
+#-----------------------------------------------------------------------------------------------------
+class ReportShowAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_report'
+
+    def get(self, request, pk):
+        try:
+            report = Report.objects.filter(pk=pk).first()
+            if not report:
+                return Response({'error': 'El ID del reporte no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = ReportSerializer(report, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
+
