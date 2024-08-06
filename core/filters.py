@@ -70,3 +70,21 @@ class StatusFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
+
+#-----------------------------------------------------------------------------------------------------
+# Tipos de publicación
+#-----------------------------------------------------------------------------------------------------
+class TypePostFilter(django_filters.FilterSet):
+    name = django_filters.CharFilter()
+    description = django_filters.CharFilter()
+
+    class Meta:
+        model = TypePost
+        fields = [
+            'name',
+            'description',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        apply_icontains_filter(self)

@@ -154,3 +154,19 @@ class Reaction(TimestampedMixin, SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return f'{self.user.username} reaccionó a {self.content_type} con ID {self.object_id}'
+    
+#-----------------------------------------------------------------------------------------------------
+# Tipo de publicación
+#-----------------------------------------------------------------------------------------------------
+
+class TypePost(TimestampedMixin, SoftDeleteMixin, models.Model):
+    name = models.CharField(max_length=255, verbose_name='Nombre')
+    description = models.TextField(blank=True, null=True, verbose_name='Descripción')
+    
+    class Meta:
+        db_table = 'type_posts' 
+        verbose_name = 'Tipo de publicación'
+        verbose_name_plural = 'Tipo de publicaciones'
+
+    def __str__(self):
+        return self.name

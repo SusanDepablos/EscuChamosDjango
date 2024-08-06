@@ -332,3 +332,29 @@ class StatusSerializer(serializers.ModelSerializer):
             },
         }
         
+#-----------------------------------------------------------------------------------------------------
+# Tipos de publicación
+#-----------------------------------------------------------------------------------------------------
+
+class TypePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TypePost
+        fields = ('id',
+                'name', 
+                'description', 
+                'created_at',
+                'updated_at', 
+                'deleted_at',
+                )
+        
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'name': representation['name'],
+                'description': representation['description'],
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+        }

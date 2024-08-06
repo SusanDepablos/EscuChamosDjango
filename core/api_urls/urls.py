@@ -45,5 +45,10 @@ urlpatterns = [
     path('status/', StatusIndexAPIView.as_view(), name='status-index'),
     path('status/show/<int:pk>/', StatusShowAPIView.as_view(), name='status-show'),
 
+#--------------------------------------------------------------------------------------------------#
+# Tipos de publicación
+#--------------------------------------------------------------------------------------------------#
+    path('type-post/', TypePostIndexAPIView.as_view(), name='type-post-index'),
+    path('type-post/show/<int:pk>/', TypePostShowAPIView.as_view(), name='type-post-show'),
 
 ]

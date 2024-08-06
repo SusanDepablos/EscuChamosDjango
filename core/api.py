@@ -685,3 +685,53 @@ class StatusShowAPIView(APIView):
         except Exception as e:
             return handle_exception(e)
             
+           
+#-----------------------------------------------------------------------------------------------------
+# Tipos de publicación
+#-----------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------
+# Index Tipos de publicación
+#-----------------------------------------------------------------------------------------------------
+class TypePostIndexAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_type_post'
+
+    def get(self, request):
+        try:
+            type_post = TypePost.objects.all()
+
+            type_post_filter = TypePostFilter(request.query_params, queryset=type_post)
+            filtered_type_post = type_post_filter.qs
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_type_post = pagination.paginate_queryset(filtered_type_post, request)
+                serializer = TypePostSerializer(paginated_type_post, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = TypePostSerializer(filtered_type_post, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Información de Tipos de publicación
+#-----------------------------------------------------------------------------------------------------
+class TypePostShowAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_type_post'
+
+    def get(self, request, pk):
+        try:
+            type_post = TypePost.objects.filter(pk=pk).first()
+            if not type_post:
+                return Response({'error': 'El ID de tipo de publicación no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = TypePostSerializer(type_post, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
