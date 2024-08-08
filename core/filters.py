@@ -121,3 +121,18 @@ class PostFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
         
+#-----------------------------------------------------------------------------------------------------
+# Comentarios
+#-----------------------------------------------------------------------------------------------------
+class CommentFilter(django_filters.FilterSet):
+    body = django_filters.CharFilter()
+
+    class Meta:
+        model = Comment
+        fields = [
+            'body',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        apply_icontains_filter(self)

@@ -224,3 +224,24 @@ class Share(TimestampedMixin, models.Model):
 
     def __str__(self):
         return f'{self.user} compartió {self.post}'
+
+#-----------------------------------------------------------------------------------------------------
+# Comentario
+#-----------------------------------------------------------------------------------------------------    
+class Comment(TimestampedMixin, SoftDeleteMixin, models.Model):
+    body = models.TextField(null=True, blank=True, verbose_name='Cuerpo')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', verbose_name='Publicación')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', verbose_name='Usuario')
+    status = models.ForeignKey(Status, on_delete=models.PROTECT, related_name='comments', verbose_name='Estado')
+    comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies', verbose_name='Comentario Padre')
+    
+    file = GenericRelation(File)
+    reports = GenericRelation(Report)
+    reactions = GenericRelation(Reaction)
+    class Meta:
+        db_table = 'comments'
+        verbose_name = 'Comentario'
+        verbose_name_plural = 'Comentarios'
+
+    def __str__(self):
+        return f'{self.user} comentó en {self.post}'

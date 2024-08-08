@@ -1125,10 +1125,10 @@ class ShareDetailAPIView(APIView, FileUploadMixin):
 
     def get(self, request, pk):
         try:
-            # Obtener la publicación usando el pk
+            # Obtener la compartido usando el pk
             share = Share.objects.get(pk=pk)
 
-            # Serializar los datos de la publicación
+            # Serializar los datos de la compartido
             serializer = ShareSerializer(share, context={'request': request})
 
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
@@ -1154,6 +1154,154 @@ class ShareDetailAPIView(APIView, FileUploadMixin):
             return Response({'error': 'El ID de compartido no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
+
+#-----------------------------------------------------------------------------------------------------
+# Comentarios
+#-----------------------------------------------------------------------------------------------------
+class CommentIndexCreateAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_comment'
+
+    def get(self, request):
+        try:
+            comments = Comment.objects.all()
+
+            comment_filter = CommentFilter(request.query_params, queryset=comments)
+            filtered_comment = comment_filter.qs
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_comment = pagination.paginate_queryset(filtered_comment, request)
+                serializer = CommentSerializer(paginated_comment, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = CommentSerializer(filtered_comment, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
+        except Exception as e:
+            return handle_exception(e)
+            
+    def post(self, request):
+        try:
+            # Separar el archivo y otros datos
+            file_data = request.FILES.get('file')  # Obtiene el archivo, si existe
+            other_data = {k: v for k, v in request.data.items() if k != 'file'}
+
+            # Asignar datos adicionales al diccionario
+            other_data['user_id'] = request.user.id
+            other_data['status_id'] = 1
+
+            # Crear una instancia del serializer con los datos restantes
+            serializer = CommentSerializer(data=other_data)
+
+            if serializer.is_valid():
+                errors = {}
+
+                # Validar que si no hay archivo, el campo body sea requerido
+                if not file_data and not request.data.get('body'):
+                    errors['body'] = ['Este campo es requerido.']
+
+                if errors:
+                    return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+                # Guardar el comentario
+                comment_instance = serializer.save()
+
+                # Si hay un archivo, procesarlo y guardarlo
+                if file_data:
+                    # Lógica para guardar el archivo usando FileUploadMixin
+                    file_info = self.put_file(file_data, 'comments')
+
+                    # Crear instancia de File asociada al comentario
+                    File.objects.create(
+                        content_object=comment_instance,  # Relaciona el archivo con el comentario
+                        path=file_info['path'],
+                        extension=file_info['extension'],
+                        size=file_info['size'],
+                        type=file_info['type']
+                    )
+
+                return Response({'message': 'Comentario creado exitosamente.'}, status=status.HTTP_201_CREATED)
+
+            return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Manejo de excepciones
+            return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Información de Comentarios
+#-----------------------------------------------------------------------------------------------------
+class CommentDetailAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_comment'
+
+    def get(self, request, pk):
+        try:
+            # Obtener el comentario usando el pk
+            comment = Comment.objects.get(pk=pk)
+
+            # Serializar los datos del comentario
+            serializer = CommentSerializer(comment, context={'request': request})
+
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except comment.DoesNotExist:
+            return Response({'error': 'El ID del comentario no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+        
+    def put(self, request, pk):
+        try:
+            # Obtener el comentario usando el pk
+            comment = Comment.objects.get(pk=pk)
+
+            # Obtener el nuevo valor para `body`
+            new_body = request.data.get('body')
+
+            # Validar que el campo `body` sea proporcionado si no hay un archivo adjunto
+            if not new_body and not comment.file.exists():
+                return Response({'validation': {'body': ['Este campo es requerido.']}}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Actualizar el campo `body` si se proporciona un nuevo valor
+            if new_body is not None:
+                comment.body = new_body
+
+            # Guardar los cambios en el comentario
+            comment.save()
+
+            # Serializar los datos actualizados del comentario
+            serializer = CommentSerializer(comment, context={'request': request})
+
+            return Response({'message': 'Comentario actualizado exitosamente.'}, status=status.HTTP_200_OK)
+
+        except Comment.DoesNotExist:
+            return Response({'error': 'El ID de comentario no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+    def delete(self, request, pk):
+        try:
+            # Obtener el comentario usando el pk
+            comment = Comment.objects.get(pk=pk)
+            has_files = comment.file.exists()  # Verificar si el comentario tiene archivos asociados
+
+            # Eliminar archivos asociados si existen
+            if has_files:
+                files = comment.file.all()  # Obtener todos los archivos asociados al comentario
+                for file in files:
+                    self.delete_file(file.path)  # Eliminar el archivo del sistema
+                    file.delete()  # Eliminar el registro del archivo de la base de datos
+
+            # Eliminar el comentario
+            comment.delete()
+
+            return Response({'message': 'El comentario ha sido eliminado correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+
+        except Comment.DoesNotExist:
+            return Response({'error': 'El ID de comentario no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)    
         
         

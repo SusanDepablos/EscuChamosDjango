@@ -197,7 +197,6 @@ class ReactionSerializer(serializers.ModelSerializer):
 # Reportes
 #-----------------------------------------------------------------------------------------------------
 class ReportSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Report
         fields = (
@@ -390,6 +389,63 @@ class TypePostSerializer(serializers.ModelSerializer):
             },
         }
 #-----------------------------------------------------------------------------------------------------
+# Comentarios
+#-----------------------------------------------------------------------------------------------------                 
+class CommentSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), write_only=True, source='post')
+    status = StatusSerializer(read_only=True)
+    status_id = serializers.PrimaryKeyRelatedField(queryset=Status.objects.all(), write_only=True, source='status')
+    comment_id = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), write_only=True, source='comment', required=False, allow_null=True)
+    file = FileSerializer(many=True, read_only=True)
+    replies = serializers.SerializerMethodField()
+    reports = ReportSerializer(many=True, read_only=True)
+    reactions = ReactionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            'id',
+            'comment_id',
+            'post_id',
+            'user_id',
+            'body',
+            'status_id',
+            'status',
+            'replies',
+            'file',
+            'reports',
+            'reactions',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ]
+
+    def get_replies(self, obj):
+        # Método para obtener las respuestas (replies) de cada comentario
+        replies = obj.replies.all()  # Obtener todas las respuestas relacionadas con este comentario
+        return CommentSerializer(replies, many=True).data
+
+    def to_representation(self, instance):
+        user_representation = get_user_with_profile_photo(instance.user, self.context)
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'body': representation['body'],
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+            'relationships': {
+                'user': user_representation,
+                'status': representation['status'],
+                'file': representation['file'],
+                'replies': representation['replies'],
+                'reports': representation['reports'],
+                'reactions': representation['reactions'],
+            }
+        }
+#-----------------------------------------------------------------------------------------------------
 # Publicación
 #-----------------------------------------------------------------------------------------------------       
 class PostSerializer(serializers.ModelSerializer):
@@ -402,6 +458,7 @@ class PostSerializer(serializers.ModelSerializer):
     reposts = serializers.SerializerMethodField()
     reports = ReportSerializer(many=True, read_only=True)
     reactions = ReactionSerializer(many=True, read_only=True)
+    comments = serializers.SerializerMethodField() 
 
     class Meta:
         model = Post
@@ -416,6 +473,7 @@ class PostSerializer(serializers.ModelSerializer):
                 'files',
                 'reports',
                 'reactions',
+                'comments',
                 'created_at', 
                 'updated_at', 
                 'deleted_at', 
@@ -425,6 +483,11 @@ class PostSerializer(serializers.ModelSerializer):
             # Método para obtener las respuestas (reposts) de cada post
             reposts = obj.reposts.all()  # Obtener todas las respuestas relacionadas con este post
             return PostSerializer(reposts, many=True).data
+        
+    def get_comments(self, obj):
+        # Método para obtener los comentarios de cada post
+        comments = obj.comments.all()  # Obtener todos los comentarios relacionados con este post
+        return CommentSerializer(comments, many=True).data
 
     def to_representation(self, instance):
         user_representation = get_user_with_profile_photo(instance.user, self.context)
@@ -444,10 +507,11 @@ class PostSerializer(serializers.ModelSerializer):
                 'reposts': representation['reposts'],
                 'reports': representation['reports'],
                 'reactions': representation['reactions'],
+                'comments': representation['comments'], 
             }
         }
 #-----------------------------------------------------------------------------------------------------
-# Publicación
+# Compartir
 #-----------------------------------------------------------------------------------------------------              
 class ShareSerializer(serializers.ModelSerializer):
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')

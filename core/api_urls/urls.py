@@ -74,6 +74,12 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
     path('share/', ShareIndexCreateAPIView.as_view(), name='share'),
     path('share/<int:pk>/', ShareDetailAPIView.as_view(), name='share-detail'),
-
+    
+#--------------------------------------------------------------------------------------------------#
+# Comentarios
+#--------------------------------------------------------------------------------------------------#
+    path('comment/', CommentIndexCreateAPIView.as_view(), name='comment'),
+    path('comment/<int:pk>/', CommentDetailAPIView.as_view(), name='comment-detail'),
+    
 
 ]
