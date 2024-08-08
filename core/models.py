@@ -141,7 +141,7 @@ class Status(TimestampedMixin, SoftDeleteMixin, models.Model):
 #-----------------------------------------------------------------------------------------------------
 # Reacción 
 #-----------------------------------------------------------------------------------------------------
-class Reaction(TimestampedMixin, SoftDeleteMixin, models.Model):
+class Reaction(TimestampedMixin, models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
     object_id = models.PositiveIntegerField(verbose_name='ID del objeto')
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -174,7 +174,7 @@ class TypePost(TimestampedMixin, SoftDeleteMixin, models.Model):
 #-----------------------------------------------------------------------------------------------------
 # Reporte 
 #-----------------------------------------------------------------------------------------------------
-class Report(TimestampedMixin, SoftDeleteMixin, models.Model):
+class Report(TimestampedMixin, models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
     object_id = models.PositiveIntegerField(verbose_name='ID del objeto')
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -210,4 +210,17 @@ class Post(TimestampedMixin, SoftDeleteMixin, models.Model):
         
     def __str__(self):
         return self.body
-    
+#-----------------------------------------------------------------------------------------------------
+# Compartir
+#-----------------------------------------------------------------------------------------------------
+class Share(TimestampedMixin, models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario', related_name='shares')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name='Publicación', related_name='shares')
+
+    class Meta:
+        db_table = 'shares'
+        verbose_name = 'Compartir'
+        verbose_name_plural = 'Compartir'
+
+    def __str__(self):
+        return f'{self.user} compartió {self.post}'

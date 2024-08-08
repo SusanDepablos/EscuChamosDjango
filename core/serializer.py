@@ -175,7 +175,6 @@ class ReactionSerializer(serializers.ModelSerializer):
             'user',
             'created_at',
             'updated_at',
-            'deleted_at',
         )
 
     def to_representation(self, instance):
@@ -209,7 +208,6 @@ class ReportSerializer(serializers.ModelSerializer):
             'user',
             'created_at',
             'updated_at',
-            'deleted_at',
         )
 
     def to_representation(self, instance):
@@ -446,5 +444,38 @@ class PostSerializer(serializers.ModelSerializer):
                 'reposts': representation['reposts'],
                 'reports': representation['reports'],
                 'reactions': representation['reactions'],
+            }
+        }
+#-----------------------------------------------------------------------------------------------------
+# Publicación
+#-----------------------------------------------------------------------------------------------------              
+class ShareSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+    post = PostSerializer(read_only=True)
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), write_only=True, source='post')
+
+    class Meta:
+        model = Share
+        fields = [
+            'id',
+            'user_id',
+            'post_id',
+            'post',
+            'created_at',
+            'updated_at',
+        ]
+
+    def to_representation(self, instance):
+        user_representation = get_user_with_profile_photo(instance.user, self.context)
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+            'relationships': {
+                'user': user_representation,
+                'post': representation['post'],
             }
         }

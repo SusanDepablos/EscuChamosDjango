@@ -68,5 +68,12 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
     path('post/', PostIndexCreateAPIView.as_view(), name='post'),
     path('post/<int:pk>/', PostDetailAPIView.as_view(), name='post-detail'),
+    
+#--------------------------------------------------------------------------------------------------#
+# Compartir
+#--------------------------------------------------------------------------------------------------#
+    path('share/', ShareIndexCreateAPIView.as_view(), name='share'),
+    path('share/<int:pk>/', ShareDetailAPIView.as_view(), name='share-detail'),
+
 
 ]

@@ -1073,4 +1073,87 @@ class PostDetailAPIView(APIView, FileUploadMixin):
         except Exception as e:
             return handle_exception(e)
         
+#-----------------------------------------------------------------------------------------------------
+# Compartir
+#-----------------------------------------------------------------------------------------------------
+class ShareIndexCreateAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_share'
+
+    def get(self, request):
+        try:
+            shares = Share.objects.all()
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_share = pagination.paginate_queryset(shares, request)
+                serializer = ShareSerializer(paginated_share, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = ShareSerializer(shares, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+            
+    def post(self, request):
+        try:
+            data = request.data.copy()
+            data['user_id'] = request.user.id
+
+            # Serializar los datos de entrada
+            serializer = ShareSerializer(data=data, context={'request': request})
+            
+            # Validar y guardar el nuevo share
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'El compartido se ha creado exitosamente.'}, status=status.HTTP_201_CREATED)
+            return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Manejo de excepciones
+            return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Información de Publicaciones
+#-----------------------------------------------------------------------------------------------------
+class ShareDetailAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_share'
+
+    def get(self, request, pk):
+        try:
+            # Obtener la publicación usando el pk
+            share = Share.objects.get(pk=pk)
+
+            # Serializar los datos de la publicación
+            serializer = ShareSerializer(share, context={'request': request})
+
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Share.DoesNotExist:
+            return Response({'error': 'El ID de compartido no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+    def delete(self, request, pk):
+        try:
+            # Obtener el share usando el pk
+            share = Share.objects.get(pk=pk)
+
+            # Verificar si el usuario autenticado es el propietario del share
+            if share.user != request.user:
+                return Response({'error': 'No tienes permiso para eliminar este compartido.'}, status=status.HTTP_403_FORBIDDEN)
+            
+            # Eliminar el share
+            share.delete()
+            return Response({'message': 'El compartido ha sido eliminado exitosamente.'}, status=status.HTTP_204_NO_CONTENT)
+
+        except Share.DoesNotExist:
+            return Response({'error': 'El ID de compartido no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+        
+        
         
