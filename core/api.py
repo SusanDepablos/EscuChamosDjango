@@ -99,11 +99,12 @@ def update_object_status(content_type_id, object_id, status_id):
             obj.save()
             return Response({'message': 'Reporte creado exitosamente.'}, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'El objeto no tiene un campo de estado.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'El objeto no tiene un campo de estado.'}, status=status.HTTP_404_BAD_REQUEST)
     except model_class.DoesNotExist:
         return Response({'error': 'El objeto relacionado no se encontró.'}, status=status.HTTP_404_NOT_FOUND)
     except Status.DoesNotExist:
-        return Response({'error': 'Estatus no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Estatus no encontrado.'}, status=status.HTTP_404_BAD_REQUEST)
+
 #-----------------------------------------------------------------------------------------------------
 # Autenticación
 #-----------------------------------------------------------------------------------------------------   
@@ -787,17 +788,40 @@ class ReactionIndexCreateAPIView(APIView):
         except Exception as e:
             return handle_exception(e)
     def post(self, request):
-        try:
-            user = request.user
-            data = request.data.copy()  # Copia los datos del request para agregar el usuario
-            data['user'] = user.id  # Agrega el ID del usuario al diccionario de datos
+        user = request.user
+        data = request.data.copy()  # Copia los datos del request para agregar el usuario
+        data['user'] = user.id  # Agrega el ID del usuario al diccionario de datos
 
+        # Validar content_type y object_id
+        content_type_id = data.get('content_type')
+        object_id = data.get('object_id')
+
+        # Inicializamos variables para verificar el content_type y object_id
+        content_type = None
+        obj = None
+
+        try:
+            # Verificar que el ContentType exista
+            content_type = ContentType.objects.get(id=content_type_id)
+
+            # Verificar que el objeto relacionado exista
+            model_class = content_type.model_class()
+            obj = model_class.objects.get(id=object_id)
+                    # Si ambas validaciones son exitosas, proceder con la serialización y guardado
             serializer = ReactionSerializer(data=data)  # Pasa los datos con el usuario al serializer
+
             if serializer.is_valid():
                 reaction = serializer.save()  # Guarda la reacción
                 return Response({'message': 'Reacción creada exitosamente.'}, status=status.HTTP_201_CREATED)
             else:
                 return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except ContentType.DoesNotExist:
+            return Response({'error': 'ContentType no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except model_class.DoesNotExist:
+            return Response({'error': 'El objeto relacionado no se encontró.'}, status=status.HTTP_404_NOT_FOUND)
+        # Manejo de excepciones generales
         except Exception as e:
             return handle_exception(e)
 
@@ -946,6 +970,12 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
         try:
             # Obtener el post_id de la publicación padre desde request.data
             post_id = request.data.get('post_id')
+            
+            if post_id and not Post.objects.filter(pk=post_id).exists():
+                return Response(
+                    {'error': 'El ID de la publicación no está registrado.'}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
             # Separar archivos y otros datos
             file_list = request.FILES.getlist('file')  # Obtiene la lista de archivos, si existen
@@ -1184,6 +1214,12 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
             
     def post(self, request):
         try:
+            comment_id = request.data.get('comment_id')
+            if comment_id and not Comment.objects.filter(pk=comment_id).exists():
+                return Response(
+                    {'error': 'El ID del comentario no está registrado.'}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
             # Separar el archivo y otros datos
             file_data = request.FILES.get('file')  # Obtiene el archivo, si existe
             other_data = {k: v for k, v in request.data.items() if k != 'file'}
@@ -1405,14 +1441,19 @@ class HistoryDetailAPIView(APIView, FileUploadMixin):
             # Obtener la historia usando el pk
             history = History.objects.get(pk=pk)
 
-            # Marcar la historia como archivada
-            history.archive = True
-            history.soft_delete()  # Realiza un soft delete
-            
+            if history.archive:
+                history.archive = False
+                history.restore()  # Restaurar si ya estaba archivada
+                message = 'La historia ha sido desarchivada correctamente.'
+            else:
+                history.archive = True
+                history.soft_delete()  # Archivar si no estaba archivada
+                message = 'La historia ha sido archivada correctamente.'
+
             # Guardar los cambios
             history.save()
 
-            return Response({'message': 'La historia ha sido archivada correctamente.'}, status=status.HTTP_200_OK)
+            return Response({'message': message}, status=status.HTTP_200_OK)
 
         except History.DoesNotExist:
             return Response({'error': 'El ID de la historia no está registrada.'}, status=status.HTTP_404_NOT_FOUND)
