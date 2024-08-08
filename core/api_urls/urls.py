@@ -81,5 +81,11 @@ urlpatterns = [
     path('comment/', CommentIndexCreateAPIView.as_view(), name='comment'),
     path('comment/<int:pk>/', CommentDetailAPIView.as_view(), name='comment-detail'),
     
+#--------------------------------------------------------------------------------------------------#
+# Historias
+#--------------------------------------------------------------------------------------------------#
+    path('history/', HistoryIndexCreateAPIView.as_view(), name='history'),
+    path('history/<int:pk>/', HistoryDetailAPIView.as_view(), name='history-detail'),
+    
 
 ]

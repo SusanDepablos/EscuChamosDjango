@@ -245,3 +245,24 @@ class Comment(TimestampedMixin, SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return f'{self.user} comentó en {self.post}'
+    
+#-----------------------------------------------------------------------------------------------------
+# Historia
+#-----------------------------------------------------------------------------------------------------    
+class History(TimestampedMixin, SoftDeleteMixin, models.Model):
+    content = models.TextField(null=True, blank=True, verbose_name='Contenido')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='histories', verbose_name='Usuario')
+    archive = models.BooleanField(default=False, verbose_name='Archivado')
+    status = models.ForeignKey(Status, on_delete=models.PROTECT, verbose_name='Estado')
+    post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE, related_name='histories', verbose_name='Publicación')
+
+    file = GenericRelation(File)
+    reports = GenericRelation(Report)
+    reactions = GenericRelation(Reaction)
+    class Meta:
+        db_table = 'histories'
+        verbose_name = 'Historia'
+        verbose_name_plural = 'Historias'
+
+    def __str__(self):
+        return f'Historia {self.id} de usuario {self.user_id}'

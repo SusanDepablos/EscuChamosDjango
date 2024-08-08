@@ -1300,8 +1300,145 @@ class CommentDetailAPIView(APIView, FileUploadMixin):
             return Response({'message': 'El comentario ha sido eliminado correctamente.'}, status=status.HTTP_204_NO_CONTENT)
 
         except Comment.DoesNotExist:
-            return Response({'error': 'El ID de comentario no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'El ID del comentario no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)    
         
+#-----------------------------------------------------------------------------------------------------
+# Historias
+#-----------------------------------------------------------------------------------------------------
+class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_history'
+
+    def get(self, request):
+        try:
+            histories = History.objects.all()
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_history = pagination.paginate_queryset(histories, request)
+                serializer = CommentSerializer(paginated_history, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = HistorySerializer(histories, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+            
+    def post(self, request):
+        try:
+            # Separar el archivo y otros datos
+            file_data = request.FILES.get('file')  
+            content_data = request.data.get('content')
+            post_id = request.data.get('post_id')
+            other_data = {k: v for k, v in request.data.items() if k != 'file'}
+
+            # Asignar datos adicionales al diccionario
+            other_data['user_id'] = request.user.id
+            other_data['status_id'] = 1
+            
+            # Crear una instancia del serializer con los datos restantes
+            serializer = HistorySerializer(data=other_data)
+
+            if serializer.is_valid():
+                errors = {}
+
+                # Validar que se proporcione al menos uno de los campos
+                if not file_data and not (content_data or post_id):
+                    errors['content'] = ['Este campo es requerido.']
+                
+                if errors:
+                    return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+                # Guardar la historia
+                history_instance = serializer.save()
+
+                # Si hay un archivo, procesarlo y guardarlo
+                if file_data:
+                    # Lógica para guardar el archivo usando FileUploadMixin
+                    file_info = self.put_file(file_data, 'histories')
+
+                    # Crear instancia de File asociada a la historia
+                    File.objects.create(
+                        content_object=history_instance,  # Relaciona el archivo con la historia
+                        path=file_info['path'],
+                        extension=file_info['extension'],
+                        size=file_info['size'],
+                        type=file_info['type']
+                    )
+
+                return Response({'message': 'Historia creada exitosamente.'}, status=status.HTTP_201_CREATED)
+
+            return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Manejo de excepciones
+            return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Información de Historias
+#-----------------------------------------------------------------------------------------------------
+class HistoryDetailAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_history'
+
+    def get(self, request, pk):
+        try:
+            # Obtener la historia usando el pk
+            history = History.objects.get(pk=pk)
+
+            # Serializar los datos de la historia
+            serializer = HistorySerializer(history, context={'request': request})
+
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except history.DoesNotExist:
+            return Response({'error': 'El ID de la historia no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+    def put(self, request, pk):
+        try:
+            # Obtener la historia usando el pk
+            history = History.objects.get(pk=pk)
+
+            # Marcar la historia como archivada
+            history.archive = True
+            history.soft_delete()  # Realiza un soft delete
+            
+            # Guardar los cambios
+            history.save()
+
+            return Response({'message': 'La historia ha sido archivada correctamente.'}, status=status.HTTP_200_OK)
+
+        except History.DoesNotExist:
+            return Response({'error': 'El ID de la historia no está registrada.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+        
+    def delete(self, request, pk):
+        try:
+            # Obtener el comentario usando el pk
+            history = History.objects.get(pk=pk)
+            has_files = history.file.exists()  # Verificar si la historia tiene archivos asociados
+
+            # Eliminar archivos asociados si existen
+            if has_files:
+                files = history.file.all()  # Obtener todos los archivos asociados a la historia
+                for file in files:
+                    self.delete_file(file.path)  # Eliminar el archivo del sistema
+                    file.delete()  # Eliminar el registro del archivo de la base de datos
+
+            # Eliminar la historia
+            history.delete()
+
+            return Response({'message': 'La historia ha sido eliminada correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+
+        except History.DoesNotExist:
+            return Response({'error': 'El ID de la historia no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e) 
         

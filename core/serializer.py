@@ -543,3 +543,54 @@ class ShareSerializer(serializers.ModelSerializer):
                 'post': representation['post'],
             }
         }
+#-----------------------------------------------------------------------------------------------------
+# Historia
+#-----------------------------------------------------------------------------------------------------     
+class HistorySerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+    status = StatusSerializer(read_only=True)
+    status_id = serializers.PrimaryKeyRelatedField(queryset=Status.objects.all(), write_only=True, source='status')
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), required=False, allow_null=True, write_only=True, source='post')
+    post = PostSerializer(read_only=True)
+    file = FileSerializer(many=True, read_only=True)
+    reports = ReportSerializer(many=True, read_only=True)
+    reactions = ReactionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = History
+        fields = ['id', 
+                'content', 
+                'archive',
+                'user_id', 
+                'status_id',
+                'status', 
+                'post',
+                'post_id',
+                'file',
+                'reports',
+                'reactions',
+                'created_at', 
+                'updated_at', 
+                'deleted_at', 
+                ]
+
+    def to_representation(self, instance):
+        user_representation = get_user_with_profile_photo(instance.user, self.context)
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'content': representation['content'],
+                'archive': representation['archive'],
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+            'relationships': {
+                'user': user_representation,
+                'status': representation['status'],
+                'post': representation['post'],
+                'file': representation['file'],
+                'reports': representation['reports'],
+                'reactions': representation['reactions'],
+            }
+        }
