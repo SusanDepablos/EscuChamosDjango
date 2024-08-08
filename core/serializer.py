@@ -166,15 +166,13 @@ class FollowSerializer(serializers.ModelSerializer):
 # Reacciones
 #-----------------------------------------------------------------------------------------------------
 class ReactionSerializer(serializers.ModelSerializer):
-    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, allow_null=True, source='user')
-
     class Meta:
         model = Reaction
         fields = (
             'id', 
             'content_type',
             'object_id',
-            'user_id',
+            'user',
             'created_at',
             'updated_at',
             'deleted_at',
@@ -208,6 +206,7 @@ class ReportSerializer(serializers.ModelSerializer):
             'content_type',
             'object_id',
             'observation',
+            'user',
             'created_at',
             'updated_at',
             'deleted_at',
@@ -391,4 +390,61 @@ class TypePostSerializer(serializers.ModelSerializer):
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
+        }
+#-----------------------------------------------------------------------------------------------------
+# Publicación
+#-----------------------------------------------------------------------------------------------------       
+class PostSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+    status = StatusSerializer(read_only=True)
+    status_id = serializers.PrimaryKeyRelatedField(queryset=Status.objects.all(), write_only=True, source='status')
+    type_post = TypePostSerializer(read_only=True)
+    type_post_id = serializers.PrimaryKeyRelatedField(queryset=TypePost.objects.all(), write_only=True, source='type_post')
+    files = FileSerializer(many=True, read_only=True)
+    reposts = serializers.SerializerMethodField()
+    reports = ReportSerializer(many=True, read_only=True)
+    reactions = ReactionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Post
+        fields = ['id', 
+                'body', 
+                'user_id', 
+                'status_id',
+                'status', 
+                'type_post_id', 
+                'type_post',
+                'reposts', 
+                'files',
+                'reports',
+                'reactions',
+                'created_at', 
+                'updated_at', 
+                'deleted_at', 
+                ]
+
+    def get_reposts(self, obj):
+            # Método para obtener las respuestas (reposts) de cada post
+            reposts = obj.reposts.all()  # Obtener todas las respuestas relacionadas con este post
+            return PostSerializer(reposts, many=True).data
+
+    def to_representation(self, instance):
+        user_representation = get_user_with_profile_photo(instance.user, self.context)
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'body': representation['body'],
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+            'relationships': {
+                'user': user_representation,
+                'status': representation['status'],
+                'type_post': representation['type_post'],
+                'files': representation['files'],
+                'reposts': representation['reposts'],
+                'reports': representation['reports'],
+                'reactions': representation['reactions'],
+            }
         }

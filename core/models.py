@@ -188,3 +188,26 @@ class Report(TimestampedMixin, SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return f'{self.user.username} reporto a {self.content_type} con ID {self.object_id}'
+    
+#-----------------------------------------------------------------------------------------------------
+# Publicación
+#-----------------------------------------------------------------------------------------------------
+class Post(TimestampedMixin, SoftDeleteMixin, models.Model):
+    body = models.TextField(null=True, blank=True, verbose_name='Cuerpo')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario', related_name='posts')
+    type_post = models.ForeignKey(TypePost, on_delete=models.PROTECT, verbose_name='Tipo de Publicación', related_name='posts')
+    status = models.ForeignKey(Status, on_delete=models.PROTECT, verbose_name='Estado', related_name='post')
+    post = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='reposts', verbose_name='Publicación Padre')
+
+    files = GenericRelation(File)
+    reports = GenericRelation(Report)
+    reactions = GenericRelation(Reaction)
+    
+    class Meta:
+        db_table = 'posts'
+        verbose_name = 'Publicación'
+        verbose_name_plural = 'Publicaciones'
+        
+    def __str__(self):
+        return self.body
+    

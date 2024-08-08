@@ -30,8 +30,8 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
 # Usuario-Seguimiento
 #--------------------------------------------------------------------------------------------------#
-    path('follow/', FollowUserAPIView.as_view(), name='follow-user'),
-    path('follow/<int:pk>/', ShowUserFollowersFollowingAPIView.as_view(), name='follow-show'),
+    path('follow/', FollowUserIndexCreateAPIView.as_view(), name='follow-user'),
+    path('follow/<int:pk>/', FollowUserDetailAPIView.as_view(), name='follow-detail'),
 
 #--------------------------------------------------------------------------------------------------#
 # Paises
@@ -52,9 +52,21 @@ urlpatterns = [
     path('type-post/<int:pk>/', TypePostShowAPIView.as_view(), name='type-post-show'),
     
 #--------------------------------------------------------------------------------------------------#
+# Reacciones
+#--------------------------------------------------------------------------------------------------#
+    path('reaction/', ReactionIndexCreateAPIView.as_view(), name='reaction'),
+    path('reaction/<int:pk>/', ReactionDetailAPIView.as_view(), name='reaction-detail'),
+    
+#--------------------------------------------------------------------------------------------------#
 # Reportes
 #--------------------------------------------------------------------------------------------------#
-    path('report/', ReportAPIView.as_view(), name='report'),
+    path('report/', ReportIndexCreateAPIView.as_view(), name='report'),
     path('report/<int:pk>/', ReportShowAPIView.as_view(), name='report-show'),
+    
+#--------------------------------------------------------------------------------------------------#
+# Publicaciones
+#--------------------------------------------------------------------------------------------------#
+    path('post/', PostIndexCreateAPIView.as_view(), name='post'),
+    path('post/<int:pk>/', PostDetailAPIView.as_view(), name='post-detail'),
 
 ]

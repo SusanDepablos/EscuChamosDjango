@@ -3,7 +3,11 @@ from django.utils import timezone
 from django.conf import settings
 import os
 import math
+import uuid
 
+#-----------------------------------------------------------------------------------------------------
+# Fecha de creado y fecha de actualizado
+#-----------------------------------------------------------------------------------------------------
 class TimestampedMixin(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Fecha de Actualización')
@@ -15,6 +19,9 @@ class TimestampedMixin(models.Model):
         self.updated_at = timezone.now()
         super().save(*args, **kwargs)
         
+#-----------------------------------------------------------------------------------------------------
+# Borrado suave
+#-----------------------------------------------------------------------------------------------------
 class SoftDeleteMixin(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True, verbose_name='Fecha de Borrado')
 
@@ -33,21 +40,27 @@ class SoftDeleteMixin(models.Model):
     def is_deleted(self):
         return self.deleted_at is not None
     
+#-----------------------------------------------------------------------------------------------------
+# Subir y eliminar archivos
+#-----------------------------------------------------------------------------------------------------
 class FileUploadMixin:
     def store_file(self, destination_path, uploaded_file):
         media_root = settings.MEDIA_ROOT
-        file_name = uploaded_file.name
-        file_path = os.path.join(media_root, destination_path, file_name)
+        
+        # Generar un nombre único para el archivo basado solo en UUID
+        file_extension = uploaded_file.name.split('.')[-1]
+        unique_filename = f"{uuid.uuid4()}.{file_extension}"
+        file_path = os.path.join(media_root, destination_path, unique_filename)
         
         # Asegurarse de que el directorio de destino exista
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         
+        # Guardar el archivo
         with open(file_path, 'wb+') as destination:
             for chunk in uploaded_file.chunks():
                 destination.write(chunk)
         
-        return os.path.normpath(os.path.join(destination_path, file_name)).replace('\\', '/')
-
+        return os.path.normpath(os.path.join(destination_path, unique_filename)).replace('\\', '/')
     def put_file(self, uploaded_file, destination_path='', file_type=''):
         destination_path = destination_path if destination_path else ''
         path = self.store_file(destination_path, uploaded_file)

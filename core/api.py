@@ -34,7 +34,7 @@ def handle_exception(e):
     return Response({
         'data': {
             'code': status.HTTP_500_INTERNAL_SERVER_ERROR,
-            'title': ['Se produjo un error interno'],
+            'title': ['Se produjo un error interno.'],
             'errors': str(e)
         }
     }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -69,17 +69,41 @@ def send_email(subject, template_name, context, recipient_list):
 def validate_and_update_password(user, new_password):
     # Validar nueva contraseña
     if len(new_password) < 8:
-        return {'validation': 'La nueva contraseña debe tener al menos 8 caracteres'}, status.HTTP_400_BAD_REQUEST
+        return {'validation': 'La nueva contraseña debe tener al menos 8 caracteres.'}, status.HTTP_400_BAD_REQUEST
 
     if not any(char.isdigit() for char in new_password) or not any(char.isalpha() for char in new_password):
-        return {'validation': 'La nueva contraseña debe ser alfanumérica'}, status.HTTP_400_BAD_REQUEST
+        return {'validation': 'La nueva contraseña debe ser alfanumérica.'}, status.HTTP_400_BAD_REQUEST
 
     # Actualizar la contraseña
     user.password = make_password(new_password)
     user.save()
     
-    return {'message': 'Contraseña actualizada exitosamente'}, status.HTTP_200_OK
+    return {'message': 'Contraseña actualizada exitosamente.'}, status.HTTP_200_OK
 
+#-----------------------------------------------------------------------------------------------------
+# Función para cambiar estado de un modelo
+#-----------------------------------------------------------------------------------------------------
+
+def update_object_status(content_type_id, object_id, status_id):
+    try:
+        # Obtener el modelo del objeto a partir del content_type
+        content_type = ContentType.objects.get(id=content_type_id)
+        model_class = content_type.model_class()
+        
+        # Obtener el objeto a partir del object_id
+        obj = model_class.objects.get(id=object_id)
+        
+        # Asegúrate de que el modelo tenga un campo de estado y actualízalo
+        if hasattr(obj, 'status'):
+            obj.status = Status.objects.get(id=status_id)  # Obtén el estado por ID
+            obj.save()
+            return Response({'message': 'Reporte creado exitosamente.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'El objeto no tiene un campo de estado.'}, status=status.HTTP_400_BAD_REQUEST)
+    except model_class.DoesNotExist:
+        return Response({'error': 'El objeto relacionado no se encontró.'}, status=status.HTTP_404_NOT_FOUND)
+    except Status.DoesNotExist:
+        return Response({'error': 'Estatus no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------------------------------------------------
 # Autenticación
 #-----------------------------------------------------------------------------------------------------   
@@ -104,15 +128,15 @@ class UserLoginAPIView(APIView):
                     token, created = Token.objects.get_or_create(user=user)
                     groups = user.groups.values_list('id', flat=True)  # Obtiene los nombres de los grupos del usuario
                     return Response({
-                        'message': 'Inicio de sesión exitoso',
+                        'message': 'Inicio de sesión exitoso.',
                         'token': token.key,
                         'user': user.id,
                         'groups': list(groups),  # Convertir a lista para la respuesta JSON
                     }, status=status.HTTP_200_OK)
                 else:
-                    return Response({'error': 'Este usuario está inactivo'}, status=status.HTTP_401_UNAUTHORIZED)
+                    return Response({'error': 'Este usuario está inactivo.'}, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                return Response({'validation': 'Nombre de usuario o contraseña inválidos'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'Nombre de usuario o contraseña inválidos.'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return handle_exception(e)
 
@@ -128,7 +152,7 @@ class UserLogoutAPIView(APIView):
         try:
             Token.objects.filter(user=request.user).delete()
             logout(request)
-            return Response({'message': 'Sesión cerrada exitosamente'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Sesión cerrada exitosamente.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return handle_exception(e)
 
@@ -149,7 +173,7 @@ class UserRegisterAPIView(APIView):
                     {'username': user.username, 'verification_code': verification_code, 'user_email': user.email},
                     [user.email]
                 )
-                return Response({'message': 'Se ha enviado un correo electrónico de verificación'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Se ha enviado un correo electrónico de verificación.'}, status=status.HTTP_200_OK)
             return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return handle_exception(e)
@@ -162,7 +186,7 @@ class ResendVerificationCodeAPIView(APIView):
         try:
             user_email = request.data.get('user_email')
             if not user_email:
-                return Response({'validation': 'El campo email es obligatorio'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'El campo email es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
             
             user = User.objects.filter(email=user_email).first()
             
@@ -178,8 +202,8 @@ class ResendVerificationCodeAPIView(APIView):
                     [user.email]
                 )
                 
-                return Response({'message': 'Se ha enviado un nuevo correo electrónico de verificación'}, status=status.HTTP_200_OK)
-            return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': 'Se ha enviado un nuevo correo electrónico de verificación.'}, status=status.HTTP_200_OK)
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
         
@@ -197,11 +221,11 @@ class EmailVerificationAPIView(APIView):
                 user.is_active = True
                 user.is_email_verified = True
                 user.save()
-                return Response({'message': 'Tu dirección de correo electrónico ha sido verificada correctamente'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Tu dirección de correo electrónico ha sido verificada correctamente.'}, status=status.HTTP_200_OK)
             else:
-                return Response({'validation': 'El código de verificación es incorrecto'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'El código de verificación es incorrecto.'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
-                return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
 
@@ -213,7 +237,7 @@ class RecoverAccountAPIView(APIView):
         try:
             user_email = request.data.get('user_email')
             if not user_email:
-                return Response({'validation': 'El campo email es obligatorio'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'El campo email es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
 
             user = User.objects.filter(email=user_email).first()
 
@@ -229,8 +253,8 @@ class RecoverAccountAPIView(APIView):
                     [user.email]
                 )
                 
-                return Response({'message': 'Se ha enviado un correo electrónico de recuperación de cuenta'}, status=status.HTTP_200_OK)
-            return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': 'Se ha enviado un correo electrónico de recuperación de cuenta.'}, status=status.HTTP_200_OK)
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
         
@@ -247,17 +271,17 @@ class RecoverAccountVerificationAPIView(APIView):
 
             if user.verification_code == verification_code:
                 if user.is_email_verified:
-                    return Response({'message': 'El código ha sido verificado correctamente'}, status=status.HTTP_200_OK)
+                    return Response({'message': 'El código ha sido verificado correctamente.'}, status=status.HTTP_200_OK)
                 
                 user.is_active = True
                 user.is_email_verified = True
                 user.save()
-                return Response({'message': 'El código ha sido verificado correctamente'}, status=status.HTTP_200_OK)
+                return Response({'message': 'El código ha sido verificado correctamente.'}, status=status.HTTP_200_OK)
             else:
-                return Response({'validation': 'El código de verificación es incorrecto'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'El código de verificación es incorrecto.'}, status=status.HTTP_400_BAD_REQUEST)
 
         except User.DoesNotExist:
-            return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
         
@@ -270,7 +294,7 @@ class RecoverAccountChangePasswordAPIView(APIView):
         new_password = request.data.get('new_password')
 
         if not new_password:
-            return Response({'validation': 'El campo contraseña es obligatorio'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'validation': 'El campo contraseña es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = User.objects.get(email=user_email)
@@ -278,7 +302,7 @@ class RecoverAccountChangePasswordAPIView(APIView):
             return Response(response, status=status_code)
 
         except User.DoesNotExist:
-            return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
 #-----------------------------------------------------------------------------------------------------
@@ -338,7 +362,7 @@ class UserUpdateAPIView(APIView):
             serializer = UserSerializer(user, data=data, partial=True)  # Permitir actualizaciones parciales
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'Usuario actualizado exitosamente'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Usuario actualizado exitosamente.'}, status=status.HTTP_200_OK)
             else:
                 return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
@@ -356,7 +380,7 @@ class UserShowAPIView(APIView):
         try:
             user = User.objects.filter(pk=pk).first()
             if not user:
-                return Response({'error': 'El ID de usuario no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'error': 'El ID de usuario no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
             serializer = UserSerializer(user, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
@@ -376,12 +400,12 @@ class UserChangePasswordAPIView(APIView):
         new_password = request.data.get('new_password')
 
         if not old_password or not new_password:
-            return Response({'validation': 'Los campos de contraseña anterior y nueva contraseña son obligatorios'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'validation': 'Los campos de contraseña anterior y nueva contraseña son obligatorios.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             # Validar la contraseña anterior
             if not check_password(old_password, user.password):
-                return Response({'validation': 'La contraseña anterior no es correcta'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'La contraseña anterior no es correcta.'}, status=status.HTTP_400_BAD_REQUEST)
 
             response, status_code = validate_and_update_password(user, new_password)
             return Response(response, status=status_code)
@@ -405,10 +429,10 @@ class UserUploadPhotoAPIView(APIView, FileUploadMixin):
             file_type = request.data.get('type')  # Tipo de archivo en la solicitud
 
             if not file_data:
-                return Response({'validation': 'Sube un archivo'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'Sube un archivo.'}, status=status.HTTP_400_BAD_REQUEST)
 
             if file_type not in ['cover', 'profile']:
-                return Response({'validation': 'El tipo de archivo es inválido. Solo se permiten "cover" o "profile"'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'El tipo de archivo es inválido. Solo se permiten "cover" o "profile".'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Verificar si ya existe un archivo del mismo tipo para el usuario
             existing_file = user.files.filter(type=file_type).first()
@@ -432,10 +456,7 @@ class UserUploadPhotoAPIView(APIView, FileUploadMixin):
                     size=file_info['size'],
                     type=file_info['type']
                 )
-
-            # Ajusta según tu estructura de serializadores
-            serializer = FileSerializer(file_instance, context={'request': request})
-            return Response({'message': 'El archivo ha sido subido correctamente', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'La foto se ha subido exitosamente.'}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return handle_exception(e)
@@ -456,19 +477,40 @@ class UserUploadPhotoAPIView(APIView, FileUploadMixin):
 
                 # Eliminar el registro del archivo de la base de datos
                 existing_file.delete()
-                return Response({'message': 'El archivo ha sido eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
+                return Response({'message': 'La foto ha sido eliminada correctamente.'}, status=status.HTTP_204_NO_CONTENT)
             else:
-                return Response({'error': 'No se encontró un archivo de este tipo para el usuario'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'error': 'No se encontró la foto.'}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             return handle_exception(e)
         
 #-----------------------------------------------------------------------------------------------------
+# Seguimientos
+#-----------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------
 # Seguir y dejar de seguir
 #-----------------------------------------------------------------------------------------------------
-class FollowUserAPIView(APIView):
+class FollowUserIndexCreateAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            follows = Follow.objects.all()
+            
+            # Aplicar paginación si se requiere
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_follows = pagination.paginate_queryset(follows, request)
+                serializer = FollowSerializer(paginated_follows, many=True, context={'request': request})
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            # Serializar todos los seguimientos
+            serializer = FollowSerializer(follows, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
 
     def post(self, request):
         try:
@@ -479,21 +521,19 @@ class FollowUserAPIView(APIView):
             followed_user_id = request.data.get('followed_user_id')
 
             if not followed_user_id:
-                return Response({'validation': 'El ID del usuario a seguir es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'El ID del usuario a seguir es requerido.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            try:
-                followed_user = User.objects.get(id=followed_user_id)
-            except User.DoesNotExist:
-                return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+            # Obtener el usuario a seguir
+            followed_user = User.objects.get(id=followed_user_id)
 
             if user.id == followed_user.id:
-                return Response({'validation': 'No puedes seguirte a ti mismo'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'No puedes seguirte a ti mismo.'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Verificar si ya sigue a este usuario
             existing_follow = Follow.objects.filter(following_user=user, followed_user=followed_user).first()
 
             if existing_follow:
-                return Response({'error': 'Ya sigues a este usuario'}, status=status.HTTP_409_CONFLICT)
+                return Response({'error': 'Ya sigues a este usuario.'}, status=status.HTTP_409_CONFLICT)
 
             # Crear una nueva relación de seguimiento
             follow_instance = Follow.objects.create(following_user=user, followed_user=followed_user)
@@ -501,72 +541,22 @@ class FollowUserAPIView(APIView):
             # Serializar la relación creada
             serializer = FollowSerializer(follow_instance)
 
-            return Response({'message': 'Ahora sigues a este usuario'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Ahora sigues a este usuario.'}, status=status.HTTP_201_CREATED)
         
+        except User.DoesNotExist:
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
-
-    def delete(self, request):
-        try:
-            # Obtener el usuario autenticado
-            user = request.user
-            
-            # Obtener el ID del usuario a dejar de seguir desde los datos de la solicitud
-            followed_user_id = request.data.get('followed_user_id')
-
-            if not followed_user_id:
-                return Response({'validation': 'El ID del usuario a dejar de seguir es requerido'}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                followed_user = User.objects.get(id=followed_user_id)
-            except User.DoesNotExist:
-                return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-
-            if user.id == followed_user.id:
-                return Response({'validation': 'No puedes dejar de seguirte a ti mismo'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Verificar si existe una relación de seguimiento
-            follow_instance = Follow.objects.filter(following_user=user, followed_user=followed_user).first()
-
-            if not follow_instance:
-                return Response({'validation': 'No estás siguiendo a este usuario'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Eliminar la relación de seguimiento
-            follow_instance.delete()
-
-            return Response({'message': 'Has dejado de seguir a este usuario'}, status=status.HTTP_204_NO_CONTENT)
         
-        except Exception as e:
-            return handle_exception(e)
-    def get(self, request):
-            try:
-                follows = Follow.objects.all()
-                
-                # Aplicar paginación si se requiere
-                if 'pag' in request.query_params:
-                    pagination = CustomPagination()
-                    paginated_follows = pagination.paginate_queryset(follows, request)
-                    serializer = FollowSerializer(paginated_follows, many=True, context={'request': request})
-                    return pagination.get_paginated_response({'data': serializer.data})
-                
-                # Serializar todos los seguimientos
-                serializer = FollowSerializer(follows, many=True, context={'request': request})
-                return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-
-            except Exception as e:
-                return handle_exception(e)
-        
-class ShowUserFollowersFollowingAPIView(APIView):
+class FollowUserDetailAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
         try:
-            try:
-                user = User.objects.filter(pk=pk).first()
-            except User.DoesNotExist:
-                return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-
+            # Obtener el usuario usando el pk en la URL
+            user = User.objects.get(pk=pk)
+            
             # Obtener seguidores y seguidos
             following = Follow.objects.filter(following_user=user)
             followers = Follow.objects.filter(followed_user=user)
@@ -581,14 +571,42 @@ class ShowUserFollowersFollowingAPIView(APIView):
                     'followers': followers_serializer.data,
                 }
             }, status=status.HTTP_200_OK)
+        
+        except User.DoesNotExist:
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+    
+    def delete(self, request, pk):
+        try:
+            # Obtener el usuario autenticado
+            user = request.user
+            
+            # Obtener el usuario a dejar de seguir usando el pk en la URL
+            followed_user = User.objects.get(id=pk)
+            
+            if user.id == followed_user.id:
+                return Response({'validation': 'No puedes dejar de seguirte a ti mismo.'}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Verificar si existe una relación de seguimiento
+            follow_instance = Follow.objects.filter(following_user=user, followed_user=followed_user).first()
+
+            if not follow_instance:
+                return Response({'validation': 'No estás siguiendo a este usuario.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Eliminar la relación de seguimiento
+            follow_instance.delete()
+
+            return Response({'message': 'Has dejado de seguir a este usuario.'}, status=status.HTTP_204_NO_CONTENT)
+        
+        except User.DoesNotExist:
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
         
 #-----------------------------------------------------------------------------------------------------
 # Paises
 #-----------------------------------------------------------------------------------------------------
-
 #-----------------------------------------------------------------------------------------------------
 # Index Paises
 #-----------------------------------------------------------------------------------------------------
@@ -626,19 +644,22 @@ class CountryShowAPIView(APIView):
 
     def get(self, request, pk):
         try:
-            country = Country.objects.filter(pk=pk).first()
-            if not country:
-                return Response({'error': 'El ID de país no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+            # Obtener el país usando el pk
+            country = Country.objects.get(pk=pk)
+
+            # Serializar los datos del país
             serializer = CountrySerializer(country, context={'request': request})
+
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
+        except Country.DoesNotExist:
+            return Response({'error': 'El ID de país no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
             
 #-----------------------------------------------------------------------------------------------------
 # Estados
 #-----------------------------------------------------------------------------------------------------
-
 #-----------------------------------------------------------------------------------------------------
 # Index Estados
 #-----------------------------------------------------------------------------------------------------
@@ -676,20 +697,22 @@ class StatusShowAPIView(APIView):
 
     def get(self, request, pk):
         try:
-            status_p = Status.objects.filter(pk=pk).first()
-            if not status_p:
-                return Response({'error': 'El ID de estado no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+            # Obtener el estado usando el pk
+            status_p = Status.objects.get(pk=pk)
+
+            # Serializar los datos del estado
             serializer = StatusSerializer(status_p, context={'request': request})
+
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
+        except Status.DoesNotExist:
+            return Response({'error': 'El ID de estado no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
             
-           
 #-----------------------------------------------------------------------------------------------------
 # Tipos de publicación
 #-----------------------------------------------------------------------------------------------------
-
 #-----------------------------------------------------------------------------------------------------
 # Index Tipos de publicación
 #-----------------------------------------------------------------------------------------------------
@@ -727,24 +750,103 @@ class TypePostShowAPIView(APIView):
 
     def get(self, request, pk):
         try:
-            type_post = TypePost.objects.filter(pk=pk).first()
-            if not type_post:
-                return Response({'error': 'El ID de tipo de publicación no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+            # Obtener el tipo de publicación usando el pk
+            type_post = TypePost.objects.get(pk=pk)
+
+            # Serializar los datos del tipo de publicación
             serializer = TypePostSerializer(type_post, context={'request': request})
+
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
+        except TypePost.DoesNotExist:
+            return Response({'error': 'El ID de tipo de publicación no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+
+#-----------------------------------------------------------------------------------------------------
+# Reacciones
+#-----------------------------------------------------------------------------------------------------
+class ReactionIndexCreateAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_reaction'
+
+    def get(self, request):
+        try:
+            reaction = Reaction.objects.all()
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_reaction = pagination.paginate_queryset(reaction, request)
+                serializer = ReactionSerializer(paginated_reaction, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = ReactionSerializer(reaction, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+    def post(self, request):
+        try:
+            user = request.user
+            data = request.data.copy()  # Copia los datos del request para agregar el usuario
+            data['user'] = user.id  # Agrega el ID del usuario al diccionario de datos
+
+            serializer = ReactionSerializer(data=data)  # Pasa los datos con el usuario al serializer
+            if serializer.is_valid():
+                reaction = serializer.save()  # Guarda la reacción
+                return Response({'message': 'Reacción creada exitosamente.'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return handle_exception(e)
+
+#-----------------------------------------------------------------------------------------------------
+# Información de Reacciones
+#-----------------------------------------------------------------------------------------------------
+class ReactionDetailAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_reaction'
+
+    def get(self, request, pk):
+        try:
+            # Obtener la reacción usando el pk
+            reaction = Reaction.objects.get(pk=pk)
+
+            # Serializar los datos del reactione
+            serializer = ReactionSerializer(reaction, context={'request': request})
+
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Reaction.DoesNotExist:
+            return Response({'error': 'El ID del reacción no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+        
+    def delete(self, request, pk):
+        try:
+            # Obtener la reacción usando el pk
+            reaction = Reaction.objects.get(pk=pk)
+            
+            # Verifica si el usuario autenticado es el propietario de la reacción
+            if reaction.user != request.user:
+                return Response({'error': 'No tienes permiso para eliminar esta reacción.'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Eliminar la reacción
+            reaction.delete()
+
+            return Response({'message': 'La reacción ha sido eliminada correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+
+        except Reaction.DoesNotExist:
+            return Response({'error': 'El ID de la reacción no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
         
 #-----------------------------------------------------------------------------------------------------
 # Reportes
 #-----------------------------------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------------------------------
-# Index de Reportes
-#-----------------------------------------------------------------------------------------------------
-
-class ReportAPIView(APIView):
+class ReportIndexCreateAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     # required_permissions = 'view_report'
@@ -767,6 +869,28 @@ class ReportAPIView(APIView):
         
         except Exception as e:
             return handle_exception(e)
+    def post(self, request):
+        try:
+            user = request.user
+            data = request.data.copy()  # Copia los datos del request para agregar el usuario
+            data['user'] = user.id  # Agrega el ID del usuario al diccionario de datos
+
+            serializer = ReportSerializer(data=data)  # Pasa los datos con el usuario al serializer
+            if serializer.is_valid():
+                report = serializer.save()  # Guarda el reporte
+
+                # Llama a la función para actualizar el estado del objeto
+                response = update_object_status(
+                    report.content_type.id, 
+                    report.object_id, 
+                    6  # Estatus 6
+                )
+                
+                return response  # Retorna la respuesta de la función
+            else:
+                return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return handle_exception(e)
 
 #-----------------------------------------------------------------------------------------------------
 # Información de Reportes
@@ -778,12 +902,175 @@ class ReportShowAPIView(APIView):
 
     def get(self, request, pk):
         try:
-            report = Report.objects.filter(pk=pk).first()
-            if not report:
-                return Response({'error': 'El ID del reporte no está registrado'}, status=status.HTTP_404_NOT_FOUND)
+            # Obtener el reporte usando el pk
+            report = Report.objects.get(pk=pk)
+
+            # Serializar los datos del reporte
             serializer = ReportSerializer(report, context={'request': request})
+
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
+        except Report.DoesNotExist:
+            return Response({'error': 'El ID del reporte no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Publicaciones
+#-----------------------------------------------------------------------------------------------------
+class PostIndexCreateAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_post'
 
+    def get(self, request):
+        try:
+            posts = Post.objects.all()
+
+            post_filter = PostFilter(request.query_params, queryset=posts)
+            filtered_post = post_filter.qs
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_post = pagination.paginate_queryset(filtered_post, request)
+                serializer = PostSerializer(paginated_post, many=True)
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = PostSerializer(filtered_post, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+            
+    def post(self, request):
+        try:
+            # Obtener el post_id de la publicación padre desde request.data
+            post_id = request.data.get('post_id')
+
+            # Separar archivos y otros datos
+            file_list = request.FILES.getlist('file')  # Obtiene la lista de archivos, si existen
+            other_data = {k: v for k, v in request.data.items() if k != 'file'}
+
+            # Asignar datos adicionales al diccionario
+            other_data['user_id'] = request.user.id
+            other_data['status_id'] = 1
+
+            # Crear una instancia del serializer con los datos restantes
+            serializer = PostSerializer(data=other_data)
+
+            if serializer.is_valid():
+                type_post_id = int(request.data.get('type_post_id')[0])
+                errors = {}
+
+                if type_post_id == 2 and not file_list:
+                    errors['file'] = ['Este campo es requerido.']
+
+                if type_post_id == 1 and not request.data.get('body'):
+                    errors['body'] = ['Este campo es requerido.']
+
+                if errors:
+                    return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+                # Guardar la publicación asegurando que se pase post_id
+                post_instance = serializer.save(post_id=post_id)
+
+                if file_list:
+                    for index, file_data in enumerate(file_list):
+                        file_type = str(index + 1)  # Asignar el tipo de archivo según el índice
+
+                        # Lógica para guardar el archivo usando FileUploadMixin
+                        file_info = self.put_file(file_data, 'posts', file_type=file_type)
+
+                        # Crear instancia de File asociada a la publicación
+                        File.objects.create(
+                            content_object=post_instance,  # Relaciona el archivo con la publicación
+                            path=file_info['path'],
+                            extension=file_info['extension'],
+                            size=file_info['size'],
+                            type=file_info['type']
+                        )
+                    
+                return Response({'message': 'Publicación creada exitosamente.'}, status=status.HTTP_201_CREATED)
+
+            return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Manejo de excepciones
+            return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Información de Publicaciones
+#-----------------------------------------------------------------------------------------------------
+class PostDetailAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_post'
+
+    def get(self, request, pk):
+        try:
+            # Obtener la publicación usando el pk
+            post = Post.objects.get(pk=pk)
+
+            # Serializar los datos de la publicación
+            serializer = PostSerializer(post, context={'request': request})
+
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Post.DoesNotExist:
+            return Response({'error': 'El ID de publicación no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+        
+    def put(self, request, pk):
+        try:
+            # Obtener la publicación usando el pk
+            post = Post.objects.get(pk=pk)
+
+            # Obtener el nuevo valor para `body` y el tipo de publicación
+            new_body = request.data.get('body')
+            type_post_id = post.type_post_id
+
+            # Validar que el campo `body` sea proporcionado si el tipo de publicación es 1
+            if type_post_id == 1 and not new_body:
+                return Response({'validation': {'body': ['Este campo es requerido.']}}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Actualizar el campo `body` si se proporciona un nuevo valor
+            if new_body is not None:
+                post.body = new_body
+
+            # Guardar los cambios en la publicación
+            post.save()
+
+            # Serializar los datos actualizados de la publicación
+            serializer = PostSerializer(post, context={'request': request})
+
+            return Response({'message': 'Publicación actualizada exitosamente.'}, status=status.HTTP_200_OK)
+
+        except Post.DoesNotExist:
+            return Response({'error': 'El ID de publicación no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+    def delete(self, request, pk):
+        try:
+            # Obtener la publicación usando el pk
+            post = Post.objects.get(pk=pk)
+            type_post_id = post.type_post_id
+
+            # Eliminar archivos asociados si el tipo de publicación es 2
+            if type_post_id == 2:
+                files = post.files.all()  # Obtener todos los archivos asociados a la publicación
+                for file in files:
+                    self.delete_file(file.path)  # Eliminar el archivo del sistema
+                    file.delete()  # Eliminar el registro del archivo de la base de datos
+
+            # Eliminar la publicación
+            post.delete()
+
+            return Response({'message': 'La publicación ha sido eliminada correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+
+        except Post.DoesNotExist:
+            return Response({'error': 'El ID de publicación no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+        
+        
