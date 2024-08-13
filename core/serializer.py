@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import *
 from .models import *
 from django.contrib.auth.hashers import make_password
+from datetime import datetime
 
 #-----------------------------------------------------------------------------------------------------
 # Grupo o Roles
@@ -300,11 +301,26 @@ class RegisterSerializer(serializers.ModelSerializer):
         queryset=Country.objects.all(), write_only=True, source='country', required=False
     )
 
+    birthdate = serializers.CharField(required=False, allow_blank=True)
+
     def validate_password(self, value):
         if len(value) < 8:
             raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
         if not any(char.isdigit() for char in value) or not any(char.isalpha() for char in value):
             raise serializers.ValidationError("La contraseña debe ser alfanumérica.")
+        return value
+
+    def validate_birthdate(self, value):
+        # Verifica si el campo birthdate está vacío
+        if not value:
+            raise serializers.ValidationError("Este campo no puede estar en blanco.")
+
+        # Verifica el formato si el valor no está vacío
+        try:
+            datetime.strptime(value, '%Y-%m-%d')
+        except ValueError:
+            raise serializers.ValidationError("Fecha con formato erróneo. Use el formato YYYY-MM-DD.")
+        
         return value
 
     def create(self, validated_data):
@@ -324,6 +340,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
+
     class Meta:
         model = User
         fields = ['id', 'username', 'name', 'email', 'biography', 'password', 'phone_number',
@@ -332,9 +349,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
             'biography': {'required': False},
             'phone_number': {'required': False},
-            'birthdate': {'required': True},
+            'birthdate': {'required': False},
         }
-
 #-----------------------------------------------------------------------------------------------------
 # Estados
 #-----------------------------------------------------------------------------------------------------

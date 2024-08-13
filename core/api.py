@@ -116,9 +116,27 @@ def update_object_status(content_type_id, object_id, status_id):
 class UserLoginAPIView(APIView):
 
     def post(self, request):
+        # Obtener los datos del request
+        username = request.data.get('username', '').strip()
+        password = request.data.get('password', '').strip()
+        
+        # Inicializar un diccionario para almacenar los errores
+        errors = {}
+
+        # Validar el campo de nombre de usuario
+        if not username:
+            errors['username'] = ['Este campo no puede estar en blanco.']
+        
+        # Validar el campo de contraseña
+        if not password:
+            errors['password'] = ['Este campo no puede estar en blanco.']
+
+        # Si hay errores, devolverlos en la respuesta
+        if errors:
+            return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Si no hay errores, proceder con la lógica de autenticación
         try:
-            username = request.data.get('username')
-            password = request.data.get('password')
             username = username.lower()
             User = get_user_model()
             user = User.objects.filter(username=username, deleted_at__isnull=True).first()
