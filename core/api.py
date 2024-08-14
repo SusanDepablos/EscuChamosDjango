@@ -925,7 +925,7 @@ class ReportIndexCreateAPIView(APIView):
                 response = update_object_status(
                     report.content_type.id, 
                     report.object_id, 
-                    6  # Estatus 6
+                    2  # Estatus 2 "Reportado"
                 )
                 
                 return response  # Retorna la respuesta de la función

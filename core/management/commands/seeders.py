@@ -64,11 +64,10 @@ class Command(BaseCommand):
     def seed_statuses(self):
         statuses = [
             ('Activo', 'Estado normal sin infracciones'),
-            ('Infracción', 'Estado de infracción por violación de reglas'),
+            ('Reportado', 'Estado de contenido reportado'),
             ('En revisión', 'Estado de revisión pendiente'),
             ('Resuelto', 'Estado de infracción resuelto'),
             ('Bloqueado', 'Estado de contenido bloqueado'),
-            ('Reportado', 'Estado de contenido reportado'),
         ]
         for name, description in statuses:
             Status.objects.get_or_create(name=name, description=description)
