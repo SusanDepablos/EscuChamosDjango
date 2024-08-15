@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: escuchamos
-    env: python
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
-    startCommand: "gunicorn EscuChamosDjango.wsgi:application"
