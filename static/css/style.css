@@ -4,6 +4,12 @@ body {
   background-color: #ffffff;
 }
 
+.custom-span {
+  color: #d80032 !important;
+}
+.justificado {
+  text-align: justify;
+}
 .layout_padding {
   padding: 75px 0;
 }
@@ -33,7 +39,7 @@ body {
 }
 
 .custom_heading span {
-  color: #21d7ff;
+  color: #1d24ca;
 }
 
 /*header section*/
@@ -163,7 +169,7 @@ a:focus {
 /*end header section*/
 /* slider section */
 .slider_section {
-  background-image: url(../images/hero.jpg);
+  background-image: url(../images/fondo.jpg);
   padding: 6% 0;
   background-size: cover;
   background-repeat: no-repeat;
@@ -292,7 +298,7 @@ a:focus {
   width: 110px;
   height: 110px;
   border-radius: 100%;
-  background-color: #18d3ff;
+  background-color: #1d24ca;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -330,7 +336,7 @@ a:focus {
 }
 
 .gallery-section {
-  background-color: #0dc3ff;
+  background-color: #1d24ca;
 }
 
 .gallery-section .container {
@@ -432,7 +438,7 @@ a:focus {
 }
 
 .client_section .carousel-indicators li {
-  background-color: #0dc3ff;
+  background-color: #1d24ca;
 }
 
 .client_section .carousel-indicators .active {
@@ -489,7 +495,7 @@ a:focus {
 }
 
 .info_section {
-  background-color: #0dc3ff;
+  background-color:#1d24ca;
 }
 
 .info_items {
