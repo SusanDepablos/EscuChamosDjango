@@ -4,6 +4,10 @@ body {
   background-color: #ffffff;
 }
 
+.img{
+  width: 200px;
+  height: 200px;
+}
 .custom-span {
   color: #d80032 !important;
 }
@@ -34,6 +38,9 @@ body {
   padding-bottom: 75px;
 }
 
+table{
+  width: 95%;
+}
 .custom_heading {
   color: #030404;
 }
@@ -410,6 +417,17 @@ a:focus {
 .client_section .pl-100 {
   padding-left: 100px;
 }
+
+a {
+  color: #ffffff; /* Color del texto blanco */
+  background-color: transparent; /* Fondo transparente */
+  border: 2px solid #ffffff; /* Borde blanco */
+  padding: 5px 10px; /* Espaciado interno */
+  border-radius: 5px; /* Esquinas redondeadas */
+  text-transform: uppercase; /* Texto en mayúsculas */
+  text-decoration: none; /* Sin subrayado */
+}
+
 
 .client_section .client_container {
   width: 90%;

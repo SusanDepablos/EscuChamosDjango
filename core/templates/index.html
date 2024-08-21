@@ -34,67 +34,34 @@
 
 <body>
   <div class="hero_area">
-    <!-- header section strats -->
-    <header class="header_section">
-      <div class="container-fluid">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="index.html">
-            <img src="{% static 'images/logo2.png' %}" alt="">
-            <span>
-              EscuChamos
-            </span>
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            {% comment %} <div class="d-flex mx-auto flex-column flex-lg-row align-items-center">
-              <ul class="navbar-nav  ">
-                <li class="nav-item active">
-                  <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="service.html">service </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="pet.html">Pet's gallery </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="clinic.html"> clinic</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="contact.html">Contact us</a>
-                </li>
-              </ul>
-              <form class="form-inline my-2 my-lg-0 ml-0 ml-lg-4 mb-3 mb-lg-0">
-                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit"></button>
-              </form>
-            </div>
-            <div class="quote_btn-container  d-flex justify-content-center">
-              <form class="form-inline my-2 my-lg-0 ml-0 ml-lg-4 mb-3 mb-lg-0">
-                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit"></button>
-              </form>
-            </div> {% endcomment %}
-
-            <form class="form-inline my-2 my-lg-0 ml-0 ml-lg-4 mb-3 mb-lg-0">
-              <a href="/admin/" class="button">Ir al Admin</a>
-            </form>
-          </div> 
-        </nav>
-      </div>
-
-
-    </header>
-    <!-- end header section -->
-    <!-- slider section -->
+    
+  
     <section class=" slider_section position-relative">
+      
+      <table>
+        <tr>
+          <td>
+              <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg custom_nav-container ">
+                  
+                    <img src="{% static 'images/logo-blanco.png' %}" alt="" class="img">
+            
+                    <form class="form-inline my-2 my-lg-0 ml-auto mb-3 mb-lg-0">
+                      <a href="/admin/">Ir al Admin</a>
+                    </form>
+                  
+                </nav>
+              </div>
+          </td>
+        </tr>
+      </table>
+
       <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
         <ol class="carousel-indicators">
           <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
           <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
           <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+          <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
         </ol>
         <div class="carousel-inner">
           <div class="carousel-item active">
@@ -103,29 +70,29 @@
                 <div class="col-md-4 offset-md-2">
                   <div class="slider_detail-box">
                     <h1>
-                      NOSOTROS
-                      <span class="custom-span">
-                        Identidad 
+                      Professional
+                      <span>
+                        Care Your Pet
                       </span>
                     </h1>
-                    <p class="justificado">
-                     
-Somos una iniciativa vinculada a la educomunicación desde la perspectiva de la comunicación para el desarrollo, que busca promover entre las comunidades el liderazgo de mujeres y jóvenes, valiéndose de mecanismos para el análisis de su realidad y herramientas prácticas para configurar mejoras de su entorno desde los ciudadanos en especial entre niños, niñas, adolescentes, jóvenes y mujeres. Nace en 2021 con la intencionalidad de dar forma al movimiento de ciudadanos voluntarios que como grupo de trabajo se había conformado en la Ciudad de Rubio del Estado Táchira, como punto de partida. 
-
+                    <p>
+                      Lorem Ipsum is simply dummy text of the printing and
+                      typesetting industry.
+                      Lorem Ipsum has been the industry's standard dummy text ever
                     </p>
-                    {% comment %} <div class="btn-box">
+                    <div class="btn-box">
                       <a href="" class="btn-1">
                         Buy now
                       </a>
                       <a href="" class="btn-2">
                         Contact
                       </a>
-                    </div> {% endcomment %}
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="slider_img-box">
-                    <img src="{% static 'images/prueba.png' %}" alt="">
+                    <img src="images/slider-img.png" alt="">
                   </div>
                 </div>
               </div>
@@ -137,29 +104,29 @@ Somos una iniciativa vinculada a la educomunicación desde la perspectiva de la 
                 <div class="col-md-4 offset-md-2">
                   <div class="slider_detail-box">
                     <h1>
-                      NOSOTROS
-                      <span class="custom-span">
-                        Misión
+                      Professional
+                      <span>
+                        Care Your Pet
                       </span>
                     </h1>
-                    <p class="justificado">
-                      
-Buscamos alcanzar la promoción social con acciones que mejoren las capacidades individuales y colectivas en las comunidades desde la educación y las herramientas comunicacionales para el fortalecimiento de la identidad comunitaria, la vivencia de herramientas de resolución de conflictos y el emprendimiento para la reconstrucción del tejido social. 
-
+                    <p>
+                      Lorem Ipsum is simply dummy text of the printing and
+                      typesetting industry.
+                      Lorem Ipsum has been the industry's standard dummy text ever
                     </p>
-                    {% comment %} <div class="btn-box">
+                    <div class="btn-box">
                       <a href="" class="btn-1">
                         Buy now
                       </a>
                       <a href="" class="btn-2">
                         Contact
                       </a>
-                    </div> {% endcomment %}
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="slider_img-box">
-                    <img src="{% static 'images/prueba.png' %}" alt="">
+                    <img src="images/slider-img.png" alt="">
                   </div>
                 </div>
               </div>
@@ -171,33 +138,68 @@ Buscamos alcanzar la promoción social con acciones que mejoren las capacidades 
                 <div class="col-md-4 offset-md-2">
                   <div class="slider_detail-box">
                     <h1>
-                      NOSOTROS
-                      <span class="custom-span">
-                        Visión
+                      Professional
+                      <span>
+                        Care Your Pet
                       </span>
                     </h1>
-                    <p class="justificado">
-                      Constituirnos en una red de ciudadanos proactivos conectados en diversos puntos del país y del mundo desde la educomunicación con poder de convocatoria y movilización en las comunidades para gestionar intervención de los contextos desde los ciudadanos y su incidencia local, para alcanzar mejoras sostenibles de sus proyectos de vida individuales y colectivos.
+                    <p>
+                      Lorem Ipsum is simply dummy text of the printing and
+                      typesetting industry.
+                      Lorem Ipsum has been the industry's standard dummy text ever
                     </p>
-                    {% comment %} <div class="btn-box">
+                    <div class="btn-box">
                       <a href="" class="btn-1">
                         Buy now
                       </a>
                       <a href="" class="btn-2">
                         Contact
                       </a>
-                    </div> {% endcomment %}
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="slider_img-box">
-                    <img src="{% static 'images/prueba.png' %}" alt="">
+                    <img src="images/slider-img.png" alt="">
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          
+          <div class="carousel-item">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-4 offset-md-2">
+                  <div class="slider_detail-box">
+                    <h1>
+                      Professional
+                      <span>
+                        Care Your Pet
+                      </span>
+                    </h1>
+                    <p>
+                      Lorem Ipsum is simply dummy text of the printing and
+                      typesetting industry.
+                      Lorem Ipsum has been the industry's standard dummy text ever
+                    </p>
+                    <div class="btn-box">
+                      <a href="" class="btn-1">
+                        Buy now
+                      </a>
+                      <a href="" class="btn-2">
+                        Contact
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="slider_img-box">
+                    <img src="images/slider-img.png" alt="">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -212,7 +214,7 @@ Buscamos alcanzar la promoción social con acciones que mejoren las capacidades 
       <div class="row">
         <div class="col-md-6">
           <div class="img-box">
-            <img src="{% static 'images/about.png' %}" alt="">
+            <img src="images/about.png" alt="">
           </div>
         </div>
         <div class="col-md-6">
@@ -251,7 +253,7 @@ Buscamos alcanzar la promoción social con acciones que mejoren las capacidades 
             <div class="row">
               <div class="col-md-4">
                 <div class="img_box">
-                  <img src="{% static 'images/s-1.png' %}" alt="">
+                  <img src="images/s-1.png" alt="">
                 </div>
                 <div class="detail_box">
                   <h6>
@@ -265,7 +267,7 @@ Buscamos alcanzar la promoción social con acciones que mejoren las capacidades 
               </div>
               <div class="col-md-4">
                 <div class="img_box">
-                  <img src="{% static 'images/s-2.png' %}" alt="">
+                  <img src="images/s-2.png" alt="">
                 </div>
                 <div class="detail_box">
                   <h6>
@@ -279,7 +281,7 @@ Buscamos alcanzar la promoción social con acciones que mejoren las capacidades 
               </div>
               <div class="col-md-4">
                 <div class="img_box">
-                  <img src="{% static 'images/s-3.png' %}" alt="">
+                  <img src="images/s-3.png" alt="">
                 </div>
                 <div class="detail_box">
                   <h6>
@@ -300,15 +302,11 @@ Buscamos alcanzar la promoción social con acciones que mejoren las capacidades 
           </div>
         </div>
         <div class="col-md-4">
-          <img src="{% static 'images/tool.png' %}" alt="" class="w-100">
+          <img src="images/tool.png" alt="" class="w-100">
         </div>
       </div>
     </div>
   </section>
-
-  <!-- end service section -->
-
-
 
   <!-- gallery section -->
   <section class="gallery-section layout_padding">
