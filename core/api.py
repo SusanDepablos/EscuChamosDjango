@@ -346,7 +346,7 @@ class UserIndexAPIView(APIView):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_users = pagination.paginate_queryset(filtered_users, request)
-                serializer = UserSerializer(paginated_users, many=True)
+                serializer = UserSerializer(paginated_users, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = UserSerializer(filtered_users, many=True, context={'request': request})
@@ -417,10 +417,19 @@ class UserChangePasswordAPIView(APIView):
         user = request.user
         old_password = request.data.get('old_password')
         new_password = request.data.get('new_password')
+        errors = {}
 
-        if not old_password or not new_password:
-            return Response({'validation': 'Los campos de contraseña anterior y nueva contraseña son obligatorios.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Validación para old_password
+        if not old_password:
+            errors['old_password'] = ['Este campo no puede estar en blanco.']
 
+        # Validación para new_password
+        if not new_password:
+            errors['new_password'] = ['Este campo no puede estar en blanco.']
+
+        # Si hay errores, se devuelven
+        if errors:
+            return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
         try:
             # Validar la contraseña anterior
             if not check_password(old_password, user.password):
@@ -496,7 +505,7 @@ class UserUploadPhotoAPIView(APIView, FileUploadMixin):
 
                 # Eliminar el registro del archivo de la base de datos
                 existing_file.delete()
-                return Response({'message': 'La foto ha sido eliminada correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+                return Response({'message': 'La foto ha sido eliminada correctamente.'}, status=status.HTTP_202_ACCEPTED)
             else:
                 return Response({'error': 'No se encontró la foto.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -557,9 +566,6 @@ class FollowUserIndexCreateAPIView(APIView):
             # Crear una nueva relación de seguimiento
             follow_instance = Follow.objects.create(following_user=user, followed_user=followed_user)
 
-            # Serializar la relación creada
-            serializer = FollowSerializer(follow_instance)
-
             return Response({'message': 'Ahora sigues a este usuario.'}, status=status.HTTP_201_CREATED)
         
         except User.DoesNotExist:
@@ -616,7 +622,7 @@ class FollowUserDetailAPIView(APIView):
             # Eliminar la relación de seguimiento
             follow_instance.delete()
 
-            return Response({'message': 'Has dejado de seguir a este usuario.'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'Has dejado de seguir a este usuario.'}, status=status.HTTP_202_ACCEPTED)
         
         except User.DoesNotExist:
             return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
@@ -644,7 +650,7 @@ class CountryIndexAPIView(APIView):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_countries = pagination.paginate_queryset(filtered_countries, request)
-                serializer = CountrySerializer(paginated_countries, many=True)
+                serializer = CountrySerializer(paginated_countries, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = CountrySerializer(filtered_countries, many=True, context={'request': request})
@@ -697,7 +703,7 @@ class StatusIndexAPIView(APIView):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_status_p = pagination.paginate_queryset(filtered_status_p, request)
-                serializer = StatusSerializer(paginated_status_p, many=True)
+                serializer = StatusSerializer(paginated_status_p, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = StatusSerializer(filtered_status_p, many=True, context={'request': request})
@@ -750,7 +756,7 @@ class TypePostIndexAPIView(APIView):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_type_post = pagination.paginate_queryset(filtered_type_post, request)
-                serializer = TypePostSerializer(paginated_type_post, many=True)
+                serializer = TypePostSerializer(paginated_type_post, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = TypePostSerializer(filtered_type_post, many=True, context={'request': request})
@@ -797,7 +803,7 @@ class ReactionIndexCreateAPIView(APIView):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_reaction = pagination.paginate_queryset(reaction, request)
-                serializer = ReactionSerializer(paginated_reaction, many=True)
+                serializer = ReactionSerializer(paginated_reaction, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = ReactionSerializer(reaction, many=True, context={'request': request})
@@ -878,7 +884,7 @@ class ReactionDetailAPIView(APIView):
             # Eliminar la reacción
             reaction.delete()
 
-            return Response({'message': 'La reacción ha sido eliminada correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'La reacción ha sido eliminada correctamente.'}, status=status.HTTP_202_ACCEPTED)
 
         except Reaction.DoesNotExist:
             return Response({'error': 'El ID de la reacción no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
@@ -903,7 +909,7 @@ class ReportIndexCreateAPIView(APIView):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_report = pagination.paginate_queryset(filtered_report, request)
-                serializer = ReportSerializer(paginated_report, many=True)
+                serializer = ReportSerializer(paginated_report, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = ReportSerializer(filtered_report, many=True, context={'request': request})
@@ -975,7 +981,8 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_post = pagination.paginate_queryset(filtered_post, request)
-                serializer = PostSerializer(paginated_post, many=True)
+                serializer = PostSerializer(paginated_post, many=True, context={'request': request})
+                # El método `get_paginated_response` ya retorna un Response
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = PostSerializer(filtered_post, many=True, context={'request': request})
@@ -1011,10 +1018,10 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
                 errors = {}
 
                 if type_post_id == 2 and not file_list:
-                    errors['file'] = ['Este campo es requerido.']
+                    errors['file'] = ['Este campo no puede estar en blanco.']
 
                 if type_post_id == 1 and not request.data.get('body'):
-                    errors['body'] = ['Este campo es requerido.']
+                    errors['body'] = ['Este campo no puede estar en blanco.']
 
                 if errors:
                     return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -1080,7 +1087,7 @@ class PostDetailAPIView(APIView, FileUploadMixin):
 
             # Validar que el campo `body` sea proporcionado si el tipo de publicación es 1
             if type_post_id == 1 and not new_body:
-                return Response({'validation': {'body': ['Este campo es requerido.']}}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': {'body': ['Este campo no puede estar en blanco.']}}, status=status.HTTP_400_BAD_REQUEST)
 
             # Actualizar el campo `body` si se proporciona un nuevo valor
             if new_body is not None:
@@ -1114,7 +1121,7 @@ class PostDetailAPIView(APIView, FileUploadMixin):
             # Eliminar la publicación
             post.delete()
 
-            return Response({'message': 'La publicación ha sido eliminada correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'La publicación ha sido eliminada correctamente.'}, status=status.HTTP_202_ACCEPTED)
 
         except Post.DoesNotExist:
             return Response({'error': 'El ID de publicación no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
@@ -1136,7 +1143,7 @@ class ShareIndexCreateAPIView(APIView, FileUploadMixin):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_share = pagination.paginate_queryset(shares, request)
-                serializer = ShareSerializer(paginated_share, many=True)
+                serializer = ShareSerializer(paginated_share, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = ShareSerializer(shares, many=True, context={'request': request})
@@ -1196,7 +1203,7 @@ class ShareDetailAPIView(APIView, FileUploadMixin):
             
             # Eliminar el share
             share.delete()
-            return Response({'message': 'El compartido ha sido eliminado exitosamente.'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'El compartido ha sido eliminado exitosamente.'}, status=status.HTTP_202_ACCEPTED)
 
         except Share.DoesNotExist:
             return Response({'error': 'El ID de compartido no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
@@ -1221,7 +1228,7 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_comment = pagination.paginate_queryset(filtered_comment, request)
-                serializer = CommentSerializer(paginated_comment, many=True)
+                serializer = CommentSerializer(paginated_comment, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = CommentSerializer(filtered_comment, many=True, context={'request': request})
@@ -1254,7 +1261,7 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
 
                 # Validar que si no hay archivo, el campo body sea requerido
                 if not file_data and not request.data.get('body'):
-                    errors['body'] = ['Este campo es requerido.']
+                    errors['body'] = ['Este campo no puede estar en blanco.']
 
                 if errors:
                     return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -1317,7 +1324,7 @@ class CommentDetailAPIView(APIView, FileUploadMixin):
 
             # Validar que el campo `body` sea proporcionado si no hay un archivo adjunto
             if not new_body and not comment.file.exists():
-                return Response({'validation': {'body': ['Este campo es requerido.']}}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': {'body': ['Este campo no puede estar en blanco.']}}, status=status.HTTP_400_BAD_REQUEST)
 
             # Actualizar el campo `body` si se proporciona un nuevo valor
             if new_body is not None:
@@ -1351,7 +1358,7 @@ class CommentDetailAPIView(APIView, FileUploadMixin):
             # Eliminar el comentario
             comment.delete()
 
-            return Response({'message': 'El comentario ha sido eliminado correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'El comentario ha sido eliminado correctamente.'}, status=status.HTTP_202_ACCEPTED)
 
         except Comment.DoesNotExist:
             return Response({'error': 'El ID del comentario no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
@@ -1373,7 +1380,7 @@ class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_history = pagination.paginate_queryset(histories, request)
-                serializer = CommentSerializer(paginated_history, many=True)
+                serializer = CommentSerializer(paginated_history, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = HistorySerializer(histories, many=True, context={'request': request})
@@ -1402,7 +1409,7 @@ class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
 
                 # Validar que se proporcione al menos uno de los campos
                 if not file_data and not (content_data or post_id):
-                    errors['content'] = ['Este campo es requerido.']
+                    errors['content'] = ['Este campo no puede estar en blanco.']
                 
                 if errors:
                     return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -1494,7 +1501,7 @@ class HistoryDetailAPIView(APIView, FileUploadMixin):
             # Eliminar la historia
             history.delete()
 
-            return Response({'message': 'La historia ha sido eliminada correctamente.'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'La historia ha sido eliminada correctamente.'}, status=status.HTTP_202_ACCEPTED)
 
         except History.DoesNotExist:
             return Response({'error': 'El ID de la historia no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
