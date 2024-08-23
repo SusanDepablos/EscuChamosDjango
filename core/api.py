@@ -973,7 +973,7 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            posts = Post.objects.all()
+            posts = Post.objects.all().order_by('-created_at') 
 
             post_filter = PostFilter(request.query_params, queryset=posts)
             filtered_post = post_filter.qs
@@ -1138,15 +1138,18 @@ class ShareIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            shares = Share.objects.all()
+            shares = Share.objects.all().order_by('-created_at')
+            
+            share_filter = ShareFilter(request.query_params, queryset=shares)
+            filtered_share = share_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_share = pagination.paginate_queryset(shares, request)
+                paginated_share = pagination.paginate_queryset(filtered_share, request)
                 serializer = ShareSerializer(paginated_share, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = ShareSerializer(shares, many=True, context={'request': request})
+            serializer = ShareSerializer(filtered_share, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -1375,7 +1378,7 @@ class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            histories = History.objects.all()
+            histories = History.objects.all().order_by('-created_at') 
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()

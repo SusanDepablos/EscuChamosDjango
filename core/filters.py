@@ -110,11 +110,13 @@ class ReportFilter(django_filters.FilterSet):
 #-----------------------------------------------------------------------------------------------------
 class PostFilter(django_filters.FilterSet):
     body = django_filters.CharFilter()
+    user_id = django_filters.NumberFilter(field_name='user__id', lookup_expr='exact')
 
     class Meta:
         model = Post
         fields = [
             'body',
+            'user_id',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -136,3 +138,16 @@ class CommentFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
+        
+class ShareFilter(django_filters.FilterSet):
+    user_id = django_filters.NumberFilter(field_name='user__id', lookup_expr='exact')
+
+    class Meta:
+        model = Share
+        fields = [
+            'user_id',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        apply_icontains_filter(self) 

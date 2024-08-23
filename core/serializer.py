@@ -3,6 +3,7 @@ from django.contrib.auth.models import *
 from .models import *
 from django.contrib.auth.hashers import make_password
 from datetime import datetime
+from django.db.models import Count
 
 #-----------------------------------------------------------------------------------------------------
 # Grupo o Roles
@@ -236,9 +237,6 @@ class UserSerializer(serializers.ModelSerializer):
     country_id = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), write_only=True, allow_null=True, source='country')
     files = FileSerializer(many=True, read_only=True)
     
-    # Campos añadidos para los seguidores y seguidos
-    following = serializers.SerializerMethodField()
-    followers = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
     followers_count = serializers.SerializerMethodField()
     
@@ -261,8 +259,6 @@ class UserSerializer(serializers.ModelSerializer):
             'birthdate',
             'groups',
             'files',
-            'following',    
-            'followers',
             'following_count',
             'followers_count' 
         ]
@@ -285,22 +281,10 @@ class UserSerializer(serializers.ModelSerializer):
                 'country': representation['country'],
                 'groups': representation['groups'],
                 'files': representation['files'],
-                'following': representation['following'],
-                'followers': representation['followers'],
                 'following_count': representation['following_count'],
                 'followers_count': representation['followers_count']
             }
         }
-        
-    def get_following(self, obj):
-        follows = Follow.objects.filter(following_user=obj)
-        followed_users = [follow.followed_user for follow in follows]
-        return [get_user_with_profile_photo(user, self.context) for user in followed_users]
-
-    def get_followers(self, obj):
-        follows = Follow.objects.filter(followed_user=obj)
-        following_users = [follow.following_user for follow in follows]
-        return [get_user_with_profile_photo(user, self.context) for user in following_users]
 
     # Métodos para contar seguidores y seguidos
     def get_following_count(self, obj):
@@ -318,6 +302,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
 
     birthdate = serializers.CharField(required=False, allow_blank=True)
+    checkbox = serializers.BooleanField(required=True)
 
     def validate_password(self, value):
         if len(value) < 8:
@@ -338,8 +323,14 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Fecha con formato erróneo. Use el formato YYYY-MM-DD.")
         
         return value
+    
+    def validate_checkbox(self, value):
+        if value is False:
+            raise serializers.ValidationError("Debes aceptar los términos y condiciones.")
+        return value
 
     def create(self, validated_data):
+        checkbox = validated_data.pop('checkbox')
         default_group = Group.objects.get(id=3)  # Asegúrate de que este ID sea correcto y exista en tu base de datos
         validated_data['password'] = make_password(validated_data['password'])  # Cifra la contraseña
         validated_data['username'] = validated_data['username'].lower()  # Convierte el nombre de usuario a minúsculas
@@ -360,12 +351,13 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'name', 'email', 'biography', 'password', 'phone_number',
-                'birthdate', 'country_id', 'is_active', 'is_staff']
+                'birthdate', 'country_id', 'is_active', 'is_staff', 'checkbox']
         extra_kwargs = {
             'password': {'write_only': True},
             'biography': {'required': False},
             'phone_number': {'required': False},
             'birthdate': {'required': False},
+            'checkbox': {'required': True},
         }
 #-----------------------------------------------------------------------------------------------------
 # Estados
@@ -434,7 +426,6 @@ class CommentSerializer(serializers.ModelSerializer):
     replies_count = serializers.SerializerMethodField()
     reactions = ReactionSerializer(many=True, read_only=True)
     reactions_count = serializers.SerializerMethodField()
-    reports = ReportSerializer(many=True, read_only=True)
     reports_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -451,8 +442,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'replies',
             'replies_count',
             'reactions',
-            'reactions_count',            
-            'reports',
+            'reactions_count',
             'reports_count',
             'created_at',
             'updated_at',
@@ -460,9 +450,10 @@ class CommentSerializer(serializers.ModelSerializer):
         ]
 
     def get_replies(self, obj):
-        # Método para obtener las respuestas (replies) de cada comentario
-        replies = obj.replies.all()  # Obtener todas las respuestas relacionadas con este comentario
-        return CommentSerializer(replies, many=True).data
+        # Obtener las respuestas ordenadas por la cantidad de reacciones y fecha de creación
+        replies = obj.replies.annotate(
+            reactions_count=Count('reactions')
+        ).order_by('-reactions_count', '-created_at')
     
     def get_replies_count(self, obj):
         # Método para contar la cantidad de respuestas
@@ -494,7 +485,6 @@ class CommentSerializer(serializers.ModelSerializer):
                 'replies_count': representation['replies_count'],
                 'reactions': representation['reactions'],
                 'reactions_count': representation['reactions_count'],
-                'reports': representation['reports'],
                 'reports_count': representation['reports_count'],
             }
         }
@@ -516,7 +506,6 @@ class PostSerializer(serializers.ModelSerializer):
     reposts_count = serializers.SerializerMethodField() 
     shares_count = serializers.SerializerMethodField()  
     total_shares_count = serializers.SerializerMethodField()
-    reports = ReportSerializer(many=True, read_only=True)
     reports_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -537,7 +526,6 @@ class PostSerializer(serializers.ModelSerializer):
                 'reposts_count',
                 'shares_count',
                 'total_shares_count',
-                'reports',
                 'reports_count',
                 'created_at', 
                 'updated_at', 
@@ -555,8 +543,10 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.reactions.count()
 
     def get_comments(self, obj):
-        # Método para obtener los comentarios de cada post
-        comments = obj.comments.all()  # Obtener todos los comentarios relacionados con este post
+        # Obtener los comentarios, priorizando los que tienen más reacciones y luego los más recientes
+        comments = obj.comments.annotate(
+            reactions_count=Count('reactions')
+        ).order_by('-reactions_count', '-created_at')
         return CommentSerializer(comments, many=True).data
 
     def get_comments_count(self, obj):
@@ -601,7 +591,6 @@ class PostSerializer(serializers.ModelSerializer):
                 'reposts_count': representation['reposts_count'],
                 'shares_count': representation['shares_count'],
                 'total_shares_count': representation['total_shares_count'],
-                'reports': representation['reports'],
                 'reports_count': representation['reports_count'],
             }
         }
@@ -650,7 +639,6 @@ class HistorySerializer(serializers.ModelSerializer):
     file = FileSerializer(many=True, read_only=True)
     reactions = ReactionSerializer(many=True, read_only=True)
     reactions_count = serializers.SerializerMethodField()
-    reports = ReportSerializer(many=True, read_only=True)
     reports_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -666,7 +654,6 @@ class HistorySerializer(serializers.ModelSerializer):
                 'file',
                 'reactions',
                 'reactions_count',
-                'reports',
                 'reports_count',
                 'created_at', 
                 'updated_at', 
@@ -697,7 +684,6 @@ class HistorySerializer(serializers.ModelSerializer):
                 'file': representation['file'],
                 'reactions': representation['reactions'],
                 'reactions_count': representation['reactions_count'],
-                'reports': representation['reports'],
                 'reports_count': representation['reports_count'],
             }
         }
