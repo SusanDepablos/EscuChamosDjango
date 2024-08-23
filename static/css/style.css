@@ -46,7 +46,7 @@ table{
 }
 
 .custom_heading span {
-  color: #1d24ca;
+  color: #d80032;
 }
 
 /*header section*/
@@ -168,12 +168,12 @@ a:focus {
 
 .slider_detail-box h1 {
   color: #ffffff;
-  font-size: 52px;
+  font-size: 60px;
 }
 
 .slider_detail-box h1 span {
   display: inline-block;
-  color: #434242;
+  color: #d80032;
   font-weight: bold;
 }
 
@@ -301,6 +301,7 @@ a:focus {
 
 .service_section .detail_box h6 {
   font-weight: bold;
+  color: #d80032;
 }
 
 .service_section a {
@@ -336,6 +337,7 @@ a:focus {
 
 .gallery-section .container h2 {
   color: #ffffff;
+  font-weight: bold;
 }
 
 .gallery-section .img_box {

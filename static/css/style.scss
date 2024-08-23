@@ -59,7 +59,7 @@ body {
   color: #030404;
 
   span {
-    color: #1d24ca;
+    color: #d80032;
   }
 }
 
@@ -238,11 +238,11 @@ a:focus {
 .slider_detail-box {
   h1 {
     color: $white;
-    font-size: 52px;
+    font-size: 60px;
 
     span {
       display: inline-block;
-      color: #434242;
+      color: #d80032;
       font-weight: bold;
     }
   }
@@ -346,6 +346,7 @@ a:focus {
     margin-top: 25px;
     h6 {
       font-weight: bold;
+      color: #d80032;
     }
   }
   a {
@@ -365,6 +366,7 @@ a:focus {
     align-items: stretch;
     h2 {
       color: $white;
+      font-weight: bold;
     }
   }
   .img_box {
