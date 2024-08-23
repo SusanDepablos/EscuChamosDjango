@@ -526,15 +526,18 @@ class FollowUserIndexCreateAPIView(APIView):
         try:
             follows = Follow.objects.all()
             
+            follow_filter = FollowFilter(request.query_params, queryset=follows)
+            filtered_follow = follow_filter.qs
+            
             # Aplicar paginación si se requiere
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_follows = pagination.paginate_queryset(follows, request)
+                paginated_follows = pagination.paginate_queryset(filtered_follow, request)
                 serializer = FollowSerializer(paginated_follows, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             # Serializar todos los seguimientos
-            serializer = FollowSerializer(follows, many=True, context={'request': request})
+            serializer = FollowSerializer(filtered_follow, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
         except Exception as e:

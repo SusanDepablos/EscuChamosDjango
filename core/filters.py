@@ -144,10 +144,12 @@ class ShareFilter(django_filters.FilterSet):
 
     class Meta:
         model = Share
-        fields = [
-            'user_id',
-        ]
+        fields = ['user_id']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        apply_icontains_filter(self) 
+class FollowFilter(django_filters.FilterSet):
+    followed_user_id = django_filters.NumberFilter(field_name='followed_user__id', lookup_expr='exact')
+    following_user_id = django_filters.NumberFilter(field_name='following_user__id', lookup_expr='exact')
+
+    class Meta:
+        model = Follow
+        fields = ['followed_user_id', 'following_user_id']
