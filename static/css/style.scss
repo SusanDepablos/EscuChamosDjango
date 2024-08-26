@@ -57,6 +57,7 @@ body {
 
 .custom_heading {
   color: #030404;
+  text-align: center
 
   span {
     color: #d80032;
@@ -270,6 +271,8 @@ a:focus {
 
   img {
     width: 100%;
+
+    
   }
 }
 
@@ -338,7 +341,7 @@ a:focus {
     align-items: center;
 
     img {
-      width: 45px;
+      width: 80px;
     }
   }
 
@@ -367,6 +370,7 @@ a:focus {
     h2 {
       color: $white;
       font-weight: bold;
+      text-align: center;
     }
   }
   .img_box {
@@ -554,5 +558,9 @@ a:focus {
 .footer_section a {
   color: #292929;
 }
-
+.footer_section .brand-name {
+  color: #d80032;
+  font-style: italic;
+  font-weight: 600;
+}
 /* end footer section*/

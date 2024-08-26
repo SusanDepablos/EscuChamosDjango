@@ -7,8 +7,8 @@ body {
 }
 
 .img{
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
 }
 .justificado {
   text-align: justify;
@@ -38,11 +38,12 @@ body {
 }
 
 table{
-  width: 95%;
+  width: 100%;
 }
 .custom_heading {
   color: #000020;
   font-weight: bold; 
+  text-align: center
 }
 
 .custom_heading span {
@@ -155,7 +156,7 @@ a:focus {
 /* slider section */
 .slider_section {
   background-image: url(../images/fondo.jpg);
-  padding: 6% 0;
+  padding: 0 0 8% 0;
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -292,7 +293,7 @@ a:focus {
 }
 
 .service_section .img_box img {
-  width: 45px;
+  width: 80px;
 }
 
 .service_section .detail_box {
@@ -566,6 +567,11 @@ a {
 
 .footer_section a {
   color: #292929;
+}
+.footer_section .brand-name {
+  color: #d80032;
+  font-style: italic;
+  font-weight: 600;
 }
 
 /* end footer section*/
