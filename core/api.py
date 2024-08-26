@@ -309,10 +309,17 @@ class RecoverAccountChangePasswordAPIView(APIView):
     def put(self, request):
         user_email = request.data.get('user_email')
         new_password = request.data.get('new_password')
+        # Diccionario para almacenar los errores
+        errors = {}
 
+        # Validar el campo de nueva contraseña
         if not new_password:
-            return Response({'validation': 'El campo contraseña es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
+            errors['new_password'] = ['La nueva contraseña es requerida.']
 
+        # Si hay errores, devolverlos en la respuesta
+        if errors:
+            return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             user = User.objects.get(email=user_email)
             response, status_code = validate_and_update_password(user, new_password)

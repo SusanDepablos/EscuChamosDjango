@@ -1,6 +1,6 @@
 import django_filters
 from .models import *
-from django.db.models import Q
+from django.db.models import Q, Count
 
 def apply_icontains_filter(filter_set):
     for field_name, filter_obj in filter_set.filters.items():
@@ -166,6 +166,15 @@ class PostFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
+        
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        # Si se está filtrando por status_id=2, ordena por la cantidad de reportes de forma descendente
+        if self.data.get('status_id') == '2':
+            queryset = queryset.annotate(report_count=Count('reports')).order_by('-report_count')
+
+        return queryset
         
 #-----------------------------------------------------------------------------------------------------
 # Comentarios

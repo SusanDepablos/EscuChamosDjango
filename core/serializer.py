@@ -187,6 +187,7 @@ class ReactionSerializer(serializers.ModelSerializer):
             'attributes': {
                 'content_type': representation['content_type'],
                 'object_id': representation['object_id'],
+                'user_id': instance.user.id,
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
@@ -220,6 +221,7 @@ class ReportSerializer(serializers.ModelSerializer):
                 'content_type': representation['content_type'],
                 'object_id': representation['object_id'],
                 'observation': representation['observation'],
+                'user_id': instance.user.id,
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
@@ -247,16 +249,16 @@ class UserSerializer(serializers.ModelSerializer):
             'email', 
             'username',  
             'name', 
-            'country_id',
             'biography',
             'phone_number',
+            'country_id',
+            'country',
+            'birthdate',
             'is_active',
             'is_staff',
             'created_at',
             'updated_at',
             'deleted_at',  
-            'country',
-            'birthdate',
             'groups',
             'files',
             'following_count',
@@ -274,6 +276,7 @@ class UserSerializer(serializers.ModelSerializer):
                 'biography': representation['biography'],
                 'phone_number': representation['phone_number'],
                 'birthdate': representation['birthdate'],
+                "country_id": instance.country.id,
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
@@ -456,16 +459,24 @@ class CommentSerializer(serializers.ModelSerializer):
         return obj.reactions.count()
 
     def get_reports_count(self, obj):
-        # Método para contar la cantidad de reacciones
+        # Método para contar la cantidad de reportes
         return obj.reports.count()
 
     def to_representation(self, instance):
         user_representation = get_user_with_profile_photo(instance.user, self.context)
         representation = super().to_representation(instance)
+
+        # Verificar si el comentario tiene un comentario padre
+        parent_comment_id = instance.comment.id if instance.comment else None
+
         return {
             'id': representation['id'],
             'attributes': {
                 'body': representation['body'],
+                'status_id': instance.status.id, 
+                'post_id': instance.post.id,
+                'user_id': instance.user.id,  
+                'comment_id': parent_comment_id,  # Incluir el ID del comentario padre si existe
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
@@ -551,10 +562,17 @@ class PostSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         user_representation = get_user_with_profile_photo(instance.user, self.context)
         representation = super().to_representation(instance)
+        
+        original_post_id = instance.post.id if instance.post else None
+        
         return {
             'id': representation['id'],
             'attributes': {
                 'body': representation['body'],
+                'post_id': original_post_id,
+                'user_id': instance.user.id,
+                'status_id': instance.status.id, 
+                'type_post_id': instance.type_post.id, 
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
@@ -597,6 +615,8 @@ class ShareSerializer(serializers.ModelSerializer):
         return {
             'id': representation['id'],
             'attributes': {
+                'user_id': instance.user.id,
+                'post_id': instance.post.id,
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
@@ -624,10 +644,11 @@ class HistorySerializer(serializers.ModelSerializer):
                 'content', 
                 'archive',
                 'user_id', 
+                'user',
                 'status_id',
                 'status', 
-                'post',
                 'post_id',
+                'post',
                 'file',
                 'reactions_count',
                 'reports_count',
@@ -645,11 +666,17 @@ class HistorySerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         user_representation = get_user_with_profile_photo(instance.user, self.context)
         representation = super().to_representation(instance)
+        
+        post_id = instance.post.id if instance.post else None
+        
         return {
             'id': representation['id'],
             'attributes': {
                 'content': representation['content'],
                 'archive': representation['archive'],
+                'user_id': instance.user.id,
+                'status_id': instance.status.id,
+                'post_id': post_id,
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
