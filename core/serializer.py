@@ -422,7 +422,6 @@ class CommentSerializer(serializers.ModelSerializer):
     status_id = serializers.PrimaryKeyRelatedField(queryset=Status.objects.all(), write_only=True, source='status')
     comment_id = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), write_only=True, source='comment', required=False, allow_null=True)
     file = FileSerializer(many=True, read_only=True)
-    replies = serializers.SerializerMethodField()
     replies_count = serializers.SerializerMethodField()
     reactions = ReactionSerializer(many=True, read_only=True)
     reactions_count = serializers.SerializerMethodField()
@@ -439,7 +438,6 @@ class CommentSerializer(serializers.ModelSerializer):
             'status_id',
             'status',
             'file',
-            'replies',
             'replies_count',
             'reactions',
             'reactions_count',
@@ -448,12 +446,6 @@ class CommentSerializer(serializers.ModelSerializer):
             'updated_at',
             'deleted_at',
         ]
-
-    def get_replies(self, obj):
-        # Obtener las respuestas ordenadas por la cantidad de reacciones y fecha de creación
-        replies = obj.replies.annotate(
-            reactions_count=Count('reactions')
-        ).order_by('-reactions_count', '-created_at')
     
     def get_replies_count(self, obj):
         # Método para contar la cantidad de respuestas
@@ -481,7 +473,6 @@ class CommentSerializer(serializers.ModelSerializer):
                 'user': user_representation,
                 'status': representation['status'],
                 'file': representation['file'],
-                'replies': representation['replies'],
                 'replies_count': representation['replies_count'],
                 'reactions': representation['reactions'],
                 'reactions_count': representation['reactions_count'],
@@ -499,9 +490,7 @@ class PostSerializer(serializers.ModelSerializer):
     type_post = TypePostSerializer(read_only=True)
     type_post_id = serializers.PrimaryKeyRelatedField(queryset=TypePost.objects.all(), write_only=True, source='type_post')
     files = FileSerializer(many=True, read_only=True)
-    reactions = ReactionSerializer(many=True, read_only=True)
-    reactions_count = serializers.SerializerMethodField()
-    comments = serializers.SerializerMethodField() 
+    reactions_count = serializers.SerializerMethodField() 
     comments_count = serializers.SerializerMethodField()
     reposts_count = serializers.SerializerMethodField() 
     shares_count = serializers.SerializerMethodField()  
@@ -519,9 +508,7 @@ class PostSerializer(serializers.ModelSerializer):
                 'type_post_id', 
                 'type_post',
                 'files',
-                'reactions',
                 'reactions_count',
-                'comments',
                 'comments_count', 
                 'reposts_count',
                 'shares_count',
@@ -541,13 +528,6 @@ class PostSerializer(serializers.ModelSerializer):
     def get_reactions_count(self, obj):
         # Método para contar la cantidad de reacciones
         return obj.reactions.count()
-
-    def get_comments(self, obj):
-        # Obtener los comentarios, priorizando los que tienen más reacciones y luego los más recientes
-        comments = obj.comments.annotate(
-            reactions_count=Count('reactions')
-        ).order_by('-reactions_count', '-created_at')
-        return CommentSerializer(comments, many=True).data
 
     def get_comments_count(self, obj):
         # Método para contar la cantidad de comentarios
@@ -584,9 +564,7 @@ class PostSerializer(serializers.ModelSerializer):
                 'status': representation['status'],
                 'type_post': representation['type_post'],
                 'files': representation['files'],
-                'reactions': representation['reactions'],
                 'reactions_count': representation['reactions_count'],
-                'comments': representation['comments'],
                 'comments_count': representation['comments_count'], 
                 'reposts_count': representation['reposts_count'],
                 'shares_count': representation['shares_count'],
@@ -637,7 +615,6 @@ class HistorySerializer(serializers.ModelSerializer):
     post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), required=False, allow_null=True, write_only=True, source='post')
     post = PostSerializer(read_only=True)
     file = FileSerializer(many=True, read_only=True)
-    reactions = ReactionSerializer(many=True, read_only=True)
     reactions_count = serializers.SerializerMethodField()
     reports_count = serializers.SerializerMethodField()
 
@@ -652,7 +629,6 @@ class HistorySerializer(serializers.ModelSerializer):
                 'post',
                 'post_id',
                 'file',
-                'reactions',
                 'reactions_count',
                 'reports_count',
                 'created_at', 
@@ -682,7 +658,6 @@ class HistorySerializer(serializers.ModelSerializer):
                 'status': representation['status'],
                 'post': representation['post'],
                 'file': representation['file'],
-                'reactions': representation['reactions'],
                 'reactions_count': representation['reactions_count'],
                 'reports_count': representation['reports_count'],
             }

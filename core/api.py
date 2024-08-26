@@ -99,11 +99,9 @@ def update_object_status(content_type_id, object_id, status_id):
             obj.save()
             return Response({'message': 'Reporte creado exitosamente.'}, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'El objeto no tiene un campo de estado.'}, status=status.HTTP_404_BAD_REQUEST)
-    except model_class.DoesNotExist:
-        return Response({'error': 'El objeto relacionado no se encontró.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'El objeto no tiene un campo de estado.'}, status=status.HTTP_404_NOT_FOUND)
     except Status.DoesNotExist:
-        return Response({'error': 'Estatus no encontrado.'}, status=status.HTTP_404_BAD_REQUEST)
+        return Response({'error': 'Estatus no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
 
 #-----------------------------------------------------------------------------------------------------
 # Autenticación
@@ -527,17 +525,17 @@ class FollowUserIndexCreateAPIView(APIView):
             follows = Follow.objects.all()
             
             follow_filter = FollowFilter(request.query_params, queryset=follows)
-            filtered_follow = follow_filter.qs
+            filtered_follows = follow_filter.qs
             
             # Aplicar paginación si se requiere
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_follows = pagination.paginate_queryset(filtered_follow, request)
+                paginated_follows = pagination.paginate_queryset(filtered_follows, request)
                 serializer = FollowSerializer(paginated_follows, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             # Serializar todos los seguimientos
-            serializer = FollowSerializer(filtered_follow, many=True, context={'request': request})
+            serializer = FollowSerializer(filtered_follows, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -698,18 +696,18 @@ class StatusIndexAPIView(APIView):
 
     def get(self, request):
         try:
-            status_p = Status.objects.all()
+            statuses = Status.objects.all()
 
-            status_filter = StatusFilter(request.query_params, queryset=status_p)
-            filtered_status_p = status_filter.qs
+            status_filter = StatusFilter(request.query_params, queryset=statuses)
+            filtered_statuses = status_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_status_p = pagination.paginate_queryset(filtered_status_p, request)
-                serializer = StatusSerializer(paginated_status_p, many=True, context={'request': request})
+                paginated_statuses = pagination.paginate_queryset(filtered_statuses, request)
+                serializer = StatusSerializer(paginated_statuses, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = StatusSerializer(filtered_status_p, many=True, context={'request': request})
+            serializer = StatusSerializer(filtered_statuses, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -751,18 +749,18 @@ class TypePostIndexAPIView(APIView):
 
     def get(self, request):
         try:
-            type_post = TypePost.objects.all()
+            type_posts = TypePost.objects.all()
 
-            type_post_filter = TypePostFilter(request.query_params, queryset=type_post)
-            filtered_type_post = type_post_filter.qs
+            type_post_filter = TypePostFilter(request.query_params, queryset=type_posts)
+            filtered_type_posts = type_post_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_type_post = pagination.paginate_queryset(filtered_type_post, request)
-                serializer = TypePostSerializer(paginated_type_post, many=True, context={'request': request})
+                paginated_type_posts = pagination.paginate_queryset(filtered_type_posts, request)
+                serializer = TypePostSerializer(paginated_type_posts, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = TypePostSerializer(filtered_type_post, many=True, context={'request': request})
+            serializer = TypePostSerializer(filtered_type_posts, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -801,15 +799,18 @@ class ReactionIndexCreateAPIView(APIView):
 
     def get(self, request):
         try:
-            reaction = Reaction.objects.all()
+            reactions = Reaction.objects.all()
+            
+            reaction_filter = ReactionFilter(request.query_params, queryset=reactions)
+            filtered_reactions = reaction_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_reaction = pagination.paginate_queryset(reaction, request)
-                serializer = ReactionSerializer(paginated_reaction, many=True, context={'request': request})
+                paginated_reactions = pagination.paginate_queryset(filtered_reactions, request)
+                serializer = ReactionSerializer(paginated_reactions, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = ReactionSerializer(reaction, many=True, context={'request': request})
+            serializer = ReactionSerializer(filtered_reactions, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -819,32 +820,43 @@ class ReactionIndexCreateAPIView(APIView):
         data = request.data.copy()  # Copia los datos del request para agregar el usuario
         data['user'] = user.id  # Agrega el ID del usuario al diccionario de datos
 
-        # Validar content_type y object_id
-        content_type_id = data.get('content_type')
-        object_id = data.get('object_id')
-
-        # Inicializamos variables para verificar el content_type y object_id
-        content_type = None
-        obj = None
+        # Obtener el nombre del modelo desde los datos enviados
+        model_name = data.get('model')  # Ejemplo: 'post'
+        object_id = data.get('object_id')  # ID del objeto relacionado
 
         try:
-            # Verificar que el ContentType exista
-            content_type = ContentType.objects.get(id=content_type_id)
+            # Verificar que el modelo exista en ContentType
+            content_type = ContentType.objects.get(model=model_name.lower())
 
             # Verificar que el objeto relacionado exista
             model_class = content_type.model_class()
             obj = model_class.objects.get(id=object_id)
-                    # Si ambas validaciones son exitosas, proceder con la serialización y guardado
-            serializer = ReactionSerializer(data=data)  # Pasa los datos con el usuario al serializer
 
-            if serializer.is_valid():
-                reaction = serializer.save()  # Guarda la reacción
-                return Response({'message': 'Reacción creada exitosamente.'}, status=status.HTTP_201_CREATED)
+            # Agregar el content_type_id al diccionario de datos
+            data['content_type'] = content_type.id
+
+            # Verificar si la reacción ya existe para el mismo usuario, content_type y objeto
+            existing_reaction = Reaction.objects.filter(
+                user=user,
+                content_type=content_type,
+                object_id=object_id
+            ).first()
+
+            if existing_reaction:
+                # Si la reacción ya existe, eliminarla
+                existing_reaction.delete()
+                return Response({'message': 'Reacción eliminada exitosamente.'}, status=status.HTTP_200_OK)
             else:
-                return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                # Si no existe, crear una nueva reacción
+                serializer = ReactionSerializer(data=data)
+                if serializer.is_valid():
+                    reaction = serializer.save()
+                    return Response({'message': 'Reacción creada exitosamente.'}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         except ContentType.DoesNotExist:
-            return Response({'error': 'ContentType no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Modelo no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
 
         except model_class.DoesNotExist:
             return Response({'error': 'El objeto relacionado no se encontró.'}, status=status.HTTP_404_NOT_FOUND)
@@ -875,25 +887,6 @@ class ReactionDetailAPIView(APIView):
         except Exception as e:
             return handle_exception(e)
         
-    def delete(self, request, pk):
-        try:
-            # Obtener la reacción usando el pk
-            reaction = Reaction.objects.get(pk=pk)
-            
-            # Verifica si el usuario autenticado es el propietario de la reacción
-            if reaction.user != request.user:
-                return Response({'error': 'No tienes permiso para eliminar esta reacción.'}, status=status.HTTP_403_FORBIDDEN)
-
-            # Eliminar la reacción
-            reaction.delete()
-
-            return Response({'message': 'La reacción ha sido eliminada correctamente.'}, status=status.HTTP_202_ACCEPTED)
-
-        except Reaction.DoesNotExist:
-            return Response({'error': 'El ID de la reacción no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return handle_exception(e)
-        
 #-----------------------------------------------------------------------------------------------------
 # Reportes
 #-----------------------------------------------------------------------------------------------------
@@ -904,29 +897,44 @@ class ReportIndexCreateAPIView(APIView):
 
     def get(self, request):
         try:
-            report = Report.objects.all()
+            reports = Report.objects.all()
 
-            report_filter = ReportFilter(request.query_params, queryset=report)
-            filtered_report = report_filter.qs
+            report_filter = ReportFilter(request.query_params, queryset=reports)
+            filtered_reports = report_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_report = pagination.paginate_queryset(filtered_report, request)
-                serializer = ReportSerializer(paginated_report, many=True, context={'request': request})
+                paginated_reports = pagination.paginate_queryset(filtered_reports, request)
+                serializer = ReportSerializer(paginated_reports, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = ReportSerializer(filtered_report, many=True, context={'request': request})
+            serializer = ReportSerializer(filtered_reports, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
             return handle_exception(e)
     def post(self, request):
-        try:
-            user = request.user
-            data = request.data.copy()  # Copia los datos del request para agregar el usuario
-            data['user'] = user.id  # Agrega el ID del usuario al diccionario de datos
+        user = request.user
+        data = request.data.copy()  # Copia los datos del request para agregar el usuario
+        data['user'] = user.id  # Agrega el ID del usuario al diccionario de datos
 
-            serializer = ReportSerializer(data=data)  # Pasa los datos con el usuario al serializer
+        model_name = data.get('model')  # Ejemplo: 'post'
+        object_id = data.get('object_id')  # ID del objeto relacionado
+        observation = data.get('observation')  # Observación del reporte
+
+        try:
+            # Verificar que el modelo exista en ContentType
+            content_type = ContentType.objects.get(model=model_name.lower())
+
+            # Verificar que el objeto relacionado exista
+            model_class = content_type.model_class()
+            obj = model_class.objects.get(id=object_id)
+
+            # Agregar el content_type_id al diccionario de datos
+            data['content_type'] = content_type.id
+
+            # Serializar y guardar el reporte
+            serializer = ReportSerializer(data=data)
             if serializer.is_valid():
                 report = serializer.save()  # Guarda el reporte
 
@@ -934,12 +942,19 @@ class ReportIndexCreateAPIView(APIView):
                 response = update_object_status(
                     report.content_type.id, 
                     report.object_id, 
-                    2  # Estatus 2 "Reportado"
+                    2 # Estatus 2 "Reportado"
                 )
                 
                 return response  # Retorna la respuesta de la función
             else:
                 return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except ContentType.DoesNotExist:
+            return Response({'error': 'Modelo no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        except model_class.DoesNotExist:
+            return Response({'error': 'El objeto relacionado no se encontró.'}, status=status.HTTP_404_NOT_FOUND)
+
         except Exception as e:
             return handle_exception(e)
 
@@ -979,16 +994,16 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
             posts = Post.objects.all().order_by('-created_at') 
 
             post_filter = PostFilter(request.query_params, queryset=posts)
-            filtered_post = post_filter.qs
+            filtered_posts = post_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_post = pagination.paginate_queryset(filtered_post, request)
-                serializer = PostSerializer(paginated_post, many=True, context={'request': request})
+                paginated_posts = pagination.paginate_queryset(filtered_posts, request)
+                serializer = PostSerializer(paginated_posts, many=True, context={'request': request})
                 # El método `get_paginated_response` ya retorna un Response
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = PostSerializer(filtered_post, many=True, context={'request': request})
+            serializer = PostSerializer(filtered_posts, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -1144,15 +1159,15 @@ class ShareIndexCreateAPIView(APIView, FileUploadMixin):
             shares = Share.objects.all().order_by('-created_at')
             
             share_filter = ShareFilter(request.query_params, queryset=shares)
-            filtered_share = share_filter.qs
+            filtered_shares = share_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_share = pagination.paginate_queryset(filtered_share, request)
-                serializer = ShareSerializer(paginated_share, many=True, context={'request': request})
+                paginated_shares = pagination.paginate_queryset(filtered_shares, request)
+                serializer = ShareSerializer(paginated_shares, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = ShareSerializer(filtered_share, many=True, context={'request': request})
+            serializer = ShareSerializer(filtered_shares, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -1229,15 +1244,15 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
             comments = Comment.objects.all()
 
             comment_filter = CommentFilter(request.query_params, queryset=comments)
-            filtered_comment = comment_filter.qs
+            filtered_comments = comment_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_comment = pagination.paginate_queryset(filtered_comment, request)
-                serializer = CommentSerializer(paginated_comment, many=True, context={'request': request})
+                paginated_comments = pagination.paginate_queryset(filtered_comments, request)
+                serializer = CommentSerializer(paginated_comments, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = CommentSerializer(filtered_comment, many=True, context={'request': request})
+            serializer = CommentSerializer(filtered_comments, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -1383,13 +1398,16 @@ class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
         try:
             histories = History.objects.all().order_by('-created_at') 
 
+            history_filter = HistoryFilter(request.query_params, queryset=histories)
+            filtered_histories = history_filter.qs
+            
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_history = pagination.paginate_queryset(histories, request)
-                serializer = CommentSerializer(paginated_history, many=True, context={'request': request})
+                paginated_histories = pagination.paginate_queryset(filtered_histories, request)
+                serializer = HistorySerializer(paginated_histories, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = HistorySerializer(histories, many=True, context={'request': request})
+            serializer = HistorySerializer(filtered_histories, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
