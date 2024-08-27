@@ -8,6 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    background-image: url(../images/about-bg.png);
 }
 
 .container {
@@ -21,8 +22,8 @@ h1 {
 }
 
 .error-image img {
-    width: 250px;
-    margin-bottom: 20px;
+    width: 300px;
+    height: 300px;
 }
 
 .error-message {
@@ -33,10 +34,10 @@ h1 {
 
 .home-button {
     display: inline-block;
-    padding: 15px 30px;
+    padding: 10px 30px;
     font-size: 1rem;
     color: white;
-    background-color: #d80032;
+    background-color: #1d24ca;
     text-decoration: none;
     border-radius: 25px;
 }
