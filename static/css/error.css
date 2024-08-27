@@ -2,8 +2,8 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
-    background-color: #fcb82f;
-    color: #333;
+    background-color: #ffffff;
+    color: #000020;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,24 +14,10 @@ body {
     text-align: center;
 }
 
-.logo {
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-
-.logo img {
-    width: 100px;
-    margin-bottom: 20px;
-}
-
-
-
 h1 {
     font-size: 2rem;
     margin-bottom: 20px;
+    color: #000020;
 }
 
 .error-image img {
@@ -42,7 +28,7 @@ h1 {
 .error-message {
     font-size: 1.2rem;
     margin-bottom: 30px;
-    color: #555;
+    color: #000020;
 }
 
 .home-button {
@@ -50,40 +36,11 @@ h1 {
     padding: 15px 30px;
     font-size: 1rem;
     color: white;
-    background-color: #007bff;
+    background-color: #d80032;
     text-decoration: none;
     border-radius: 25px;
 }
 
 .home-button:hover {
-    background-color: #0056b3;
-}
-
-.footer {
-    background-color: #333;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-}
-
-.footer p {
-    margin: 0;
-    font-size: 0.9rem;
-}
-
-.footer .brand-name {
-    font-weight: bold;
-    color: #007bff;
-}
-
-.footer .brand-name2 {
-    font-weight: bold;
-    color: #ffcc00;
-}
-
-.footer .brand-name, .footer .brand-name2 {
-    font-weight: bold;
+    background-color: #d80032;
 }
