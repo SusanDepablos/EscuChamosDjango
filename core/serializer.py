@@ -267,6 +267,9 @@ class UserSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        
+        country_id = instance.country.id if instance.country else None
+        
         return {
             'id': representation['id'],
             'attributes': {
@@ -276,7 +279,7 @@ class UserSerializer(serializers.ModelSerializer):
                 'biography': representation['biography'],
                 'phone_number': representation['phone_number'],
                 'birthdate': representation['birthdate'],
-                "country_id": instance.country.id,
+                "country_id": country_id,
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
