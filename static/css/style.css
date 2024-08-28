@@ -19,7 +19,7 @@ body {
 }
 
 .layout_padding2 {
-  padding: 45px 0;
+  padding: 20px 0;
 }
 
 .layout_padding2-top {
@@ -522,7 +522,7 @@ a {
 }
 
 .info_items .item {
-  width: 200px;
+  width: 500px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -574,17 +574,35 @@ a {
   background-color: #fbfdfd;
   padding: 20px;
   font-weight: 500;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: center; /* Centramos el contenido principal */
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative; /* Para ajustar la posición de los íconos de redes sociales */
+}
+
+.footer_section .footer_content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Aseguramos que ocupe todo el ancho disponible */
+  text-align: center; /* Centramos el texto en su contenedor */
 }
 
 .footer_section p {
   color: #292929;
   margin: 0;
-  text-align: center;
+  font-size: 14px;
 }
 
 .footer_section a {
   color: #292929;
+  text-decoration: none;
 }
+
 .footer_section .brand-name {
   color: #d80032;
   font-style: italic;
@@ -595,6 +613,25 @@ a {
   color: #1d24ca;
   font-style: italic;
   font-weight: 600;
+}
+
+.social-icons {
+  position: absolute; /* Posicionamos absolutamente para que se sitúe a la derecha */
+  right: 20px; /* Ajustamos la distancia desde el borde derecho */
+  display: flex;
+  align-items: center;
+  top: 50%;
+  transform: translateY(-50%); /* Centramos verticalmente en relación al contenedor */
+}
+
+.social-icons a {
+  color: #333;
+  margin: 0 10px;
+  font-size: 24px;
+}
+
+.social-icons a:hover {
+  color: #007bff;
 }
 
 /* end footer section*/
