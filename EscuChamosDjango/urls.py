@@ -8,8 +8,9 @@ urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('api/', include('core.api_urls.urls')),
     path('', index, name='index'), 
-    path('error/', error, name='error'), 
 ] 
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+handler404 = 'core.views.error'
