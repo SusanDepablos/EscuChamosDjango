@@ -16,7 +16,7 @@
   <title>EscuChamos</title>
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="{% static 'images/logo-blanco.png' %}" />
+  <link rel="icon" type="image/png" href="{% static 'img/logo-blanco.png' %}" />
 
   <!-- slider stylesheet -->
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
@@ -40,10 +40,10 @@
           <td>
             <div class="container-fluid">
               <nav class="navbar navbar-expand-lg custom_nav-container ">
-                <img src="{% static 'images/logo-blanco.png' %}" alt="" class="img">
+                <img src="{% static 'img/logo-blanco.png' %}" alt="" class="img">
                 <form class="form-inline my-2 my-lg-0 ml-auto mb-3 mb-lg-0">
                   {% if user.is_authenticated and user.is_staff %}
-                    <a href="/admin/">Ir al Admin</a>
+                    <a href="{% url 'admin:index' %}">Ir al Admin</a>
                   {% endif %}
                 </form>
               </nav>
@@ -82,7 +82,7 @@
 
                 <div class="col-md-6">
                   <div class="slider_img-box">
-                    <img src= "{% static "images/c-1.png" %}" alt="">
+                    <img src= "{% static "img/c-1.png" %}" alt="">
                   </div>
                 </div>
               </div>
@@ -110,7 +110,7 @@
             
                 <div class="col-md-6">
                   <div class="slider_img-box">
-                    <img src= "{% static "images/c-2.png" %}" alt="">
+                    <img src= "{% static "img/c-2.png" %}" alt="">
                   </div>
                 </div>
               </div>
@@ -138,7 +138,7 @@
 
                 <div class="col-md-6">
                   <div class="slider_img-box">
-                    <img src= "{% static "images/c-3.png" %}" alt="">
+                    <img src= "{% static "img/c-3.png" %}" alt="">
                   </div>
                 </div>
               </div>
@@ -156,7 +156,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="img-box">
-            <img src= "{% static "images/v-1.png" %}" alt="">
+            <img src= "{% static "img/v-1.png" %}" alt="">
           </div>
         </div>
         <div class="col-md-6">
@@ -191,7 +191,7 @@
             <div class="row">
               <div class="col-md-4">
                 <div class="img_box">
-                  <img src= "{% static "images/s-1.png" %}" alt="">
+                  <img src= "{% static "img/s-1.png" %}" alt="">
                 </div>
                 <div class="detail_box">
                   <h6>
@@ -204,7 +204,7 @@
               </div>
               <div class="col-md-4">
                 <div class="img_box">
-                  <img src= "{% static "images/s-2.png" %}" alt="">
+                  <img src= "{% static "img/s-2.png" %}" alt="">
                 </div>
                 <div class="detail_box">
                   <h6>
@@ -217,7 +217,7 @@
               </div>
               <div class="col-md-4">
                 <div class="img_box">
-                  <img src= "{% static "images/s-3.png" %}" alt="">
+                  <img src= "{% static "img/s-3.png" %}" alt="">
                 </div>
                 <div class="detail_box">
                   <h6>
@@ -245,19 +245,19 @@
     </div>
     <div class="container">
       <div class="img_box box-1">
-        <img src="{% static 'images/g-3.png' %}" alt="">
+        <img src="{% static 'img/g-1.jpg' %}" alt="">
       </div>
       <div class="img_box box-2">
-        <img src="{% static 'images/g-2.png' %}" alt="">
+        <img src="{% static 'img/g-2.png' %}" alt="">
       </div>
       <div class="img_box box-3">
-        <img src="{% static 'images/g-1.png' %}" alt="">
+        <img src="{% static 'img/g-3.jpg' %}" alt="">
       </div>
       <div class="img_box box-4">
-        <img src="{% static 'images/g-4.jpg' %}" alt="">
+        <img src="{% static 'img/g-4.jpg' %}" alt="">
       </div>
       <div class="img_box box-5">
-        <img src="{% static 'images/g-5.jpg' %}" alt="">
+        <img src="{% static 'img/g-5.jpg' %}" alt="">
       </div>
     </div>
   </section>
@@ -283,7 +283,7 @@
             <div class="layout_padding2 pl-100">
               <div class="client_container ">
                 <div class="img_box">
-                  <img src="{% static 'images/e-1.png' %}" width="172" height="188" alt="">
+                  <img src="{% static 'img/e-1.png' %}" width="180" height="220" alt="">
                 </div>
                 <div class="detail_box">
                   <h5>
@@ -301,7 +301,7 @@
             <div class="layout_padding2 pl-100">
               <div class="client_container ">
                 <div class="img_box">
-                  <img src="{% static 'images/e-2.jpg' %}"  width="172" height="188"  alt="">
+                  <img src="{% static 'img/e-2.jpg' %}"  width="180" height="150"  alt="">
                 </div>
                 <div class="detail_box">
                   <h5>
@@ -319,7 +319,7 @@
             <div class="layout_padding2 pl-100">
               <div class="client_container ">
                 <div class="img_box">
-                  <img src="{% static 'images/e-3.png' %}"  width="172" height="188"  alt="">
+                  <img src="{% static 'img/e-3.png' %}"  width="180" height="220"  alt="">
                 </div>
                 <div class="detail_box">
                   <h5>
@@ -337,7 +337,7 @@
             <div class="layout_padding2 pl-100">
               <div class="client_container ">
                 <div class="img_box">
-                  <img src="{% static 'images/e-4.png' %}" width="172" height="188"   alt="">
+                  <img src="{% static 'img/e-4.png' %}" width="180" height="220" alt="">
                 </div>
                 <div class="detail_box">
                   <h5>
@@ -355,7 +355,7 @@
             <div class="layout_padding2 pl-100">
               <div class="client_container ">
                 <div class="img_box">
-                  <img src="{% static 'images/e-5.png' %}"  width="172" height="188" alt="">
+                  <img src="{% static 'img/e-5.png' %}"  width="180" height="220" alt="">
                 </div>
                 <div class="detail_box">
                   <h5>

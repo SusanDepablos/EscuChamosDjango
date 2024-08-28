@@ -5,10 +5,10 @@ from django.conf.urls.static import static
 from core.views import index, error  # Asegúrate de importar tu vista aquí
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin'),
     path('api/', include('core.api_urls.urls')),
-    path('', index),  # Ruta para la vista en la raíz
-    path('error/', error),  # Ruta para la vista en la raíz
+    path('', index, name='index'), 
+    path('error/', error, name='error'), 
 ] 
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

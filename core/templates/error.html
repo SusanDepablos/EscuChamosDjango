@@ -7,16 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 Error - Page Not Found</title>
     <link rel="stylesheet" href="{% static 'css/error.css' %} ">
-    <link rel="icon" type="image/png" href="{% static 'images/logo-blanco.png' %}" />
+    <link rel="icon" type="image/png" href="{% static 'img/logo-blanco.png' %}" />
 </head>
 <body>
     <div class="container">
         <h1>No se pudo encontrar la página que solicitó</h1>
         <div class= "error-image">
-            <img src="{% static 'images/404.png' %}" alt="404 Error" class='img'>
+            <img src="{% static 'img/404.png' %}" alt="404 Error" class='img'>
         </div>
         <p></p>
-        <a href="index.html" class="home-button">IR A LA PAGINA PRINCIPAL
+        <a href="{% url 'index' %}" class="home-button">IR A LA PAGINA PRINCIPAL
         </a>
     </div>
 </body>

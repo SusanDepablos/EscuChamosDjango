@@ -148,14 +148,14 @@ a:focus {
 }
 
 .custom_nav-container .navbar-toggler .navbar-toggler-icon {
-  background-image: url(../images/menu.png);
+  background-image: url(../img/menu.png);
   background-size: 55px;
 }
 
 /*end header section*/
 /* slider section */
 .slider_section {
-  background-image: url(../images/fondo.jpg);
+  background-image: url(../img/fondo.jpg);
   padding: 0 0 8% 0;
   background-size: cover;
   background-repeat: no-repeat;
@@ -231,7 +231,7 @@ a:focus {
 }
 
 .about_section {
-  background-image: url(../images/about-bg.png);
+  background-image: url(../img/about-bg.png);
   background-size: cover;
 }
 
@@ -540,15 +540,15 @@ a {
 }
 
 .info_items .item .img-box.box-1 {
-  background-image: url(../images/location-white.png);
+  background-image: url(../img/location-white.png);
 }
 
 .info_items .item .img-box.box-2 {
-  background-image: url(../images/telephone-white.png);
+  background-image: url(../img/telephone-white.png);
 }
 
 .info_items .item .img-box.box-3 {
-  background-image: url(../images/envelope-white.png);
+  background-image: url(../img/envelope-white.png);
 }
 
 /* footer section*/
