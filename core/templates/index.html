@@ -16,7 +16,7 @@
   <title>EscuChamos</title>
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="{% static 'img/logo-blanco.png' %}" />
+  <link rel="icon" type="image/png" href="{% static 'img/logo-white.png' %}" />
 
   <!-- slider stylesheet -->
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
@@ -34,24 +34,35 @@
 
 <body>
   <div class="hero_area">
+    <header class="header_section">
+      <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="{% url 'index' %}">
+              <img src="{% static 'img/banner.png' %}" alt="" class="img">
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                  aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                      <a class="nav-link" href="#">Inicio</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="#">Publicaciones</a>
+                  </li>
+                  <li class="nav-item">
+                      {% if user.is_authenticated and user.is_staff %}
+                        <a class="nav-link"href="{% url 'admin:index' %}">Ir al Admin</a>
+                      {% endif %}
+                  </li>
+              </ul>
+          </div>
+      </nav>
+      </div>
+    </header>
     <section class=" slider_section position-relative">
-      <table>
-        <tr>
-          <td>
-            <div class="container-fluid">
-              <nav class="navbar navbar-expand-lg custom_nav-container ">
-                <img src="{% static 'img/logo-blanco.png' %}" alt="" class="img">
-                <form class="form-inline my-2 my-lg-0 ml-auto mb-3 mb-lg-0">
-                  {% if user.is_authenticated and user.is_staff %}
-                    <a href="{% url 'admin:index' %}">Ir al Admin</a>
-                  {% endif %}
-                </form>
-              </nav>
-            </div>
-          </td>
-        </tr>
-      </table>
-
       <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
         <ol class="carousel-indicators">
           <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
@@ -262,7 +273,7 @@
     </div>
   </section>
 
-  <section class="client_section layout_padding-bottom" style="padding-top: 20px;">
+  <section class="client_section layout_padding-bottom" style="padding-top: 50px;">
     <div class="container">
       <h2 class="custom_heading text-center">
         Nuestro 
@@ -287,7 +298,9 @@
                 </div>
                 <div class="detail_box">
                   <h5>
+                    <strong>
                     Andrea Leal 
+                    </strong>
                   </h5>
                   <p>
                     Directora general
@@ -301,11 +314,13 @@
             <div class="layout_padding2 pl-100">
               <div class="client_container ">
                 <div class="img_box">
-                  <img src="{% static 'img/e-2.jpg' %}"  width="180" height="150"  alt="">
+                  <img src="{% static 'img/e-2.png' %}" width="180" height="220" alt="">
                 </div>
                 <div class="detail_box">
                   <h5>
+                    <strong>
                     María Stella Benítez 
+                    </strong>
                   </h5>
                   <p>
                     Coordinadora de proyectos
@@ -319,11 +334,13 @@
             <div class="layout_padding2 pl-100">
               <div class="client_container ">
                 <div class="img_box">
-                  <img src="{% static 'img/e-3.png' %}"  width="180" height="220"  alt="">
+                  <img src="{% static 'img/e-3.png' %}" width="180" height="220" alt="">
                 </div>
                 <div class="detail_box">
                   <h5>
+                    <strong>
                     Yorman Galviz 
+                    </strong>
                   </h5>
                   <p>
                     Coordinador de comunicaciones
@@ -340,8 +357,9 @@
                   <img src="{% static 'img/e-4.png' %}" width="180" height="220" alt="">
                 </div>
                 <div class="detail_box">
-                  <h5>
-                    Izamar Leal 
+                  <h5><strong>
+                    Izamar Leal
+                    </strong> 
                   </h5>
                   <p>
                     Coordinadora de promoción social 
@@ -355,11 +373,12 @@
             <div class="layout_padding2 pl-100">
               <div class="client_container ">
                 <div class="img_box">
-                  <img src="{% static 'img/e-5.png' %}"  width="180" height="220" alt="">
+                  <img src="{% static 'img/e-5.png' %}" width="180" height="220" alt="">
                 </div>
                 <div class="detail_box">
-                  <h5>
+                  <h5><strong>
                     Eymar García 
+                    </strong>
                   </h5>
                   <p>
                     Coordinador jurídico
@@ -375,8 +394,8 @@
 
 
   <section class="map_section" style="display: flex; justify-content: center; align-items: center;">
-    <div class="map_container" style="height: 500px; width: 90%; ">
-      <h2 class="custom_heading text-center" style="padding-bottom: 10px;"> 
+    <div class="map_container" style="height: 500px; width: 90%; padding-bottom: 10%;">
+      <h2 class="custom_heading text-center" style="padding-bottom: 30px;"> 
         Nuestra
         <span>
           Ubicación

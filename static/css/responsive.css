@@ -4,7 +4,7 @@
   }
 
   .slider_section {
-    padding: 0 0 8% 0;
+    padding: 30% 0 10% 0;
   }
 
   .quote_btn-container {
@@ -101,6 +101,10 @@
 
   .map_section .form_container {
     width: 100%;
+  }
+
+  .map_section {
+    padding-bottom: 20%;
   }
 
   .map_section .form_container form {
