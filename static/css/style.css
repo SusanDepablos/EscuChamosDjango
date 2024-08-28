@@ -571,36 +571,49 @@ a {
 
 /* footer section*/
 .footer_section {
-  background-color: #fbfdfd;
+  background-color: #c9d6df;
   padding: 20px;
   font-weight: 500;
-  border-top: 1px solid #e0e0e0;
   display: flex;
-  justify-content: center; /* Centramos el contenido principal */
+  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative; /* Para ajustar la posición de los íconos de redes sociales */
+  flex-direction: column; /* Asegura que el contenido esté en columna */
+
+  span{
+    color:#d80032;
+    font-weight: bold; 
+  }
+  
 }
 
 .footer_section .footer_content {
   display: flex;
+  flex-direction: column; /* Alinea íconos y texto verticalmente */
   justify-content: center;
   align-items: center;
-  width: 100%; /* Aseguramos que ocupe todo el ancho disponible */
-  text-align: center; /* Centramos el texto en su contenedor */
+  text-align: center;
+}
+
+.footer_section .social-icons {
+  display: flex;
+  margin-bottom: 10px; /* Espacio entre los íconos y el texto */
+}
+
+.footer_section .social-icons a {
+  color: #333;
+  margin: 0 10px;
+  font-size: 24px;
+  text-decoration: none;
+}
+
+.footer_section .social-icons a:hover {
+  color: #000020;
 }
 
 .footer_section p {
   color: #292929;
   margin: 0;
   font-size: 14px;
-}
-
-.footer_section a {
-  color: #292929;
-  text-decoration: none;
 }
 
 .footer_section .brand-name {
@@ -614,25 +627,5 @@ a {
   font-style: italic;
   font-weight: 600;
 }
-
-.social-icons {
-  position: absolute; /* Posicionamos absolutamente para que se sitúe a la derecha */
-  right: 20px; /* Ajustamos la distancia desde el borde derecho */
-  display: flex;
-  align-items: center;
-  top: 50%;
-  transform: translateY(-50%); /* Centramos verticalmente en relación al contenedor */
-}
-
-.social-icons a {
-  color: #333;
-  margin: 0 10px;
-  font-size: 24px;
-}
-
-.social-icons a:hover {
-  color: #007bff;
-}
-
 /* end footer section*/
 /*# sourceMappingURL=style.css.map */
