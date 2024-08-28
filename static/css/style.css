@@ -41,6 +41,7 @@ body {
 table{
   width: 100%;
 }
+
 .custom_heading {
   color: #000020;
   font-weight: bold; 
@@ -58,6 +59,14 @@ table{
   position: relative;
 }
 
+.hero_area::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 15px;
+  background-color: #023b48;
+}
+
 .sub_page .hero_area {
   height: auto;
 }
@@ -67,11 +76,11 @@ table{
 }
 
 .header_section {
-  background-color: transparent; /* Hacer el fondo transparente */
-  position: absolute; /* Posicionar el header sobre el carrusel */
-  width: 100%; /* Asegurarse de que el header ocupe todo el ancho */
-  top: 0; /* Alinearlo en la parte superior */
-  z-index: 1000; /* Asegurarse de que el header esté por encima de otros elementos */
+  background-color: transparent; 
+  position: absolute; 
+  width: 100%;
+  top: 0;
+  z-index: 1000; 
 }
 
 .header_section .container-fluid {
@@ -113,6 +122,25 @@ a:focus {
           box-shadow: none;
 }
 
+.navbar-brand,
+.navbar-brand:hover {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 24px;
+  color: #fafcfd;
+}
+
+.custom_nav-container .nav_search-btn {
+  background-image: url(../images/search-icon.png);
+  background-size: 22px;
+  background-repeat: no-repeat;
+  background-position-y: 7px;
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  border: none;
+}
+
 .navbar-brand {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -126,7 +154,10 @@ a:focus {
           flex-direction: column;
 }
 
-
+.navbar-brand img {
+  width: 30px;
+  margin-right: 5px;
+}
 
 .navbar-brand span {
   font-size: 20px;
