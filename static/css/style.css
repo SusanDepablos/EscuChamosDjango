@@ -440,6 +440,7 @@ a {
 
 .map_section {
   position: relative;
+  padding-bottom: 10%;
 }
 
 .map_section #map {
