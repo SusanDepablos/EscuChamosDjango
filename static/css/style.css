@@ -55,9 +55,15 @@ table{
 /*header section*/
 .hero_area {
   background-image: url(../img/fondo.jpg);
-  height: 100%;
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat; 
+  height: 100vh;
+  width: 100%;
+  padding-bottom: 100px;
   position: relative;
 }
+
 
 .sub_page .hero_area {
   height: auto;
@@ -236,7 +242,7 @@ a:focus {
   height: 20px;
   border-radius: 100%;
   opacity: 1;
-  background-color: #ffffff;
+  background-color: #1d24ca;
 }
 
 .carousel-indicators .active {
@@ -409,11 +415,11 @@ a:focus {
 }
 
 a {
-  color: #ffffff; /* Color del texto blanco */
-  background-color: transparent; /* Fondo transparente */
-  padding: 5px 10px; /* Espaciado interno */
-  text-transform: uppercase; /* Texto en mayúsculas */
-  text-decoration: none; /* Sin subrayado */
+  color: #ffffff;
+  background-color: transparent; 
+  padding: 5px 10px; 
+  text-transform: uppercase; 
+  text-decoration: none; 
 }
 
 

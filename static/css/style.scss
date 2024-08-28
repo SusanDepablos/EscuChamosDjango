@@ -67,7 +67,11 @@ body {
 /*header section*/
 .hero_area {
   background-image: url(../img/fondo.jpg);
-  height: 100%;
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat;
+  height: 100vh;
+  width: 100%;
   position: relative;
   &::before {
     content: "";
@@ -76,6 +80,7 @@ body {
     height: 15px;
     background-color: #023b48;
   }
+  
 }
 
 .sub_page {
@@ -106,21 +111,21 @@ body {
   }
 }
 a {
-  color: #ffffff; /* Color del texto blanco */
-  background-color: transparent; /* Fondo transparente */
-  border: 2px solid #ffffff; /* Borde blanco */
-  padding: 5px 10px; /* Espaciado interno */
-  border-radius: 5px; /* Esquinas redondeadas */
-  text-transform: uppercase; /* Texto en mayúsculas */
-  text-decoration: none; /* Sin subrayado */
+  color: #ffffff; 
+  background-color: transparent; 
+  border: 2px solid #ffffff;
+  padding: 5px 10px;
+  border-radius: 5px; 
+  text-transform: uppercase;
+  text-decoration: none;
 }
 
 .header_section {
-  background-color: transparent; /* Hacer el fondo transparente */
-  position: absolute; /* Posicionar el header sobre el carrusel */
-  width: 100%; /* Asegurarse de que el header ocupe todo el ancho */
-  top: 0; /* Alinearlo en la parte superior */
-  z-index: 1000; /* Asegurarse de que el header esté por encima de otros elementos */
+  background-color: transparent; 
+  position: absolute; 
+  width: 100%; 
+  top: 0; 
+  z-index: 1000; 
   
   .container-fluid {
       display: flex;
@@ -274,8 +279,6 @@ a:focus {
 
   img {
     width: 100%;
-
-    
   }
 }
 
@@ -288,6 +291,7 @@ a:focus {
   height: 20px;
   border-radius: 100%;
   opacity: 1;
+  background-color: #1d24ca;
 }
 .carousel-indicators .active {
   background-color: #010106;
