@@ -393,6 +393,33 @@ class UserUpdateAPIView(APIView):
             return handle_exception(e)
         
 #-----------------------------------------------------------------------------------------------------
+# Actualizar Usuario 
+#-----------------------------------------------------------------------------------------------------
+class  UserVerifyPasswordAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            user = request.user
+            password = request.data.get('password')
+
+            error = {}
+
+            if not password:
+                error['password'] = ['Este campo no puede estar en blanco.']
+
+            if error:
+                return Response({'validation': error}, status=status.HTTP_400_BAD_REQUEST)
+
+            if user.check_password(password):
+                return Response({'message': 'La contraseña es correcta.'}, status=status.HTTP_200_OK)
+
+            else:
+                return Response({'validation': 'La contraseña es incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return handle_exception(e)
+#-----------------------------------------------------------------------------------------------------
 # Información de Usuario 
 #-----------------------------------------------------------------------------------------------------
 class UserShowAPIView(APIView):
@@ -569,12 +596,13 @@ class FollowUserIndexCreateAPIView(APIView):
             existing_follow = Follow.objects.filter(following_user=user, followed_user=followed_user).first()
 
             if existing_follow:
-                return Response({'error': 'Ya sigues a este usuario.'}, status=status.HTTP_409_CONFLICT)
-
-            # Crear una nueva relación de seguimiento
-            follow_instance = Follow.objects.create(following_user=user, followed_user=followed_user)
-
-            return Response({'message': 'Ahora sigues a este usuario.'}, status=status.HTTP_201_CREATED)
+                # Si ya existe, eliminar la relación de seguimiento
+                existing_follow.delete()
+                return Response({'message': 'Has dejado de seguir a este usuario.'}, status=status.HTTP_200_OK)
+            else:
+                # Si no existe, crear una nueva relación de seguimiento
+                Follow.objects.create(following_user=user, followed_user=followed_user)
+                return Response({'message': 'Ahora sigues a este usuario.'}, status=status.HTTP_201_CREATED)
         
         except User.DoesNotExist:
             return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
@@ -604,33 +632,6 @@ class FollowUserDetailAPIView(APIView):
                     'followers': followers_serializer.data,
                 }
             }, status=status.HTTP_200_OK)
-        
-        except User.DoesNotExist:
-            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return handle_exception(e)
-    
-    def delete(self, request, pk):
-        try:
-            # Obtener el usuario autenticado
-            user = request.user
-            
-            # Obtener el usuario a dejar de seguir usando el pk en la URL
-            followed_user = User.objects.get(id=pk)
-            
-            if user.id == followed_user.id:
-                return Response({'validation': 'No puedes dejar de seguirte a ti mismo.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Verificar si existe una relación de seguimiento
-            follow_instance = Follow.objects.filter(following_user=user, followed_user=followed_user).first()
-
-            if not follow_instance:
-                return Response({'validation': 'No estás siguiendo a este usuario.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Eliminar la relación de seguimiento
-            follow_instance.delete()
-
-            return Response({'message': 'Has dejado de seguir a este usuario.'}, status=status.HTTP_202_ACCEPTED)
         
         except User.DoesNotExist:
             return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
