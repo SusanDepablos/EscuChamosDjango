@@ -33,7 +33,6 @@
 </head>
 
 <body>
-  <div class="hero_area">
     <header class="header_section">
       <div class="container-fluid">
         <nav class="navbar navbar-expand-lg custom_nav-container">
@@ -47,10 +46,10 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav ml-auto">
                   <li class="nav-item">
-                      <a class="nav-link" href="#">Inicio</a>
+                      <a class="nav-link" href="{% url 'index' %}">Inicio</a>
                   </li>
                   <li class="nav-item">
-                      <a class="nav-link" href="#">Publicaciones</a>
+                      <a class="nav-link" href="{% url 'posts-index' %}">Publicaciones</a>
                   </li>
                   <li class="nav-item">
                       {% if user.is_authenticated and user.is_staff %}
@@ -62,6 +61,7 @@
       </nav>
       </div>
     </header>
+  <div class="hero_area">
     <section class=" slider_section position-relative">
       <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
         <ol class="carousel-indicators">

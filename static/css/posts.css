@@ -109,3 +109,14 @@ h2 {
 .media-container img:hover {
     opacity: 0.7; /* Efecto de oscurecimiento al pasar el ratón */
 }
+
+.header_section {
+    background-color: #1d24ca !important; 
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    color: #000020;
+    background-color: #ffffff;
+    font-weight: 500;
+    }

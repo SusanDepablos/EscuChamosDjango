@@ -8,13 +8,46 @@
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="{% static 'css/posts.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="{% static 'css/responsive.css' %}" rel="stylesheet" />
 </head>
 <body>
-    <div class="container mt-4">
+    <header class="header_section">
+        <div class="container-fluid">
+            <nav class="navbar navbar-expand-lg custom_nav-container">
+                <a class="navbar-brand" href="{% url 'index' %}">
+                    <img src="{% static 'img/banner.png' %}" alt="" class="img">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'index' %}">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'posts-index' %}">Publicaciones</a>
+                        </li>
+                        <li class="nav-item">
+                            {% if user.is_authenticated and user.is_staff %}
+                            <a class="nav-link"href="{% url 'admin:index' %}">Ir al Admin</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenedor principal para todas las publicaciones -->
+    <div class="container mt-5" style="padding-top: 30px;">
+        <h2 class="text-center" style="padding-bottom: 30px;">Publicaciones</h2>
         <div class="row">
             <!-- Columna para Posts Tipo 2 (2/3 del ancho) -->
             <div class="col-md-8">
-                <h2>Posts Tipo 2 (Imagen y Video)</h2>
                 <div class="row">
                     {% for post in type_2_posts %}
                         <div class="col-md-6 mb-4">
@@ -40,7 +73,7 @@
                                 {% if post.body %}
                                     <div class="card-body">
                                         <p class="card-text text-content">{{ post.body }}</p>
-                                        {% if post.body|length > 50 %} <!-- Ajusta la longitud según tus necesidades -->
+                                        {% if post.body|length > 50 %}
                                             <label class="text-primary toggle-label" onclick="toggleText(this)">Ver más</label>
                                         {% else %}
                                             <label class="toggle-label hidden"></label>
@@ -59,7 +92,6 @@
 
             <!-- Columna para Posts Tipo 1 (1/3 del ancho) -->
             <div class="col-md-4">
-                <h2>Posts Tipo 1 (Texto)</h2>
                 <div class="row">
                     {% for post in type_1_posts %}
                         <div class="col-md-12 mb-4">
@@ -74,7 +106,7 @@
                                 </div>
                                 <div class="card-body">
                                     <p class="card-text text-content">{{ post.body }}</p>
-                                    {% if post.body|length > 50 %} <!-- Ajusta la longitud según tus necesidades -->
+                                    {% if post.body|length > 50 %}
                                         <label class="text-primary toggle-label" onclick="toggleText(this)">Ver más</label>
                                     {% else %}
                                         <label class="toggle-label hidden"></label>
@@ -122,8 +154,8 @@
 
         function openModal(image) {
             var modalImage = document.getElementById('modalImage');
-            modalImage.src = image.src; // Establece la fuente de la imagen del modal
-            $('#imageModal').modal('show'); // Muestra el modal
+            modalImage.src = image.src;
+            $('#imageModal').modal('show');
         }
     </script>
 </body>
