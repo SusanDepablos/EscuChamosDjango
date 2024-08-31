@@ -159,3 +159,17 @@
     display: block; /* Muestra el botón de colapso */
   }
 }
+
+
+@media (max-width: 480px) {
+  .img {
+    width: 300px; /* Ajusta el tamaño según sea necesario */
+  }
+}
+
+@media (max-width: 460px) {
+  .img {
+    width: 260px; /* Ajusta el tamaño según sea necesario */
+  }
+}
+
