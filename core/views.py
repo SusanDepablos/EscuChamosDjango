@@ -33,7 +33,7 @@ def posts(request):
                 'photo_profile': post_data['relationships']['user']['profile_photo_url'] or 'https://via.placeholder.com/50',
                 'user': post_data['relationships']['user']['name'],
                 'username': post_data['relationships']['user']['username'],
-'created_at': format_datetime(datetime.strptime(post_data['attributes']['created_at'], '%Y-%m-%dT%H:%M:%S.%f%z'), format='dd MMM yyyy', locale='es'),
+                'created_at': format_datetime(datetime.strptime(post_data['attributes']['created_at'], '%Y-%m-%dT%H:%M:%S.%f%z'), format='dd MMM yyyy', locale='es'),
                 'body': post_data['attributes']['body']
             }
             type_1_posts_list.append(post)
