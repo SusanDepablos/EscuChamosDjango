@@ -71,13 +71,6 @@
     margin: 40px 0;
     text-align: center;
   }
-
-  /* Ajuste del logo para pantallas medianas y pequeñas */
-  .logo {
-    width: 120px; /* Ajusta el tamaño del logo */
-    height: auto;
-    margin: 0 auto; /* Centrar el logo */
-  }
 }
 
 @media (max-width: 576px) {
@@ -122,25 +115,11 @@
     position: relative;
     height: 450px !important;
   }
-
-  /* Ajuste del logo para pantallas muy pequeñas */
-  .logo {
-    width: 100px; /* Logo más pequeño */
-    height: auto;
-    margin: 0 auto; /* Centrar el logo */
-  }
 }
 
 @media (max-width: 480px) {
   .slider_detail-box h1 {
     font-size: 40px;
-  }
-
-  /* Logo para dispositivos muy pequeños */
-  .logo {
-    width: 80px; /* Logo aún más pequeño */
-    height: auto;
-    margin: 0 auto; /* Centrar el logo */
   }
 }
 
@@ -162,5 +141,21 @@
 @media (min-width: 1200px) {
   .container {
     max-width: 1170px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header_section .navbar-collapse {
+    flex-direction: column; /* Cambia el menú a una columna en pantallas pequeñas */
+    align-items: flex-start; /* Alinea el contenido a la izquierda */
+    display: none; /* Oculta el menú por defecto */
+  }
+
+  .header_section .navbar-collapse.show {
+    display: flex; /* Muestra el menú cuando se activa */
+  }
+
+  .header_section .navbar-toggler {
+    display: block; /* Muestra el botón de colapso */
   }
 }
