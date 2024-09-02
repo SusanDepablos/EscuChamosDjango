@@ -33,6 +33,7 @@ class CountrySerializer(serializers.ModelSerializer):
                 'name', 
                 'abbreviation', 
                 'dialing_code',
+                'iso',
                 'created_at',
                 'updated_at', 
                 )
@@ -45,6 +46,7 @@ class CountrySerializer(serializers.ModelSerializer):
                 'name': representation['name'],
                 'abbreviation': representation['abbreviation'],
                 'dialing_code': representation['dialing_code'],
+                'iso': representation['iso'],
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },

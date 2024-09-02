@@ -49,6 +49,7 @@ class CountryFilter(django_filters.FilterSet):
     name = django_filters.CharFilter()
     abbreviation = django_filters.CharFilter()
     dialing_code = django_filters.CharFilter()
+    iso = django_filters.CharFilter()
 
     class Meta:
         model = Country
@@ -56,6 +57,7 @@ class CountryFilter(django_filters.FilterSet):
             'name',
             'abbreviation',
             'dialing_code',
+            'iso',
         ]
 
     def __init__(self, *args, **kwargs):

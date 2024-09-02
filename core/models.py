@@ -13,6 +13,8 @@ class Country(TimestampedMixin, models.Model):
     name = models.CharField(max_length=255, verbose_name='Nombre')
     abbreviation = models.CharField(max_length=10, blank=True, null=True, verbose_name='Abreviación')
     dialing_code = models.CharField(max_length=20, blank=True, null=True, verbose_name='Código Telefónico')
+    iso = models.CharField(max_length=2, blank=True, null=True, verbose_name='Código Iso')
+
     
     class Meta:
         db_table = 'countries' 

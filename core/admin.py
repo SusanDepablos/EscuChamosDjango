@@ -7,4 +7,4 @@ class UserAdmin(admin.ModelAdmin):
     
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
-    list_display = ('id','name','abbreviation', 'dialing_code')
+    list_display = ('id','name','abbreviation', 'dialing_code', 'iso')
