@@ -33,33 +33,35 @@
 </head>
 
 <body>
-    <header class="header_section">
-      <div class="container-fluid">
-        <nav class="navbar navbar-expand-lg custom_nav-container">
-          <a class="navbar-brand" href="{% url 'index' %}">
-              <img src="{% static 'img/banner.png' %}" alt="" class="img">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                  aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav ml-auto">
-                  <li class="nav-item">
-                      <a class="nav-link" href="{% url 'index' %}">Inicio</a>
-                  </li>
-                  <li class="nav-item">
-                      <a class="nav-link" href="{% url 'posts-index' %}">Publicaciones</a>
-                  </li>
-                  <li class="nav-item">
-                      {% if user.is_authenticated and user.is_staff %}
-                        <a class="nav-link"href="{% url 'admin:index' %}">Ir al Admin</a>
-                      {% endif %}
-                  </li>
-              </ul>
-          </div>
-      </nav>
-      </div>
+      <header class="header_section">
+        <div class="container-fluid">
+            <nav class="navbar navbar-expand-lg custom_nav-container">
+                <a class="navbar-brand" href="{% url 'index' %}">
+                    <img src="{% static 'img/banner.png' %}" alt="" class="img">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <div class="d-flex mx-auto flex-column flex-lg-row align-items-center">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'index' %}">Inicio</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'posts-index' %}">Publicaciones</a>
+                            </li>
+                            <li class="nav-item">
+                                {% if user.is_authenticated and user.is_staff %}
+                                <a class="nav-link"href="{% url 'admin:index' %}">Ir al Admin</a>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
     </header>
   <div class="hero_area">
     <section class=" slider_section position-relative">
@@ -74,7 +76,6 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col-md-4 offset-md-2">
-                  <table>
                     <div class="slider_detail-box">
                       <h1>
                         NOSOTROS
@@ -88,7 +89,6 @@
                       <div class="btn-box">
                       </div>
                     </div>
-                  </table>
                 </div>
 
                 <div class="col-md-6">
@@ -457,7 +457,6 @@
           </div>
       </div>
   </section>
-
 
   <section class="footer_section">
     <div class="social-icons">

@@ -24,19 +24,21 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'index' %}">Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'posts-index' %}">Publicaciones</a>
-                        </li>
-                        <li class="nav-item">
-                            {% if user.is_authenticated and user.is_staff %}
-                            <a class="nav-link"href="{% url 'admin:index' %}">Ir al Admin</a>
-                            {% endif %}
-                        </li>
-                    </ul>
+                    <div class="d-flex mx-auto flex-column flex-lg-row align-items-center">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'index' %}">Inicio</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'posts-index' %}">Publicaciones</a>
+                            </li>
+                            <li class="nav-item">
+                                {% if user.is_authenticated and user.is_staff %}
+                                <a class="nav-link"href="{% url 'admin:index' %}">Ir al Admin</a>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
         </div>
