@@ -500,7 +500,10 @@ class UserChangePasswordAPIView(APIView):
             # Validar la contraseña anterior
             if not check_password(old_password, user.password):
                 return Response({'validation': 'La contraseña anterior no es correcta.'}, status=status.HTTP_400_BAD_REQUEST)
-
+            
+            user.set_password(new_password)
+            user.save()
+            
             return Response({'message': 'Contraseña actualizada exitosamente.'}, status=status.HTTP_200_OK)
 
         except Exception as e:
