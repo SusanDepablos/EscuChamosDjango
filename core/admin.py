@@ -14,7 +14,7 @@ class CountryAdmin(admin.ModelAdmin):
     list_display = ('id','name','abbreviation', 'dialing_code', 'iso')
     search_fields = ('name','abbreviation','iso')
     list_per_page = 10
-    list_filter = ('iso',)
+    list_filter = ('name',)
     
 
 @admin.register(File)
