@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import *
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -23,10 +23,17 @@ class FileAdmin(admin.ModelAdmin):
 
     def display_file(self, obj):
         file_url = settings.MEDIA_URL + obj.path
-        if obj.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+        file_extension = obj.extension.lower()
+        
+        if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
             return format_html(
-                '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/>{}</a>',
-                file_url, file_url, "Ver archivo"
+                '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/></a>',
+                file_url, file_url
+            )
+        elif file_extension in ['mp4', 'webm', 'ogg']:
+            return format_html(
+                '<a href="{}" target="_blank"><video width="50" height="50" controls style="margin-right:10px;"><source src="{}" type="video/{}">Your browser does not support the video tag.</video></a>',
+                file_url, file_url, file_extension
             )
         else:
             return format_html('<a href="{}" target="_blank">{}</a>', file_url, "Ver archivo")
@@ -66,7 +73,7 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'body', 'user', 'type_post', 'status', 'count_files', 'count_reports', 'count_reactions')
+    list_display = ('id', 'body', 'user', 'type_post', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('body', 'user__username')
     list_filter = ('type_post', 'status', 'user')
 
@@ -82,6 +89,30 @@ class PostAdmin(admin.ModelAdmin):
         return obj.reactions.count()
     count_reactions.short_description = 'Reacciones'
 
+    def display_media(self, obj):
+        media_html = []
+        for file in obj.files.all():
+            file_url = settings.MEDIA_URL + file.path
+
+            if file.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+                media_html.append(
+                    format_html(
+                        '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/></a>',
+                        file_url, file_url
+                    )
+                )
+            elif file.extension.lower() in ['mp4', 'webm', 'ogg']:
+                media_html.append(
+                    format_html(
+                        '<a href="{}" target="_blank"><video width="50" height="50" controls style="margin-right:10px;"><source src="{}" type="video/{}">Your browser does not support the video tag.</video></a>',
+                        file_url, file_url, file.extension
+                    )
+                )
+        
+        return format_html_join('', "{}", ((media,) for media in media_html)) or "No Media"
+    
+    display_media.short_description = 'Media'
+
 
 @admin.register(Share)
 class ShareAdmin(admin.ModelAdmin):
@@ -91,7 +122,7 @@ class ShareAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'body', 'post', 'user', 'status', 'count_files', 'count_reports', 'count_reactions')
+    list_display = ('id', 'body', 'post', 'user', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('body', 'user__username', 'post__body')
     list_filter = ('status', 'user', 'post')
 
@@ -107,10 +138,33 @@ class CommentAdmin(admin.ModelAdmin):
         return obj.reactions.count()
     count_reactions.short_description = 'Reacciones'
 
+    def display_media(self, obj):
+        media_html = []
+        for file in obj.file.all():
+            file_url = settings.MEDIA_URL + file.path
+            if file.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+                media_html.append(
+                    format_html(
+                        '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/></a>',
+                        file_url, file_url
+                    )
+                )
+            elif file.extension.lower() in ['mp4', 'webm', 'ogg']:
+                media_html.append(
+                    format_html(
+                        '<a href="{}" target="_blank"><video width="50" height="50" controls style="margin-right:10px;"><source src="{}" type="video/{}">Your browser does not support the video tag.</video></a>',
+                        file_url, file_url, file.extension
+                    )
+                )
+        
+        return format_html_join('', "{}", ((media,) for media in media_html)) or "No Media"
+    
+    display_media.short_description = 'Media'
+
 
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'content', 'user', 'archive', 'status', 'count_files', 'count_reports', 'count_reactions')
+    list_display = ('id', 'content', 'user', 'archive', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('content', 'user__username')
     list_filter = ('status', 'user')
 
@@ -126,3 +180,25 @@ class HistoryAdmin(admin.ModelAdmin):
         return obj.reactions.count()
     count_reactions.short_description = 'Reacciones'
 
+    def display_media(self, obj):
+        media_html = []
+        for file in obj.file.all():
+            file_url = settings.MEDIA_URL + file.path
+            if file.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+                media_html.append(
+                    format_html(
+                        '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/></a>',
+                        file_url, file_url
+                    )
+                )
+            elif file.extension.lower() in ['mp4', 'webm', 'ogg']:
+                media_html.append(
+                    format_html(
+                        '<a href="{}" target="_blank"><video width="50" height="50" controls style="margin-right:10px;"><source src="{}" type="video/{}">Your browser does not support the video tag.</video></a>',
+                        file_url, file_url, file.extension
+                    )
+                )
+
+        return format_html_join('', "{}", ((media,) for media in media_html)) or "No Media"
+    
+    display_media.short_description = 'Media'
