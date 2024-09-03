@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from django.contrib.sessions.models import Session
 from django.contrib.auth import login, logout
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
@@ -141,12 +142,31 @@ class UserLoginAPIView(APIView):
             if user is not None and user.check_password(password):
                 
                 if user.is_active:
+                    # Iniciar sesión del usuario
                     login(request, user)
+                    
+                    # Obtener o crear el token
                     token, created = Token.objects.get_or_create(user=user)
+                    
+                    # Obtener la clave de la sesión actual
+                    session_key = request.session.session_key
+                    
+                    # Crear o actualizar el registro en SessionInfo
+                    session_info, created = SessionInfo.objects.update_or_create(
+                        user=user,
+                        session_key=session_key,
+                        token_key=token.key,
+                        defaults={'device_info': request.META.get('HTTP_USER_AGENT', '')}  # Guarda la información del dispositivo
+                    )
+                    
+                    # Obtener los grupos del usuario
                     groups = user.groups.values_list('id', flat=True)  # Obtiene los nombres de los grupos del usuario
+                    
+                    # Devolver una respuesta exitosa con la información de sesión y token
                     return Response({
                         'message': 'Inicio de sesión exitoso.',
                         'token': token.key,
+                        'session_key': session_key,
                         'user': user.id,
                         'groups': list(groups),  # Convertir a lista para la respuesta JSON
                     }, status=status.HTTP_200_OK)
@@ -156,23 +176,37 @@ class UserLoginAPIView(APIView):
                 return Response({'validation': 'Nombre de usuario o contraseña inválidos.'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return handle_exception(e)
-
 #-----------------------------------------------------------------------------------------------------
 # Cerrar Sesión
 #-----------------------------------------------------------------------------------------------------
-
 class UserLogoutAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
-            Token.objects.filter(user=request.user).delete()
-            logout(request)
+            session_key = request.data.get('session_key')
+            
+            if not session_key:
+                return Response({'validation': 'Tienes que enviar el session_key.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            token = Token.objects.get(user=request.user)
+
+            session_info_count = SessionInfo.objects.filter(token_key=token.key).count()
+            
+            SessionInfo.objects.filter(session_key=session_key).delete()
+
+            Session.objects.filter(session_key=session_key).delete()
+
+            if session_info_count == 1:
+                token.delete()
+
+            if session_key == request.session.session_key:
+                logout(request)
+            
             return Response({'message': 'Sesión cerrada exitosamente.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return handle_exception(e)
-
 #-----------------------------------------------------------------------------------------------------
 # Registrarse
 #-----------------------------------------------------------------------------------------------------
@@ -467,8 +501,7 @@ class UserChangePasswordAPIView(APIView):
             if not check_password(old_password, user.password):
                 return Response({'validation': 'La contraseña anterior no es correcta.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            response, status_code = validate_and_update_password(user, new_password)
-            return Response(response, status=status_code)
+            return Response({'message': 'Contraseña actualizada exitosamente.'}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return handle_exception(e)

@@ -268,3 +268,18 @@ class History(TimestampedMixin, SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return f'Historia {self.id} de usuario {self.user_id}'
+    
+class SessionInfo(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario')
+    session_key = models.CharField(max_length=40, verbose_name='Clave de Sesión')  
+    token_key = models.CharField(max_length=40, verbose_name='Clave de Token')
+    device_info = models.CharField(max_length=255, blank=True, null=True, verbose_name='Información del dispositivo')
+
+    class Meta:
+        db_table = 'session_info'
+        verbose_name = 'Información de las Sesiones'
+        verbose_name_plural = 'Historias'
+        unique_together = ('session_key', 'token_key')
+
+    def __str__(self):
+        return f"User: {self.user.username}, Session Key: {self.session_key}, Token Key: {self.token_key}, Device: {self.device_info}"
