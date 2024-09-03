@@ -211,7 +211,7 @@ class Post(TimestampedMixin, SoftDeleteMixin, models.Model):
         verbose_name_plural = 'Publicaciones'
         
     def __str__(self):
-        return self.body
+        return self.body or ''
 #-----------------------------------------------------------------------------------------------------
 # Compartir
 #-----------------------------------------------------------------------------------------------------

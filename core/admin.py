@@ -7,11 +7,13 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('id','name','username', 'email', 'phone_number', 'country')
     search_fields = ('name','username', 'email', 'phone_number')
     list_filter = ('country','name',)
+    list_per_page = 10
 
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
     list_display = ('id','name','abbreviation', 'dialing_code', 'iso')
     search_fields = ('name','abbreviation','iso')
+    list_per_page = 10
     list_filter = ('iso',)
     
 
@@ -19,6 +21,7 @@ class CountryAdmin(admin.ModelAdmin):
 class FileAdmin(admin.ModelAdmin):
     list_display = ('id', 'content_type', 'object_id', 'path', 'extension', 'size', 'type', 'display_file')
     search_fields = ('id', 'content_type', 'object_id', 'path', 'extension', 'size', 'type')
+    list_per_page = 10
     list_filter = ('type', 'extension')
 
     def display_file(self, obj):
@@ -45,36 +48,42 @@ class FileAdmin(admin.ModelAdmin):
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('id','following_user','followed_user')
     search_fields = ('following_user__username','followed_user__username')
+    list_per_page = 10
     list_filter = ('following_user', 'followed_user')
 
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):
     list_display = ('id','name','description')
     search_fields = ('name',)
+    list_per_page = 10
     list_filter = ('name',)
 
 @admin.register(Reaction)
 class ReactionAdmin(admin.ModelAdmin):
     list_display = ('id','content_type','object_id','content_object','user')
     search_fields = ('user__username',)
+    list_per_page = 10
     list_filter = ('content_type',)
 
 @admin.register(TypePost)
 class TypePostAdmin(admin.ModelAdmin):
     list_display = ('id','name','description')
     search_fields = ('name',)
+    list_per_page = 10
     list_filter = ('name',)
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('id','content_type','object_id','content_object','user','observation')
     search_fields = ('user__username','observation')
+    list_per_page = 10
     list_filter = ('content_type', 'user')
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'body', 'user', 'type_post', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('body', 'user__username')
+    list_per_page = 10
     list_filter = ('type_post', 'status', 'user')
 
     def count_files(self, obj):
@@ -118,12 +127,14 @@ class PostAdmin(admin.ModelAdmin):
 class ShareAdmin(admin.ModelAdmin):
     list_display = ('id','user','post')
     search_fields = ('user__username','post__body')
+    list_per_page = 10
     list_filter = ('user', 'post')
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'body', 'post', 'user', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('body', 'user__username', 'post__body')
+    list_per_page = 10
     list_filter = ('status', 'user', 'post')
 
     def count_files(self, obj):
@@ -166,6 +177,7 @@ class CommentAdmin(admin.ModelAdmin):
 class HistoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'content', 'user', 'archive', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('content', 'user__username')
+    list_per_page = 10
     list_filter = ('status', 'user')
 
     def count_files(self, obj):
