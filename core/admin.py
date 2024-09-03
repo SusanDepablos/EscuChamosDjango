@@ -2,6 +2,9 @@ from django.contrib import admin
 from .models import *
 from django.utils.html import format_html, format_html_join
 
+
+admin.site.site_header = "Sitio de Administrativo Asociación Civel EscuChamos"
+admin.site.index_title = "EscuChamos"
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('id','name','username', 'email', 'phone_number', 'country')
@@ -60,10 +63,41 @@ class StatusAdmin(admin.ModelAdmin):
 
 @admin.register(Reaction)
 class ReactionAdmin(admin.ModelAdmin):
-    list_display = ('id','content_type','object_id','content_object','user')
+    list_display = ('id', 'content_type', 'object_id', 'content_object', 'user', 'display_reacted_content')
     search_fields = ('user__username',)
     list_per_page = 10
     list_filter = ('content_type',)
+
+    def display_reacted_content(self, obj):
+        content_html = []
+
+        if hasattr(obj.content_object, 'body'):
+            content_html.append(
+                format_html('<p>{}</p>', obj.content_object.body[:50])
+            )
+        if hasattr(obj.content_object, 'files'):
+            for file in obj.content_object.files.all():
+                file_url = settings.MEDIA_URL + file.path
+
+                if file.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+                    content_html.append(
+                        format_html(
+                            '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/></a>',
+                            file_url, file_url
+                        )
+                    )
+                elif file.extension.lower() in ['mp4', 'webm', 'ogg']:
+                    content_html.append(
+                        format_html(
+                            '<a href="{}" target="_blank"><video width="50" height="50" controls style="margin-right:10px;"><source src="{}" type="video/{}">Your browser does not support the video tag.</video></a>',
+                            file_url, file_url, file.extension
+                        )
+                    )
+
+        return format_html_join('', "{}", ((content,) for content in content_html)) or "No Content"
+    
+    display_reacted_content.short_description = 'Reacted Content'
+
 
 @admin.register(TypePost)
 class TypePostAdmin(admin.ModelAdmin):
@@ -74,10 +108,57 @@ class TypePostAdmin(admin.ModelAdmin):
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    list_display = ('id','content_type','object_id','content_object','user','observation')
-    search_fields = ('user__username','observation')
+    list_display = ('id', 'content_type', 'object_id', 'content_object', 'user', 'observation', 'display_reported_media')
+    search_fields = ('user__username', 'observation')
     list_per_page = 10
     list_filter = ('content_type', 'user')
+
+    def display_reported_media(self, obj):
+        content_html = []
+
+        if hasattr(obj.content_object, 'file'):
+            file = obj.content_object.file
+            file_url = settings.MEDIA_URL + file.path
+
+            if file.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+                content_html.append(
+                    format_html(
+                        '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/></a>',
+                        file_url, file_url
+                    )
+                )
+            elif file.extension.lower() in ['mp4', 'webm', 'ogg']:
+                content_html.append(
+                    format_html(
+                        '<a href="{}" target="_blank"><video width="50" height="50" controls style="margin-right:10px;"><source src="{}" type="video/{}">Your browser does not support the video tag.</video></a>',
+                        file_url, file_url, file.extension
+                    )
+                )
+        else:
+            # Si el objeto tiene múltiples archivos (como en un campo `files` de tipo ManyToMany)
+            if hasattr(obj.content_object, 'files'):
+                for file in obj.content_object.files.all():
+                    file_url = settings.MEDIA_URL + file.path
+
+                    if file.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+                        content_html.append(
+                            format_html(
+                                '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/></a>',
+                                file_url, file_url
+                            )
+                        )
+                    elif file.extension.lower() in ['mp4', 'webm', 'ogg']:
+                        content_html.append(
+                            format_html(
+                                '<a href="{}" target="_blank"><video width="50" height="50" controls style="margin-right:10px;"><source src="{}" type="video/{}">Your browser does not support the video tag.</video></a>',
+                                file_url, file_url, file.extension
+                            )
+                        )
+        
+        return format_html_join('', "{}", ((content,) for content in content_html)) or "No Media"
+    
+    display_reported_media.short_description = 'Reported Media'
+
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
@@ -138,10 +219,42 @@ class PostAdmin(admin.ModelAdmin):
 
 @admin.register(Share)
 class ShareAdmin(admin.ModelAdmin):
-    list_display = ('id','user','post')
-    search_fields = ('user__username','post__body')
+    list_display = ('id', 'user', 'post', 'display_shared_content')
+    search_fields = ('user__username', 'post__body')
     list_per_page = 10
     list_filter = ('user', 'post')
+
+    def display_shared_content(self, obj):
+        content_html = []
+
+        if hasattr(obj.post, 'body'):
+            content_html.append(
+                format_html('<p>{}</p>', obj.post.body[:50])
+            )
+            
+        if hasattr(obj.post, 'files'):
+            for file in obj.post.files.all():
+                file_url = settings.MEDIA_URL + file.path
+
+                if file.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
+                    content_html.append(
+                        format_html(
+                            '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/></a>',
+                            file_url, file_url
+                        )
+                    )
+                elif file.extension.lower() in ['mp4', 'webm', 'ogg']:
+                    content_html.append(
+                        format_html(
+                            '<a href="{}" target="_blank"><video width="50" height="50" controls style="margin-right:10px;"><source src="{}" type="video/{}">Your browser does not support the video tag.</video></a>',
+                            file_url, file_url, file.extension
+                        )
+                    )
+
+        return format_html_join('', "{}", ((content,) for content in content_html)) or "No Content"
+    
+    display_shared_content.short_description = 'Shared Content'
+
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
