@@ -513,9 +513,9 @@ class UserChangePasswordAPIView(APIView):
             return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            # Validar la contraseña anterior
+            # Validar la contraseña actual
             if not check_password(old_password, user.password):
-                return Response({'validation': {'old_password': ['La contraseña anterior no es correcta.']}}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': {'old_password': ['La contraseña actual no es correcta.']}}, status=status.HTTP_400_BAD_REQUEST)
             
             # Actualizar la contraseña
             user.set_password(new_password)
