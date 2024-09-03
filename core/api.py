@@ -475,9 +475,17 @@ class UserShowAPIView(APIView):
 #-----------------------------------------------------------------------------------------------------
 # Cambiar Contraseña 
 #-----------------------------------------------------------------------------------------------------
+
 class UserChangePasswordAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+    def validate_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
+        if not any(char.isdigit() for char in value) or not any(char.isalpha() for char in value):
+            raise serializers.ValidationError("La contraseña debe ser alfanumérica.")
+        return value
 
     def put(self, request):
         user = request.user
@@ -492,15 +500,24 @@ class UserChangePasswordAPIView(APIView):
         # Validación para new_password
         if not new_password:
             errors['new_password'] = ['Este campo no puede estar en blanco.']
+        else:
+            # Aplicar la validación personalizada de la nueva contraseña
+            try:
+                self.validate_password(new_password)
+            except serializers.ValidationError as e:
+                # Extraer el mensaje de error y agregarlo a la lista de errores
+                errors['new_password'] = [str(msg) for msg in e.detail]
 
         # Si hay errores, se devuelven
         if errors:
             return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             # Validar la contraseña anterior
             if not check_password(old_password, user.password):
-                return Response({'validation': 'La contraseña anterior no es correcta.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': {'old_password': ['La contraseña anterior no es correcta.']}}, status=status.HTTP_400_BAD_REQUEST)
             
+            # Actualizar la contraseña
             user.set_password(new_password)
             user.save()
             
