@@ -96,7 +96,7 @@ class ReactionAdmin(admin.ModelAdmin):
 
         return format_html_join('', "{}", ((content,) for content in content_html)) or "No Content"
     
-    display_reacted_content.short_description = 'Reacted Content'
+    display_reacted_content.short_description = 'Contenido de reacción'
 
 
 @admin.register(TypePost)
@@ -108,7 +108,7 @@ class TypePostAdmin(admin.ModelAdmin):
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    list_display = ('id', 'content_type', 'object_id', 'content_object', 'user', 'observation', 'display_reported_media')
+    list_display = ('id', 'content_type', 'object_id', 'content_object', 'user', 'observation', 'display_reported_media', 'display_body')
     search_fields = ('user__username', 'observation')
     list_per_page = 10
     list_filter = ('content_type', 'user')
@@ -135,7 +135,6 @@ class ReportAdmin(admin.ModelAdmin):
                     )
                 )
         else:
-            # Si el objeto tiene múltiples archivos (como en un campo `files` de tipo ManyToMany)
             if hasattr(obj.content_object, 'files'):
                 for file in obj.content_object.files.all():
                     file_url = settings.MEDIA_URL + file.path
@@ -158,6 +157,14 @@ class ReportAdmin(admin.ModelAdmin):
         return format_html_join('', "{}", ((content,) for content in content_html)) or "No Media"
     
     display_reported_media.short_description = 'Reported Media'
+
+    def display_body(self, obj):
+        if hasattr(obj.content_object, 'body'):
+            return format_html('<p>{}</p>', obj.content_object.body[:50])
+        return "No Body Content"
+    
+    display_body.short_description = 'Contenido del cuerpo'
+
 
 
 @admin.register(Post)
