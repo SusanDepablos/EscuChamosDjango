@@ -23,7 +23,7 @@ class FileAdmin(admin.ModelAdmin):
 
     def display_file(self, obj):
         file_url = settings.MEDIA_URL + obj.path
-        if obj.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:  # Verifica si es una imagen
+        if obj.extension.lower() in ['jpg', 'jpeg', 'png', 'gif']:
             return format_html(
                 '<a href="{}" target="_blank"><img src="{}" width="50" height="50" style="margin-right:10px;"/>{}</a>',
                 file_url, file_url, "Ver archivo"
@@ -66,9 +66,22 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id','body','user','type_post','status','post','files','reports','reactions')
-    search_fields = ('body','user__username')
-    list_filter = ('type_post','status','user')
+    list_display = ('id', 'body', 'user', 'type_post', 'status', 'count_files', 'count_reports', 'count_reactions')
+    search_fields = ('body', 'user__username')
+    list_filter = ('type_post', 'status', 'user')
+
+    def count_files(self, obj):
+        return obj.files.count()
+    count_files.short_description = 'Archivos'
+
+    def count_reports(self, obj):
+        return obj.reports.count()
+    count_reports.short_description = 'Reportes'
+
+    def count_reactions(self, obj):
+        return obj.reactions.count()
+    count_reactions.short_description = 'Reacciones'
+
 
 @admin.register(Share)
 class ShareAdmin(admin.ModelAdmin):
@@ -78,12 +91,38 @@ class ShareAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id','body','post','user','status','comment','file','reports','reactions')
-    search_fields = ('body','user__username','post__body')
-    list_filter = ('status','user','post')
+    list_display = ('id', 'body', 'post', 'user', 'status', 'count_files', 'count_reports', 'count_reactions')
+    search_fields = ('body', 'user__username', 'post__body')
+    list_filter = ('status', 'user', 'post')
+
+    def count_files(self, obj):
+        return obj.file.count()
+    count_files.short_description = 'Archivos'
+
+    def count_reports(self, obj):
+        return obj.reports.count()
+    count_reports.short_description = 'Reportes'
+
+    def count_reactions(self, obj):
+        return obj.reactions.count()
+    count_reactions.short_description = 'Reacciones'
+
 
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
-    list_display = ('id','content','user','archive','status','post','file','reports','reactions')
-    search_fields = ('content','user__username')
-    list_filter = ('status','user')
+    list_display = ('id', 'content', 'user', 'archive', 'status', 'count_files', 'count_reports', 'count_reactions')
+    search_fields = ('content', 'user__username')
+    list_filter = ('status', 'user')
+
+    def count_files(self, obj):
+        return obj.file.count()
+    count_files.short_description = 'Archivos'
+
+    def count_reports(self, obj):
+        return obj.reports.count()
+    count_reports.short_description = 'Reportes'
+
+    def count_reactions(self, obj):
+        return obj.reactions.count()
+    count_reactions.short_description = 'Reacciones'
+
