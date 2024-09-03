@@ -39,7 +39,7 @@ class FileAdmin(admin.ModelAdmin):
                 file_url, file_url, file_extension
             )
         else:
-            return format_html('<a href="{}" target="_blank">{}</a>', file_url, "Ver archivo")
+            return format_html('<a href="{}" target="_blank">{}</a>', file_url, "")
 
     display_file.short_description = 'Archivo'
 
