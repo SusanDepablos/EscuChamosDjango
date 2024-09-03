@@ -81,7 +81,7 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'body', 'user', 'type_post', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
+    list_display = ('id', 'truncated_body', 'user', 'type_post', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('body', 'user__username')
     list_per_page = 10
     list_filter = ('type_post', 'status', 'user')
@@ -121,6 +121,19 @@ class PostAdmin(admin.ModelAdmin):
         return format_html_join('', "{}", ((media,) for media in media_html)) or "No Media"
     
     display_media.short_description = 'Media'
+
+    def truncated_body(self, obj):
+        max_length = 40
+        body_text = obj.body
+        if len(body_text) > max_length:
+            truncated = body_text[:max_length] + '...'
+            return format_html(
+                '<span class="truncated-text">{}</span><a href="#" onclick="toggleText(this, event)"></a><span class="full-text" style="display:none;">{}</span>',
+                truncated, body_text
+            )
+        return body_text
+    
+    truncated_body.short_description = 'Body'
 
 
 @admin.register(Share)
