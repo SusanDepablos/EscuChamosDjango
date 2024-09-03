@@ -132,7 +132,7 @@ class ShareAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'body', 'post', 'user', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
+    list_display = ('id', 'truncated_body', 'post', 'user', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('body', 'user__username', 'post__body')
     list_per_page = 10
     list_filter = ('status', 'user', 'post')
@@ -171,6 +171,19 @@ class CommentAdmin(admin.ModelAdmin):
         return format_html_join('', "{}", ((media,) for media in media_html)) or "No Media"
     
     display_media.short_description = 'Media'
+
+    def truncated_body(self, obj):
+        max_length = 40 
+        body_text = obj.body
+        if len(body_text) > max_length:
+            truncated = body_text[:max_length] + '...'
+            return format_html(
+                '<span class="truncated-text">{}</span><a href="#" onclick="toggleText(this, event)"></a><span class="full-text" style="display:none;">{}</span>',
+                truncated, body_text
+            )
+        return body_text
+    
+    truncated_body.short_description = 'Body'
 
 
 @admin.register(History)
