@@ -80,7 +80,7 @@ class Command(BaseCommand):
         type_posts = [
             ('Normal', 'Publicación normal de texto'),
             ('Multimedia', 'Publicación que contiene imágenes, videos o audios'),
-            ('Podcast', 'Publicación de podcast')
+            ('Republicado', 'Publicación Republicada')
         ]
         for name, description in type_posts:
             TypePost.objects.get_or_create(name=name, description=description)
