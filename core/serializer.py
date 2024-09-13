@@ -244,6 +244,10 @@ class UserSerializer(serializers.ModelSerializer):
     following_count = serializers.SerializerMethodField()
     followers_count = serializers.SerializerMethodField()
     
+    # Campos añadidos para los seguidores y seguidos
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
         fields = [
@@ -264,7 +268,9 @@ class UserSerializer(serializers.ModelSerializer):
             'groups',
             'files',
             'following_count',
-            'followers_count' 
+            'followers_count',
+            'following',    
+            'followers'
         ]
         
     def to_representation(self, instance):
@@ -290,7 +296,9 @@ class UserSerializer(serializers.ModelSerializer):
                 'groups': representation['groups'],
                 'files': representation['files'],
                 'following_count': representation['following_count'],
-                'followers_count': representation['followers_count']
+                'followers_count': representation['followers_count'],
+                'following': representation['following'],
+                'followers': representation['followers']
             }
         }
 
@@ -300,6 +308,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_followers_count(self, obj):
         return Follow.objects.filter(followed_user=obj).count()
+    
+    def get_following(self, obj):
+        follows = Follow.objects.filter(following_user=obj)
+        return FollowSerializer(follows, many=True, context=self.context).data
+
+    def get_followers(self, obj):
+        follows = Follow.objects.filter(followed_user=obj)
+        return FollowSerializer(follows, many=True, context=self.context).data
 
 #-----------------------------------------------------------------------------------------------------
 # Registro de usuario
