@@ -446,6 +446,7 @@ class CommentSerializer(serializers.ModelSerializer):
     status_id = serializers.PrimaryKeyRelatedField(queryset=Status.objects.all(), write_only=True, source='status')
     comment_id = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), write_only=True, source='comment', required=False, allow_null=True)
     file = FileSerializer(many=True, read_only=True)
+    reactions = ReactionSerializer(many=True, read_only=True)
     replies_count = serializers.SerializerMethodField()
     reactions = ReactionSerializer(many=True, read_only=True)
     reactions_count = serializers.SerializerMethodField()
@@ -462,6 +463,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'status_id',
             'status',
             'file',
+            'reactions',
             'replies_count',
             'reactions',
             'reactions_count',
@@ -505,6 +507,7 @@ class CommentSerializer(serializers.ModelSerializer):
                 'user': user_representation,
                 'status': representation['status'],
                 'file': representation['file'],
+                'reactions': representation['reactions'],
                 'replies_count': representation['replies_count'],
                 'reactions': representation['reactions'],
                 'reactions_count': representation['reactions_count'],
@@ -522,6 +525,7 @@ class PostSerializer(serializers.ModelSerializer):
     type_post = TypePostSerializer(read_only=True)
     type_post_id = serializers.PrimaryKeyRelatedField(queryset=TypePost.objects.all(), write_only=True, source='type_post')
     files = FileSerializer(many=True, read_only=True)
+    reactions = ReactionSerializer(many=True, read_only=True)
     reactions_count = serializers.SerializerMethodField() 
     comments_count = serializers.SerializerMethodField()
     reposts_count = serializers.SerializerMethodField() 
@@ -540,6 +544,7 @@ class PostSerializer(serializers.ModelSerializer):
                 'type_post_id', 
                 'type_post',
                 'files',
+                'reactions',
                 'reactions_count',
                 'comments_count', 
                 'reposts_count',
@@ -603,6 +608,7 @@ class PostSerializer(serializers.ModelSerializer):
                 'status': representation['status'],
                 'type_post': representation['type_post'],
                 'files': representation['files'],
+                'reactions': representation['reactions'],
                 'reactions_count': representation['reactions_count'],
                 'comments_count': representation['comments_count'], 
                 'reposts_count': representation['reposts_count'],
@@ -649,18 +655,19 @@ class ShareSerializer(serializers.ModelSerializer):
 #-----------------------------------------------------------------------------------------------------
 # Historia
 #-----------------------------------------------------------------------------------------------------     
-class HistorySerializer(serializers.ModelSerializer):
+class StorySerializer(serializers.ModelSerializer):
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
     status = StatusSerializer(read_only=True)
     status_id = serializers.PrimaryKeyRelatedField(queryset=Status.objects.all(), write_only=True, source='status')
     post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), required=False, allow_null=True, write_only=True, source='post')
     post = PostSerializer(read_only=True)
     file = FileSerializer(many=True, read_only=True)
+    reactions = ReactionSerializer(many=True, read_only=True)
     reactions_count = serializers.SerializerMethodField()
     reports_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = History
+        model = Story
         fields = ['id', 
                 'content', 
                 'archive',
@@ -671,6 +678,7 @@ class HistorySerializer(serializers.ModelSerializer):
                 'post_id',
                 'post',
                 'file',
+                'reactions',
                 'reactions_count',
                 'reports_count',
                 'created_at', 
@@ -706,6 +714,7 @@ class HistorySerializer(serializers.ModelSerializer):
                 'status': representation['status'],
                 'post': representation['post'],
                 'file': representation['file'],
+                'reactions': representation['reactions'],
                 'reactions_count': representation['reactions_count'],
                 'reports_count': representation['reports_count'],
             }

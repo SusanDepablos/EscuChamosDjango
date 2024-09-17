@@ -319,8 +319,8 @@ class CommentAdmin(admin.ModelAdmin):
     truncated_body.short_description = 'Body'
 
 
-@admin.register(History)
-class HistoryAdmin(admin.ModelAdmin):
+@admin.register(Story)
+class StoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'content', 'user', 'archive', 'status', 'display_media', 'count_files', 'count_reports', 'count_reactions')
     search_fields = ('content', 'user__username')
     list_per_page = 10

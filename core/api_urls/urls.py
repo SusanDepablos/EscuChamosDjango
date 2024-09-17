@@ -85,8 +85,8 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
 # Historias
 #--------------------------------------------------------------------------------------------------#
-    path('history/', HistoryIndexCreateAPIView.as_view(), name='history'),
-    path('history/<int:pk>/', HistoryDetailAPIView.as_view(), name='history-detail'),
+    path('story/', StoryIndexCreateAPIView.as_view(), name='story'),
+    path('story/<int:pk>/', StoryDetailAPIView.as_view(), name='story-detail'),
     
 
 ]

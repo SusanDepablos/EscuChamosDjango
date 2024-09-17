@@ -244,12 +244,12 @@ class FollowFilter(django_filters.FilterSet):
             Q(following_user__username__icontains=value) | Q(following_user__name__icontains=value)
         )
         
-class HistoryFilter(django_filters.FilterSet):
+class StoryFilter(django_filters.FilterSet):
     user_id = django_filters.NumberFilter(field_name='user__id', lookup_expr='exact')
     status_id = django_filters.NumberFilter(field_name='status__id', lookup_expr='exact')
 
     class Meta:
-        model = History
+        model = Story
         fields = [
             'user_id',
             'status_id'

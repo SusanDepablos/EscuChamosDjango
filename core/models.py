@@ -251,18 +251,18 @@ class Comment(TimestampedMixin, SoftDeleteMixin, models.Model):
 #-----------------------------------------------------------------------------------------------------
 # Historia
 #-----------------------------------------------------------------------------------------------------    
-class History(TimestampedMixin, SoftDeleteMixin, models.Model):
+class Story(TimestampedMixin, SoftDeleteMixin, models.Model):
     content = models.TextField(null=True, blank=True, verbose_name='Contenido')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='histories', verbose_name='Usuario')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stories', verbose_name='Usuario')
     archive = models.BooleanField(default=False, verbose_name='Archivado')
     status = models.ForeignKey(Status, on_delete=models.PROTECT, verbose_name='Estado')
-    post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE, related_name='histories', verbose_name='Publicación')
+    post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE, related_name='stories', verbose_name='Publicación')
 
     file = GenericRelation(File)
     reports = GenericRelation(Report)
     reactions = GenericRelation(Reaction)
     class Meta:
-        db_table = 'histories'
+        db_table = 'stories'
         verbose_name = 'Historia'
         verbose_name_plural = 'Historias'
 

@@ -1450,25 +1450,25 @@ class CommentDetailAPIView(APIView, FileUploadMixin):
 #-----------------------------------------------------------------------------------------------------
 # Historias
 #-----------------------------------------------------------------------------------------------------
-class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
+class StoryIndexCreateAPIView(APIView, FileUploadMixin):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    # required_permissions = 'view_history'
+    # required_permissions = 'view_story'
 
     def get(self, request):
         try:
-            histories = History.objects.all().order_by('-created_at') 
+            stories = Story.objects.all().order_by('-created_at') 
 
-            history_filter = HistoryFilter(request.query_params, queryset=histories)
-            filtered_histories = history_filter.qs
+            story_filter = StoryFilter(request.query_params, queryset=stories)
+            filtered_histories = story_filter.qs
             
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_histories = pagination.paginate_queryset(filtered_histories, request)
-                serializer = HistorySerializer(paginated_histories, many=True, context={'request': request})
+                serializer = StorySerializer(paginated_histories, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = HistorySerializer(filtered_histories, many=True, context={'request': request})
+            serializer = StorySerializer(filtered_histories, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -1487,7 +1487,7 @@ class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
             other_data['status_id'] = 1
             
             # Crear una instancia del serializer con los datos restantes
-            serializer = HistorySerializer(data=other_data)
+            serializer = StorySerializer(data=other_data)
 
             if serializer.is_valid():
                 errors = {}
@@ -1500,7 +1500,7 @@ class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
                     return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
 
                 # Guardar la historia
-                history_instance = serializer.save()
+                story_instance = serializer.save()
 
                 # Si hay un archivo, procesarlo y guardarlo
                 if file_data:
@@ -1509,7 +1509,7 @@ class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
 
                     # Crear instancia de File asociada a la historia
                     File.objects.create(
-                        content_object=history_instance,  # Relaciona el archivo con la historia
+                        content_object=story_instance,  # Relaciona el archivo con la historia
                         path=file_info['path'],
                         extension=file_info['extension'],
                         size=file_info['size'],
@@ -1527,45 +1527,45 @@ class HistoryIndexCreateAPIView(APIView, FileUploadMixin):
 #-----------------------------------------------------------------------------------------------------
 # Información de Historias
 #-----------------------------------------------------------------------------------------------------
-class HistoryDetailAPIView(APIView, FileUploadMixin):
+class StoryDetailAPIView(APIView, FileUploadMixin):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    # required_permissions = 'view_history'
+    # required_permissions = 'view_story'
 
     def get(self, request, pk):
         try:
             # Obtener la historia usando el pk
-            history = History.objects.get(pk=pk)
+            story = story.objects.get(pk=pk)
 
             # Serializar los datos de la historia
-            serializer = HistorySerializer(history, context={'request': request})
+            serializer = StorySerializer(story, context={'request': request})
 
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
-        except history.DoesNotExist:
+        except story.DoesNotExist:
             return Response({'error': 'El ID de la historia no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
     def put(self, request, pk):
         try:
             # Obtener la historia usando el pk
-            history = History.objects.get(pk=pk)
+            story = Story.objects.get(pk=pk)
 
-            if history.archive:
-                history.archive = False
-                history.restore()  # Restaurar si ya estaba archivada
+            if story.archive:
+                story.archive = False
+                story.restore()  # Restaurar si ya estaba archivada
                 message = 'La historia ha sido desarchivada correctamente.'
             else:
-                history.archive = True
-                history.soft_delete()  # Archivar si no estaba archivada
+                story.archive = True
+                story.soft_delete()  # Archivar si no estaba archivada
                 message = 'La historia ha sido archivada correctamente.'
 
             # Guardar los cambios
-            history.save()
+            story.save()
 
             return Response({'message': message}, status=status.HTTP_200_OK)
 
-        except History.DoesNotExist:
+        except story.DoesNotExist:
             return Response({'error': 'El ID de la historia no está registrada.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
@@ -1573,22 +1573,22 @@ class HistoryDetailAPIView(APIView, FileUploadMixin):
     def delete(self, request, pk):
         try:
             # Obtener el comentario usando el pk
-            history = History.objects.get(pk=pk)
-            has_files = history.file.exists()  # Verificar si la historia tiene archivos asociados
+            story = Story.objects.get(pk=pk)
+            has_files = story.file.exists()  # Verificar si la historia tiene archivos asociados
 
             # Eliminar archivos asociados si existen
             if has_files:
-                files = history.file.all()  # Obtener todos los archivos asociados a la historia
+                files = story.file.all()  # Obtener todos los archivos asociados a la historia
                 for file in files:
                     self.delete_file(file.path)  # Eliminar el archivo del sistema
                     file.delete()  # Eliminar el registro del archivo de la base de datos
 
             # Eliminar la historia
-            history.delete()
+            story.delete()
 
             return Response({'message': 'La historia ha sido eliminada correctamente.'}, status=status.HTTP_202_ACCEPTED)
 
-        except History.DoesNotExist:
+        except Story.DoesNotExist:
             return Response({'error': 'El ID de la historia no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e) 
