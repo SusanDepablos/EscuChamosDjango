@@ -1302,7 +1302,9 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            comments = Comment.objects.all()
+            comments = Comment.objects.annotate(
+                reactions_count=Count('reactions')
+            ).order_by('-reactions_count', '-created_at')  # Ordenar por reacciones y luego por fecha de creación
 
             comment_filter = CommentFilter(request.query_params, queryset=comments)
             filtered_comments = comment_filter.qs
