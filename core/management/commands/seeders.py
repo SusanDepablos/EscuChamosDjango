@@ -69,7 +69,6 @@ class Command(BaseCommand):
         statuses = [
             ('Activo', 'Estado normal sin infracciones'),
             ('Reportado', 'Estado de contenido reportado'),
-            ('En revisión', 'Estado de revisión pendiente'),
             ('Resuelto', 'Estado de infracción resuelto'),
             ('Bloqueado', 'Estado de contenido bloqueado'),
         ]

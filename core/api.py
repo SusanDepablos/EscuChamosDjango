@@ -15,6 +15,7 @@ from rest_framework.authtoken.models import Token
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password, make_password
+from django.core.exceptions import ObjectDoesNotExist
 import random
 import string
 
@@ -94,19 +95,72 @@ def update_object_status(content_type_id, object_id, status_id):
         # Obtener el objeto a partir del object_id
         obj = model_class.objects.get(id=object_id)
         
-        # Asegúrate de que el modelo tenga un campo de estado y actualízalo
         if hasattr(obj, 'status'):
-            obj.status = Status.objects.get(id=status_id)  # Obtén el estado por ID
+            # Obtener el nuevo estado
+            new_status = Status.objects.get(id=status_id)
+
+            # Lógica especial si el estado es "bloqueado"
+            if new_status.name.lower() == 'bloqueado':
+                handle_blocked_status(obj)  # Llamar a la función para manejar el bloqueo
+
+            obj.status = new_status  # Actualiza el estado del objeto
             obj.save()
             return Response({'message': 'Reporte creado exitosamente.'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'El objeto no tiene un campo de estado.'}, status=status.HTTP_404_NOT_FOUND)
+
     except Status.DoesNotExist:
         return Response({'error': 'Estatus no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
 
 #-----------------------------------------------------------------------------------------------------
+# Función para manejar el estado bloqueado de un post o comment
+#-----------------------------------------------------------------------------------------------------
+def handle_blocked_status(obj): 
+    if isinstance(obj, Post):
+        # Si el objeto es un post, bloquea todos los reposts de ese post
+        reposts = Post.objects.filter(post=obj)  # Filtra todos los reposts del post original
+        reposts.update(status=Status.objects.get(name__iexact='bloqueado'))  # Cambia el estado a "bloqueado"
+        
+        shares = Share.objects.filter(post=obj)  # Filtra todos los shares del post
+        shares.delete()  # Elimina todos los shares
+
+    elif isinstance(obj, Comment):
+        # Si el objeto es un comentario, bloquea todas las respuestas a ese comentario
+        replies = Comment.objects.filter(comment=obj)  # Filtra todas las respuestas al comentario
+        replies.update(status=Status.objects.get(name__iexact='bloqueado'))  # Cambia el estado a "bloqueado"
+
+    # Agrega cualquier otra lógica que necesites aquí
+    print('Estado bloqueado manejado correctamente.')
+
+#-----------------------------------------------------------------------------------------------------
 # Autenticación
 #-----------------------------------------------------------------------------------------------------   
+
+#-----------------------------------------------------------------------------------------------------
+# Groups
+#-----------------------------------------------------------------------------------------------------   
+
+class GroupIndexAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_group'
+
+    def get(self, request):
+        try:
+            groups = Group.objects.all()
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_posts = pagination.paginate_queryset(groups, request)
+                serializer = PostSerializer(paginated_posts, many=True, context={'request': request})
+                # El método `get_paginated_response` ya retorna un Response
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = GroupSerializer(groups, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
 
 #-----------------------------------------------------------------------------------------------------
 # Iniciar Sesión
@@ -598,6 +652,69 @@ class UserUploadPhotoAPIView(APIView, FileUploadMixin):
             return handle_exception(e)
         
 #-----------------------------------------------------------------------------------------------------
+# Editar y eliminar Usuarios con el admin
+#-----------------------------------------------------------------------------------------------------
+
+class UserGroupUpdateAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, user_id):
+        errors = {}
+        try:
+            # Obtener el usuario por id
+            user = User.objects.get(id=user_id)
+
+            # Verificar si el usuario existe y el solicitante tiene permiso
+            if not user:
+                return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Obtener el grupo enviado en los datos de la solicitud
+            group_id = request.data.get('group_id')
+            
+            if not group_id:
+                errors['group_id'] = ['Tiene que elegir un rol.']
+
+            # Si hay errores de validación, devolverlos
+            if errors:
+                return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verificar si el grupo existe
+            try:
+                group = Group.objects.get(id=group_id)
+            except Group.DoesNotExist:
+                return Response({'error': 'Rol no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Actualizar el grupo del usuario
+            user.groups.clear()  # Limpiar los grupos actuales
+            user.groups.add(group)  # Agregar el nuevo grupo
+
+            return Response({'message': 'Usuario actualizado exitosamente.'}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+    def delete(self, request, user_id):
+        try:
+            # Obtener el usuario por id
+            user = User.objects.get(id=user_id)
+
+            # Verificar si el usuario existe y el solicitante tiene permiso
+            if not user:
+                return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Eliminar el usuario
+            user.delete()
+
+            return Response({'message': 'Usuario eliminado exitosamente.'}, status=status.HTTP_200_OK)
+
+        except User.DoesNotExist:
+            return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+
+#-----------------------------------------------------------------------------------------------------
 # Seguimientos
 #-----------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------
@@ -951,6 +1068,47 @@ class ReactionDetailAPIView(APIView):
 #-----------------------------------------------------------------------------------------------------
 # Reportes
 #-----------------------------------------------------------------------------------------------------
+
+class ReportIndexGroupedPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # Obtener el estado "Reportado"
+            reported_status = Status.objects.get(name__iexact='reportado')
+
+            # Obtener los IDs de los comentarios que están en estado "Reportado"
+            reported_comments_ids = Comment.objects.filter(status=reported_status).values_list('id', flat=True)
+
+            # Obtener los IDs de las publicaciones que están en estado "Reportado"
+            reported_posts_ids = Post.objects.filter(status=reported_status).values_list('id', flat=True)
+
+            # Combinar los IDs de comentarios y publicaciones
+            combined_ids = list(reported_comments_ids) + list(reported_posts_ids)
+
+            # Obtener los reportes, agrupándolos por content_type y object_id, y contando los reportes
+            reports = (
+                Report.objects
+                .filter(object_id__in=combined_ids)  # Filtra los reportes por los IDs combinados
+                .values('content_type', 'object_id')
+                .annotate(reports_count=Count('id'))  # Cuenta los reportes para cada combinación
+                .order_by('-reports_count')  # Ordena por el conteo de reportes de forma descendente
+            )
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_reports = pagination.paginate_queryset(reports, request)
+                serializer = ReportGroupedSerializer(paginated_reports, many=True)  # Usa el nuevo serializer
+                return pagination.get_paginated_response({'data': serializer.data})
+
+            # Serializar los reportes
+            serializer = ReportGroupedSerializer(reports, many=True)  # Usa el nuevo serializer
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
+        
 class ReportIndexCreateAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -958,11 +1116,12 @@ class ReportIndexCreateAPIView(APIView):
 
     def get(self, request):
         try:
-            reports = Report.objects.all()
+            reports = Report.objects.all().order_by('-created_at')
 
             report_filter = ReportFilter(request.query_params, queryset=reports)
             filtered_reports = report_filter.qs
 
+            
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_reports = pagination.paginate_queryset(filtered_reports, request)
@@ -999,12 +1158,19 @@ class ReportIndexCreateAPIView(APIView):
             if serializer.is_valid():
                 report = serializer.save()  # Guarda el reporte
 
-                # Llama a la función para actualizar el estado del objeto
-                response = update_object_status(
-                    report.content_type.id, 
-                    report.object_id, 
-                    2 # Estatus 2 "Reportado"
-                )
+                try:
+                    # Buscar el ID del estado cuyo nombre es 'Reportado'
+                    reported_status = Status.objects.get(name__iexact='reportado')
+                    
+                    # Llamar a la función con el ID del estado 'Reportado'
+                    response = update_object_status(
+                        report.content_type.id, 
+                        report.object_id, 
+                        reported_status.id  # Asigna el ID dinámicamente
+                    )
+                except ObjectDoesNotExist:
+                    # Manejar el caso en que no exista un estado llamado 'Reportado'
+                    return Response({'error': 'Estado "Reportado" no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
                 
                 return response  # Retorna la respuesta de la función
             else:
@@ -1042,6 +1208,27 @@ class ReportShowAPIView(APIView):
         except Exception as e:
             return handle_exception(e)
         
+class UpdateStatusAPIView(APIView):
+
+    def post(self, request):
+        data = request.data.copy()
+        model = data.get('model')  # Ejemplo: 'post'
+        object_id = data.get('object_id')  # ID del objeto relacionado
+        status_id = data.get('status_id')  # ID del nuevo estado
+
+        try:
+            # Verificar que el modelo exista en ContentType
+            content_type = ContentType.objects.get(model=model.lower())
+
+            # Llamar a la función para actualizar el estado del objeto
+            response = update_object_status(content_type.id, object_id, status_id)
+            return response
+
+        except ContentType.DoesNotExist:
+            return Response({'error': 'Modelo no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
+        
 #-----------------------------------------------------------------------------------------------------
 # Publicaciones
 #-----------------------------------------------------------------------------------------------------
@@ -1052,7 +1239,7 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            posts = Post.objects.all().order_by('-created_at') 
+            posts = Post.objects.exclude(status__name__iexact='bloqueado').order_by('-created_at')
 
             post_filter = PostFilter(request.query_params, queryset=posts)
             filtered_posts = post_filter.qs
@@ -1086,9 +1273,19 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
             other_data = {k: v for k, v in request.data.items() if k != 'file'}
 
             # Asignar datos adicionales al diccionario
-            other_data['user_id'] = request.user.id
-            other_data['status_id'] = 1
+            # Asignar datos adicionales al diccionario
+            try:
+                # Buscar el ID del estado cuyo nombre es 'Activo'
+                active_status = Status.objects.get(name__iexact='activo')
 
+                other_data['status_id'] = active_status.id
+            except ObjectDoesNotExist:
+                # Manejar el caso en que no exista un estado llamado 'Activo'
+                return Response({'error': 'Estado "Activo" no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Asignar el ID del usuario
+            other_data['user_id'] = request.user.id
+            
             # Crear una instancia del serializer con los datos restantes
             serializer = PostSerializer(data=other_data)
 
@@ -1302,9 +1499,12 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            comments = Comment.objects.annotate(
+            comments = Comment.objects.exclude(
+                status__name__iexact='bloqueado' # Excluir comentarios de publicaciones bloqueadas
+            ).annotate(
                 reactions_count=Count('reactions')
             ).order_by('-reactions_count', '-created_at')  # Ordenar por reacciones y luego por fecha de creación
+
 
             comment_filter = CommentFilter(request.query_params, queryset=comments)
             filtered_comments = comment_filter.qs
@@ -1334,9 +1534,17 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
             other_data = {k: v for k, v in request.data.items() if k != 'file'}
 
             # Asignar datos adicionales al diccionario
-            other_data['user_id'] = request.user.id
-            other_data['status_id'] = 1
+            try:
+                # Buscar el ID del estado cuyo nombre es 'Activo'
+                active_status = Status.objects.get(name__iexact='activo')
+                other_data['status_id'] = active_status.id
+            except ObjectDoesNotExist:
+                # Manejar el caso en que no exista un estado llamado 'Activo'
+                return Response({'error': 'Estado "Activo" no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Asignar el ID del usuario
+            other_data['user_id'] = request.user.id
+            
             # Crear una instancia del serializer con los datos restantes
             serializer = CommentSerializer(data=other_data)
 
@@ -1459,7 +1667,7 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            stories = Story.objects.all().order_by('-created_at') 
+            stories = Story.objects.exclude(status__name__iexact='bloqueado').order_by('-created_at') 
 
             story_filter = StoryFilter(request.query_params, queryset=stories)
             filtered_histories = story_filter.qs
@@ -1485,8 +1693,16 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
             other_data = {k: v for k, v in request.data.items() if k != 'file'}
 
             # Asignar datos adicionales al diccionario
+            try:
+                # Buscar el ID del estado cuyo nombre es 'Activo'
+                active_status = Status.objects.get(name__iexact='activo')
+                other_data['status_id'] = active_status.id
+            except ObjectDoesNotExist:
+                # Manejar el caso en que no exista un estado llamado 'Activo'
+                return Response({'error': 'Estado "Activo" no encontrado.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Asignar el ID del usuario
             other_data['user_id'] = request.user.id
-            other_data['status_id'] = 1
             
             # Crear una instancia del serializer con los datos restantes
             serializer = StorySerializer(data=other_data)

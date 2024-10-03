@@ -202,6 +202,7 @@ class ReactionSerializer(serializers.ModelSerializer):
 # Reportes
 #-----------------------------------------------------------------------------------------------------
 class ReportSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Report
         fields = (
@@ -231,7 +232,45 @@ class ReportSerializer(serializers.ModelSerializer):
                 'user': user_representation,
             }
         }
+        
+class ReportGroupedSerializer(serializers.Serializer):
+    content_type = serializers.IntegerField()
+    object_id = serializers.IntegerField()
+    reports_count = serializers.IntegerField()
 
+    def to_representation(self, instance):
+        content_type_id = instance['content_type']
+        object_id = instance['object_id']
+
+        # Obtener el ContentType correspondiente
+        try:
+            content_type = ContentType.objects.get(id=content_type_id)
+        except ContentType.DoesNotExist:
+            content_type = None
+
+        # Buscar el objeto correspondiente según el content_type
+        if content_type:
+            model_class = content_type.model_class()
+            related_object = model_class.objects.filter(id=object_id).first()
+        else:
+            related_object = None
+
+        # Obtener la representación del objeto relacionado
+        related_object_representation = None
+        if isinstance(related_object, Comment):
+            related_object_representation = CommentSerializer(related_object).data
+        elif isinstance(related_object, Post):
+            related_object_representation = PostSerializer(related_object).data
+
+        # Formatear la respuesta
+        return {
+            'attributes': {
+                'content_type': content_type_id,
+                'object_id': object_id,
+                'reports_count': instance['reports_count'],
+                'related_object': related_object_representation,  # Incluye la representación del objeto relacionado
+            }
+        }
 #-----------------------------------------------------------------------------------------------------
 # Usuarios
 #-----------------------------------------------------------------------------------------------------

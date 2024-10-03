@@ -17,6 +17,12 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
 # Usuarios
 #--------------------------------------------------------------------------------------------------#
+
+    path('group/', GroupIndexAPIView.as_view(), name='group-index'),
+    
+#--------------------------------------------------------------------------------------------------#
+# Usuarios
+#--------------------------------------------------------------------------------------------------#
     path('user/', UserIndexAPIView.as_view(), name='user-index'),
     path('user/update/', UserUpdateAPIView.as_view(), name='user-update'),
     path('user/<int:pk>/', UserShowAPIView.as_view(), name='user-show'),
@@ -26,7 +32,13 @@ urlpatterns = [
 # Usuario-Perfil
 #--------------------------------------------------------------------------------------------------#
     path('user/change/password/', UserChangePasswordAPIView.as_view(), name='user-change-password'),
-    path('user/upload/photo/', UserUploadPhotoAPIView.as_view(), name='user-upload-photo'),
+    path('user/upload/photo/', UserUploadPhotoAPIView.as_view(), name='user-upload-photo'), 
+    
+#--------------------------------------------------------------------------------------------------#
+# Usuario-Actualizar-Eliminar
+#--------------------------------------------------------------------------------------------------#
+    
+    path('user/update/admin/<int:user_id>/', UserGroupUpdateAPIView.as_view(), name='user-update-admin'), 
     
 #--------------------------------------------------------------------------------------------------#
 # Usuario-Seguimiento
@@ -62,7 +74,9 @@ urlpatterns = [
 # Reportes
 #--------------------------------------------------------------------------------------------------#
     path('report/', ReportIndexCreateAPIView.as_view(), name='report'),
+    path('report/grouped/', ReportIndexGroupedPIView.as_view(), name='report-grouped'),
     path('report/<int:pk>/', ReportShowAPIView.as_view(), name='report-show'),
+    path('report/update/status/', UpdateStatusAPIView.as_view(), name='report-update-status'),
     
 #--------------------------------------------------------------------------------------------------#
 # Publicaciones
