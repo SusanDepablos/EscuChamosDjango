@@ -1393,7 +1393,7 @@ class CommentDetailAPIView(APIView, FileUploadMixin):
 
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
-        except comment.DoesNotExist:
+        except Comment.DoesNotExist:
             return Response({'error': 'El ID del comentario no está registrado.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
