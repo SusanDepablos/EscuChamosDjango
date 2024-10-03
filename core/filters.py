@@ -200,6 +200,9 @@ class CommentFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
         
+        if 'comment_id' not in self.data or not self.data.get('comment_id'):
+            self.queryset = self.queryset.filter(comment__isnull=True)
+        
 #-----------------------------------------------------------------------------------------------------
 # Compartidos
 #-----------------------------------------------------------------------------------------------------
