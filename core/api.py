@@ -701,9 +701,6 @@ class UserGroupUpdateAPIView(APIView):
             # Obtener el usuario por id
             user = User.objects.get(id=user_id)
 
-            # Eliminar los registros referenciados en core_historicaluser
-            HistoricalUser.objects.filter(id=user.id).delete()
-
             # Eliminar el usuario
             user.delete()
 

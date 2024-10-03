@@ -72,7 +72,7 @@ class User(TimestampedMixin, SoftDeleteMixin, AbstractBaseUser, PermissionsMixin
     country = models.ForeignKey(Country, on_delete=models.PROTECT, blank=True, null=True, related_name='users', verbose_name='País')
     is_active = models.BooleanField(default=True, verbose_name='¿Está Activo?')
     is_staff = models.BooleanField(default=False, verbose_name='¿Es Admin?')
-    historical = HistoricalRecords()
+    historical = HistoricalRecords(cascade_delete_history=True)
     objects = UserManager()
     
     files = GenericRelation('File')
