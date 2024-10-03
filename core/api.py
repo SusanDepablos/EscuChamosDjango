@@ -16,6 +16,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import ObjectDoesNotExist
+from core.models import HistoricalUser
 import random
 import string
 
@@ -700,9 +701,8 @@ class UserGroupUpdateAPIView(APIView):
             # Obtener el usuario por id
             user = User.objects.get(id=user_id)
 
-            # Verificar si el usuario existe y el solicitante tiene permiso
-            if not user:
-                return Response({'error': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+            # Eliminar los registros referenciados en core_historicaluser
+            HistoricalUser.objects.filter(history_user_id=user.id).delete()
 
             # Eliminar el usuario
             user.delete()
