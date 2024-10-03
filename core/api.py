@@ -702,7 +702,7 @@ class UserGroupUpdateAPIView(APIView):
             user = User.objects.get(id=user_id)
 
             # Eliminar los registros referenciados en core_historicaluser
-            HistoricalUser.objects.filter(history_user_id=user.id).delete()
+            HistoricalUser.objects.filter(id=user.id).delete()
 
             # Eliminar el usuario
             user.delete()
