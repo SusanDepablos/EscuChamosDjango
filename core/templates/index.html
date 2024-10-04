@@ -1,477 +1,407 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
-
-<head>
-  <!-- Basic -->
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- Mobile Metas -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <!-- Site Metas -->
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-
-  <title>EscuChamos</title>
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="{% static 'img/logo-white.png' %}" />
-
-  <!-- slider stylesheet -->
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}" />
-
-  <!-- fonts style -->
-  <link href="https://fonts.googleapis.com/css?family=Dosis:400,500|Poppins:400,700&display=swap" rel="stylesheet">
-  <!-- Custom styles for this template -->
-  <link href="{% static 'css/style.css' %}" rel="stylesheet" />
-  <!-- responsive style -->
-  <link href="{% static 'css/responsive.css' %}" rel="stylesheet" />
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EscuChamos</title>
+    <link rel="icon" type="img/logo.png' %}" href="{% static 'img/logo-white.png' %}" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Dosis:400,500|Poppins:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+    
 </head>
 
 <body>
-      <header class="header_section">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{% static 'img/EscuChamos.png' %}" alt="Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'posts-index' %}">Publicaciones</a>
+                </li>
+                <li class="nav-item">
+                    <!-- {% if user.is_authenticated and user.is_staff %} -->
+                    <a class="nav-link"href="{% url 'admin:index' %}">Admin</a>
+                    <!-- {% endif %} -->
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container"></div>
+            <div class="content">
+                <h1>Asociación Civil EscuChamos</h1>
+                <p class="text-style">Somos una iniciativa de educomunicación que promueve el liderazgo de mujeres y jóvenes. Utilizamos herramientas prácticas para analizar y mejorar su entorno.</p>
+                <div class="social-media">
+                    <a href="https://www.facebook.com/share/t9L19WXeFZsipg2s/" target="_blank" class="social-icon facebook">
+                        <img src="{% static 'img/icon-1.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">
+                    </a>
+                    <a href="https://youtube.com/@acescuchamos?si=M-GNMxQ36-prOuso" target="_blank" class="social-icon youtube">
+                        <img src="{% static 'img/icon-2.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">
+                    </a>
+                    <a href="https://www.instagram.com/proyectoescuchamos?igsh=MXJvNXU0MmhnYWFpNA==" target="_blank" class="social-icon instagram">
+                        <img src="{% static 'img/icon-3.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">    
+                    </a>
+                    <a href="https://" target="_blank" class="social-icon instagram">
+                        <img src="{% static 'img/icon-4.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">    
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="custom_heading text-center" style="padding-top: 35px;"> Nuestra <span>Información</span></h2>
+        
+        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="3"></li> 
+            </ol>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="{% static 'img/carousel-1.png' %}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption">
+                        <h5>IDENTIDAD</h5>
+                        <p>
+                            Somos una iniciativa vinculada a la educomunicación desde la perspectiva de la comunicación para el desarrollo, que busca promover entre las comunidades el liderazgo de mujeres y jóvenes, valiéndose de mecanismos para el análisis de su realidad y herramientas prácticas para configurar mejoras de su entorno desde los ciudadanos en especial entre niños, niñas, adolescentes, jóvenes y mujeres.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <img src="{% static 'img/carousel-2.png' %}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption">
+                        <h5>MISIÓN</h5>
+                        <p>
+                            Buscamos alcanzar la promoción social con acciones que mejoren las capacidades individuales y colectivas en las comunidades desde la educación y las herramientas comunicacionales para el fortalecimiento de la identidad comunitaria, la vivencia de herramientas de resolución de conflictos y el emprendimiento para la reconstrucción del tejido social.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <img src="{% static 'img/carousel-3.png' %}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption">
+                        <h5>VISIÓN</h5>
+                        <p>
+                            Constituirnos en una red de ciudadanos proactivos conectados en diversos puntos del país y del mundo desde la educomunicación con poder de convocatoria y movilización en las comunidades para gestionar intervención de los contextos desde los ciudada.nos y su incidencia local, para alcanzar mejoras sostenibles de sus proyectos de vida individuales y colectivos.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="carousel-item"> 
+                    <img src="{% static 'img/carousel-4.png' %}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption">
+                        <h5>VALORES DE LA RED</h5>
+                                • Fraternidad
+                            <br>• Transparencia
+                            <br>• Imparcialidad
+                            <br>• Sostenibilidad
+                            <br>• Construcción colectiva
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="service_section layout_padding">
         <div class="container-fluid">
-            <nav class="navbar navbar-expand-lg custom_nav-container">
-                <a class="navbar-brand" href="{% url 'index' %}">
-                    <img src="{% static 'img/banner.png' %}" alt="" class="img">
-                </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <div class="d-flex mx-auto flex-column flex-lg-row align-items-center">
-                        <ul class="navbar-nav ml-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'index' %}">Inicio</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'posts-index' %}">Publicaciones</a>
-                            </li>
-                            <li class="nav-item">
-                                {% if user.is_authenticated and user.is_staff %}
-                                <a class="nav-link"href="{% url 'admin:index' %}">Ir al Admin</a>
-                                {% endif %}
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </div>
-    </header>
-  <div class="hero_area">
-    <section class=" slider_section position-relative">
-      <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators">
-          <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-          <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-        </ol>
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-4 offset-md-2">
-                    <div class="slider_detail-box">
-                      <h1>
-                        NOSOTROS
-                        <span>
-                          Identidad
-                        </span>
-                      </h1>
-                      <p class="justificado">
-    Somos una iniciativa vinculada a la educomunicación desde la perspectiva de la comunicación para el desarrollo, que busca promover entre las comunidades el liderazgo de mujeres y jóvenes, valiéndose de mecanismos para el análisis de su realidad y herramientas prácticas para configurar mejoras de su entorno desde los ciudadanos en especial entre niños, niñas, adolescentes, jóvenes y mujeres.
-                      </p>
-                      <div class="btn-box">
-                      </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="slider_img-box">
-                    <img src= "{% static "img/c-1.png" %}" alt="">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="carousel-item ">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-4 offset-md-2">
-                  <div class="slider_detail-box">
-                    <h1>
-                      NOSOTROS
-                      <span>
-                        Misión
-                      </span>
-                    </h1>
-                    <p class="justificado">
-  Buscamos alcanzar la promoción social con acciones que mejoren las capacidades individuales y colectivas en las comunidades desde la educación y las herramientas comunicacionales para el fortalecimiento de la identidad comunitaria, la vivencia de herramientas de resolución de conflictos y el emprendimiento para la reconstrucción del tejido social.
-                    </p>
-                    <div class="btn-box">
-                    </div>
-                  </div>
-                </div>
-            
-                <div class="col-md-6">
-                  <div class="slider_img-box">
-                    <img src= "{% static "img/c-2.png" %}" alt="">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="carousel-item">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-4 offset-md-2">
-                  <div class="slider_detail-box">
-                    <h1>
-                      NOSOTROS
-                      <span>
-                        Visión
-                      </span>
-                    </h1>
-                    <p class="justificado">
-  Constituirnos en una red de ciudadanos proactivos conectados en diversos puntos del país y del mundo desde la educomunicación con poder de convocatoria y movilización en las comunidades para gestionar intervención de los contextos desde los ciudada.nos y su incidencia local, para alcanzar mejoras sostenibles de sus proyectos de vida individuales y colectivos.
-                    </p>
-                    <div class="btn-box">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="slider_img-box">
-                    <img src= "{% static "img/c-3.png" %}" alt="">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- about section -->
-
-  <section class="about_section layout_padding">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="img-box">
-            <img src= "{% static "img/v-1.png" %}" alt="">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="detail-box">
-            <h2 class="custom_heading">
-              Valores de la
-              <span>
-                RED
-              </span>
-            </h2>
-            <p style="color: #000000; margin-top: 45px; margin-bottom: 40px; font-weight: 700px;">
-              <br>• Fraternidad
-              <br>• Transparencia
-              <br>• Imparcialidad
-              <br>• Sostenibilidad
-              <br>• Construcción colectiva
-          </p>          
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="service_section layout_padding">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-12">
-          <h2 class="custom_heading">
-            Nuestros <span>Servicios</span>
-          </h2>
-          <div class="container layout_padding2">
             <div class="row">
-              <div class="col-md-4">
-                <div class="img_box">
-                  <img src= "{% static "img/s-1.png" %}" alt="">
+                <div class="col-md-12">
+                    <h2 class="custom_heading">Nuestros <span>Servicios</span> </h2>
+                    <div class="container layout_padding2">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Talleres de Educomunicación y Liderazgo Comunitario</h6>
+                                <p>
+                                    Ofrecer talleres y capacitaciones para mujeres, jóvenes, y adolescentes en temas de educomunicación, liderazgo, resolución de conflictos y fortalecimiento de la identidad comunitaria. Estos talleres permitirían a los participantes desarrollar habilidades prácticas para analizar su realidad, identificar problemas y diseñar soluciones desde una perspectiva de comunicación para el desarrollo.
+                                </p>
+                            </div>
+
+                            <div class="col-md-4">
+                                <h6>Programas de Emprendimiento Social</h6>
+                                <p>
+                                    Implementar programas que fomenten el emprendimiento entre los ciudadanos,  especialmente enfocados en mujeres y jóvenes. Estos programas podrían incluir formación en habilidades empresariales, acceso a recursos y asesoramiento para la creación de proyectos que contribuyan a la reconstrucción del tejido social y al desarrollo sostenible de las comunidades.
+                                </p>
+                            </div>
+
+                            <div class="col-md-4">
+                                <h6>Red de Voluntariado y Movilización Comunitaria</h6>
+                                <p>
+                                    Crear y gestionar una red de voluntarios comprometidos con la promoción social y la mejora de las capacidades comunitarias. Esta red podría llevar a cabo actividades de movilización para intervenir en contextos locales, impulsar proyectos comunitarios y promover la participación activa de los ciudadanos en la mejora de su entorno, tanto a nivel local como global.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="detail_box">
-                  <h6>
-                    Talleres de Educomunicación y Liderazgo Comunitario
-                  </h6>
-                  <p class="justificado">
-                    Ofrecer talleres y capacitaciones para mujeres, jóvenes, y adolescentes en temas de educomunicación, liderazgo, resolución de conflictos y fortalecimiento de la identidad comunitaria. Estos talleres permitirían a los participantes desarrollar habilidades prácticas para analizar su realidad, identificar problemas y diseñar soluciones desde una perspectiva de comunicación para el desarrollo.
-                  </p>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="img_box">
-                  <img src= "{% static "img/s-2.png" %}" alt="">
-                </div>
-                <div class="detail_box">
-                  <h6>
-                    Programas de Emprendimiento Social
-                  </h6>
-                  <p class="justificado">
-                    Implementar programas que fomenten el emprendimiento entre los ciudadanos, especialmente enfocados en mujeres y jóvenes. Estos programas podrían incluir formación en habilidades empresariales, acceso a recursos y asesoramiento para la creación de proyectos que contribuyan a la reconstrucción del tejido social y al desarrollo sostenible de las comunidades.
-                  </p>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="img_box">
-                  <img src= "{% static "img/s-3.png" %}" alt="">
-                </div>
-                <div class="detail_box">
-                  <h6>
-                    Red de Voluntariado y Movilización Comunitaria
-                  </h6>
-                  <p class="justificado">
-                    Crear y gestionar una red de voluntarios comprometidos con la promoción social y la mejora de las capacidades comunitarias. Esta red podría llevar a cabo actividades de movilización para intervenir en contextos locales, impulsar proyectos comunitarios y promover la participación activa de los ciudadanos en la mejora de su entorno, tanto a nivel local como global.
-                  </p>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-
-
-  <section class="gallery-section layout_padding">
-    <div class="container">
-      <h2 class="custom_heading" style="text-align: center;" >
-        Galería
-      </h2>
-    </div>
-    <div class="container">
-      <div class="img_box box-1">
-        <img src="{% static 'img/g-1.jpg' %}" alt="">
-      </div>
-      <div class="img_box box-2">
-        <img src="{% static 'img/g-2.png' %}" alt="">
-      </div>
-      <div class="img_box box-3">
-        <img src="{% static 'img/g-3.jpg' %}" alt="">
-      </div>
-      <div class="img_box box-4">
-        <img src="{% static 'img/g-4.jpg' %}" alt="">
-      </div>
-      <div class="img_box box-5">
-        <img src="{% static 'img/g-5.jpg' %}" alt="">
-      </div>
-    </div>
-  </section>
-
-  <section class="client_section layout_padding-bottom" style="padding-top: 50px;">
-    <div class="container">
-      <h2 class="custom_heading text-center">
-        Nuestro 
-        <span>
-          Equipo
-        </span>
-      </h2>
-      <div id="carouselExample2Indicators" class="carousel slide" data-ride="carousel">
-        <ol class="carousel-indicators">
-          <li data-target="#carouselExample2Indicators" data-slide-to="0" class="active"></li>
-          <li data-target="#carouselExample2Indicators" data-slide-to="1"></li>
-          <li data-target="#carouselExample2Indicators" data-slide-to="2"></li>
-          <li data-target="#carouselExample2Indicators" data-slide-to="3"></li>
-          <li data-target="#carouselExample2Indicators" data-slide-to="4"></li>
-        </ol>
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <div class="layout_padding2 pl-100">
-              <div class="client_container ">
-                <div class="img_box">
-                  <img src="{% static 'img/e-1.png' %}" width="180" height="220" alt="">
+    <section class="gallery_section layout_padding" id="gallery">
+        <div class="container-fluid">
+            <h2 class="custom_heading text-center">Nuestra <span>Galería</span> </h2>
+            <div class="row justify-content-center">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img1')">
+                            <img src="{% static 'img/gallery-1.png' %}" class="img-fluid" alt="Fotografía 1">
+                        </a>
+                    </div>
                 </div>
-                <div class="detail_box">
-                  <h5>
-                    <strong>
-                    Andrea Leal 
-                    </strong>
-                  </h5>
-                  <p>
-                    Directora general
-                  </p>
+
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img2')">
+                            <img src="{% static 'img/gallery-2.png' %}" class="img-fluid" alt="Fotografía 2">
+                        </a>
+                    </div>
                 </div>
-              </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img3')">
+                            <img src="{% static 'img/gallery-3.png' %}" class="img-fluid" alt="Fotografía Grande">
+                        </a>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="carousel-item">
-            <div class="layout_padding2 pl-100">
-              <div class="client_container ">
-                <div class="img_box">
-                  <img src="{% static 'img/e-2.png' %}" width="180" height="220" alt="">
+            <div class="row justify-content-center">
+                <div class="col-md-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img4')">
+                            <img src="{% static 'img/gallery-4.png' %}" class="img-fluid" alt="Fotografía 4">
+                        </a>
+                    </div>
                 </div>
-                <div class="detail_box">
-                  <h5>
-                    <strong>
-                    María Stella Benítez 
-                    </strong>
-                  </h5>
-                  <p>
-                    Coordinadora de proyectos
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div class="carousel-item">
-            <div class="layout_padding2 pl-100">
-              <div class="client_container ">
-                <div class="img_box">
-                  <img src="{% static 'img/e-3.png' %}" width="180" height="220" alt="">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img5')">
+                            <img src="{% static 'img/gallery-5.png' %}" class="img-fluid" alt="Fotografía 5">
+                        </a>
+                    </div>
                 </div>
-                <div class="detail_box">
-                  <h5>
-                    <strong>
-                    Yorman Galviz 
-                    </strong>
-                  </h5>
-                  <p>
-                    Coordinador de comunicaciones
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div class="carousel-item">
-            <div class="layout_padding2 pl-100">
-              <div class="client_container ">
-                <div class="img_box">
-                  <img src="{% static 'img/e-4.png' %}" width="180" height="220" alt="">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img6')">
+                            <img src="{% static 'img/gallery-6.png' %}" class="img-fluid" alt="Fotografía 6">
+                        </a>
+                    </div>
                 </div>
-                <div class="detail_box">
-                  <h5><strong>
-                    Izamar Leal
-                    </strong> 
-                  </h5>
-                  <p>
-                    Coordinadora de promoción social 
-                  </p>
-                </div>
-              </div>
             </div>
-          </div>
 
-          <div class="carousel-item">
-            <div class="layout_padding2 pl-100">
-              <div class="client_container ">
-                <div class="img_box">
-                  <img src="{% static 'img/e-5.png' %}" width="180" height="220" alt="">
+            <div class="row justify-content-center">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img7')">
+                            <img src="{% static 'img/gallery-7.png' %}" class="img-fluid" alt="Fotografía 7">
+                        </a>
+                    </div>
                 </div>
-                <div class="detail_box">
-                  <h5><strong>
-                    Eymar García 
-                    </strong>
-                  </h5>
-                  <p>
-                    Coordinador jurídico
-                  </p>
+
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img8')">
+                            <img src="{% static 'img/gallery-8.png' %}" class="img-fluid" alt="Fotografía 8">
+                        </a>
+                    </div>
                 </div>
-              </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="gallery_img-box">
+                        <a href="javascript:void(0);" onclick="openModal('img9')">
+                            <img src="{% static 'img/gallery-9.png' %}" class="img-fluid" alt="Fotografía Grande">
+                        </a>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
+    </section>
+
+    <div class="lightbox" id="img1" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-1.png' %}" class="img-fluid" alt="Fotografía 1" onclick="event.stopPropagation()">
     </div>
-  </section>
 
+    <div class="lightbox" id="img2" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-2.png' %}" class="img-fluid" alt="Fotografía 2" onclick="event.stopPropagation()">
+    </div>
 
-  <section class="map_section" style="display: flex; justify-content: center; align-items: center;">
-    <div class="map_container" style="height: 500px; width: 90%; padding-bottom: 10%;">
-      <h2 class="custom_heading text-center" style="padding-bottom: 30px;"> 
-        Nuestra
-        <span>
-          Ubicación
-        </span>
-      </h2>
-      <!-- Inserta el iframe de Google Maps aquí -->
-      <div style="width:100%; height:100%; position:relative;">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3953.867309055418!2d-72.35868084472966!3d7.6973861417582!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zN8KwNDEnNTAuMCJOIDcywrAyMSczMS40Ilc!5e0!3m2!1ses!2sve!4v1724786163705!5m2!1ses!2sve"
-          width="100%" 
-          height="100%" 
-          style="border:0;" 
-          allowfullscreen="" 
-          loading="lazy" 
-          referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
-        <div style="position:absolute; bottom:10px; left:10px; background-color:white; padding:10px; border:1px solid #ccc; border-radius:5px; box-shadow: 0px 0px 10px rgba(0,0,0,0.2);">
-          <strong>Asociación Civil EscuChamos</strong><br>
-          San Martín, detrás del Estadio Leonardo Alarcón
+    <div class="lightbox" id="img3" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-3.png' %}" class="img-fluid" alt="Fotografía 3" onclick="event.stopPropagation()">
+    </div>
+
+    <div class="lightbox" id="img4" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-4.png' %}" class="img-fluid" alt="Fotografía 4" onclick="event.stopPropagation()">
+    </div>
+
+    <div class="lightbox" id="img5" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-5.png' %}" class="img-fluid" alt="Fotografía 5" onclick="event.stopPropagation()">
+    </div>
+
+    <div class="lightbox" id="img6" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-6.png' %}" class="img-fluid" alt="Fotografía 6" onclick="event.stopPropagation()">
+    </div>
+
+    <div class="lightbox" id="img7" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-7.png' %}" class="img-fluid" alt="Fotografía 7" onclick="event.stopPropagation()">
+    </div>
+
+    <div class="lightbox" id="img8" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-8.png' %}" class="img-fluid" alt="Fotografía 8" onclick="event.stopPropagation()">
+    </div>
+
+    <div class="lightbox" id="img9" onclick="closeModal()">
+        <a href="javascript:void(0);" class="close" onclick="closeModal()">&times;</a>
+        <img src="{% static 'img/gallery-9.png' %}" class="img-fluid" alt="Fotografía Grande 9" onclick="event.stopPropagation()">
+    </div>
+
+    <section class="equipo_section layout_padding">
+        <div class="container-fluid">
+            <h2 class="custom_heading text-center">Nuestro <span>Equipo</span></h2>
+            <div class="row justify-content-center">
+                <div class="col-md-2 col-sm-4 mb-4">
+                    <div class="equipo_img-box shadow-lg">
+                        <img src="{% static 'img/equipment-1.png' %}" class="img-fluid" alt="Equipo 1" style="width: 900px; height: 200px;">
+                        <div class="overlay">
+                            <div class="text">
+                                <h5><strong> Andrea Leal </strong></h5>
+                                <p>Directora</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-sm-4 mb-4">
+                    <div class="equipo_img-box shadow-lg">
+                        <img src="{% static 'img/equipment-2.png' %}" class="img-fluid" alt="Equipo 2" style="width: 900px; height: 200px;">
+                        <div class="overlay">
+                            <div class="text">
+                                <h5><strong>María Stella Benítez</strong></h5>
+                            <p>Coordinadora de proyectos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-sm-4 mb-4">
+                    <div class="equipo_img-box shadow-lg">
+                        <img src="{% static 'img/equipment-3.png' %}" class="img-fluid" alt="Equipo 3" style="width: 900px; height: 200px;">
+                        <div class="overlay">
+                            <div class="text">
+                                <h5><strong>Yorman Galviz</strong></h5>
+                                <p>Coordinador de comunicaciones</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-sm-4 mb-4">
+                    <div class="equipo_img-box shadow-lg">
+                        <img src="{% static 'img/equipment-4.png' %}" class="img-fluid" alt="Equipo 4" style="width: 900px; height: 200px;">
+                        <div class="overlay">
+                            <div class="text">
+                                <h5><strong>Izamar Leal</strong></h5>
+                                <p>Coordinadora de promoción social</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-sm-4 mb-4">
+                    <div class="equipo_img-box shadow-lg">
+                        <img src="{% static 'img/equipment-5.png' %}" class="img-fluid" alt="Equipo 5" style="width: 900px; height: 200px;">
+                        <div class="overlay">
+                            <div class="text">
+                                <h5><strong>Eymar García</strong></h5>
+                                <p>Coordinador <br>jurídico</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>      
+    </section>
+
+    <div id="location-icon" onclick="toggleMap()">
+        <i class="fas fa-map-marker-alt"></i>
     </div>
-  </section>
-  
 
-  <section class="info_section layout_padding2">
-    
-      <div class="info_items">
-          <div class="item ">
-            <div class="img-box box-1">
-              <img src="" alt="">
-            </div>
-            <div class="detail-box">
-              <p >
-                Ubicada en San Martín, calle 10, detrás del Estadio Leonardo Alarcón, Rubio, Estado Táchira
-              </p>
-            </div>
-          </div>
-
-          <div class="item ">
-            <div class="img-box box-2">
-              <img src="" alt="">
-            </div>
-            <div class="detail-box">
-              <p>
-                0416-0911798
-              </p>
-            </div>
-          </div>
-
-          <div class="item ">
-            <div class="img-box box-3">
-              <img src="" alt="">
-            </div>
-            <div class="detail-box">
-              <p>
-                proyectoescuchamostachira@gmail.com
-              </p>
-            </div>
-          </div>
-      </div>
-  </section>
-
-  <section class="footer_section">
-    <div class="social-icons">
-      <a href="https://www.instagram.com/proyectoescuchamos" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
-      <a href="https://www.facebook.com/ProyectosEscuChamos" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://www.youtube.com/@ACEscuChamos" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+    <div id="map" style="display: none;">
+        <button id="close-map" onclick="toggleMap()">X</button>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3953.867309055418!2d-72.35868084472966!3d7.6973861417582!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zN8KwNDEnNTAuMCJOIDcywrAyMSczMS40Ilc!5e0!3m2!1ses!2sve!4v1724786163705!5m2!1ses!2sve" 
+                width="300" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        <div class="info_box">
+            <strong>Asociación Civil EscuChamos</strong><br>
+            San Martín, detrás del Estadio Leonardo Alarcón
+        </div>
     </div>
-    <p>
-      &copy; 2024 Todos los derechos reservados por <span class="brand-name">Escu</span><span class="brand-name2">Chamos</span>
-    </p>
-  </section>
 
-  <!-- JavaScript files -->
-  <script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>
+    <section class="info_section layout_padding2">
+        <div class="info_items">
+            <div class="item">
+                <div class="img-box box-1">
+                    <i class="fas fa-map-marker-alt" style="color: white; font-size: 40px;"></i>
+                </div>
+                <div class="detail-box">
+                    <br>Ubicada en San Martín, calle 10, detrás del Estadio Leonardo Alarcón, Rubio, Estado Táchira
+                </div>
+            </div>
+
+            <div class="item">
+                <div class="img-box box-2">
+                    <i class="fas fa-phone" style="color: white; font-size: 40px;"></i>
+                </div>
+                <div class="detail-box">
+                    <br>0416-0911798
+                </div>
+            </div>
+
+            <div class="item">
+                <div class="img-box box-3">
+                    <i class="fas fa-envelope" style="color: white; font-size: 40px;"></i>
+                </div>
+                <div class="detail-box">
+                    <br>proyectoescuchamostachira@gmail.com
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer_section">
+        <p>
+            &copy; 2024 Todos los derechos reservados por <span class="brand-name">Escu</span><span class="brand-name2">Chamos</span>
+        </p>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/map.js' %}"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
 </body>
 
