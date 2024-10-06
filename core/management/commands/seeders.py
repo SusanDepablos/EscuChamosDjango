@@ -79,7 +79,7 @@ class Command(BaseCommand):
         type_posts = [
             ('Normal', 'Publicación normal de texto'),
             ('Multimedia', 'Publicación que contiene imágenes, videos o audios'),
-            ('Republicado', 'Publicación Republicada')
+            ('Republicado', 'Publicación Republicada'),
             ('Escuchamos', 'Publicación donde los voluntarios y administradores pueden interactuar con la comunidad')
         ]
         for name, description in type_posts:
