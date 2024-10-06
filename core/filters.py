@@ -156,28 +156,21 @@ class PostFilter(django_filters.FilterSet):
     body = django_filters.CharFilter()
     user_id = django_filters.NumberFilter(field_name='user__id', lookup_expr='exact')
     status_id = django_filters.NumberFilter(field_name='status__id', lookup_expr='exact')
+    type_post_id = django_filters.NumberFilter(field_name='type_post__id', lookup_expr='exact')
 
     class Meta:
         model = Post
         fields = [
             'body',
             'user_id',
-            'status_id'
+            'status_id',
+            'type_post_id'  # Añadido para permitir filtrar por type_post_id
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
-        
-    def filter_queryset(self, queryset):
-        queryset = super().filter_queryset(queryset)
 
-        # Si se está filtrando por status_id=2, ordena por la cantidad de reportes de forma descendente
-        if self.data.get('status_id') == '2':
-            queryset = queryset.annotate(report_count=Count('reports')).order_by('-report_count')
-
-        return queryset
-        
 #-----------------------------------------------------------------------------------------------------
 # Comentarios
 #-----------------------------------------------------------------------------------------------------

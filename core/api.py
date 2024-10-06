@@ -1295,6 +1295,11 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
 
                 if type_post_id == 1 and not request.data.get('body'):
                     errors['body'] = ['Este campo no puede estar en blanco.']
+                    
+                if type_post_id == 4:
+                    # Si no hay archivos, el cuerpo es obligatorio
+                    if not file_list and not request.data.get('body'):
+                        errors['body'] = ['Este campo no puede estar en blanco.']
 
                 if errors:
                     return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
