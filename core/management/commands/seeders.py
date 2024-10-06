@@ -80,6 +80,7 @@ class Command(BaseCommand):
             ('Normal', 'Publicación normal de texto'),
             ('Multimedia', 'Publicación que contiene imágenes, videos o audios'),
             ('Republicado', 'Publicación Republicada')
+            ('Escuchamos', 'Publicación donde los voluntarios y administradores pueden interactuar con la comunidad')
         ]
         for name, description in type_posts:
             TypePost.objects.get_or_create(name=name, description=description)
