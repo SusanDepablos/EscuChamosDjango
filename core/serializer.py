@@ -255,22 +255,29 @@ class ReportGroupedSerializer(serializers.Serializer):
         else:
             related_object = None
 
-        # Obtener la representación del objeto relacionado
-        related_object_representation = None
-        if isinstance(related_object, Comment):
-            related_object_representation = CommentSerializer(related_object).data
-        elif isinstance(related_object, Post):
-            related_object_representation = PostSerializer(related_object).data
+        # Definir las relaciones para 'post' y 'comment'
+        post_representation = None
+        comment_representation = None
 
-        # Formatear la respuesta
+        # Verificar el tipo de objeto relacionado
+        if isinstance(related_object, Comment):
+            comment_representation = CommentSerializer(related_object).data
+        elif isinstance(related_object, Post):
+            post_representation = PostSerializer(related_object).data
+
+        # Formatear la respuesta con las relaciones
         return {
             'attributes': {
                 'content_type': content_type_id,
                 'object_id': object_id,
                 'reports_count': instance['reports_count'],
-                'related_object': related_object_representation,  # Incluye la representación del objeto relacionado
+            },
+            'relationships': {
+                'post': post_representation,
+                'comment': comment_representation,
             }
         }
+
 #-----------------------------------------------------------------------------------------------------
 # Usuarios
 #-----------------------------------------------------------------------------------------------------
