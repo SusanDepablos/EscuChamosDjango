@@ -460,7 +460,6 @@ class UserUpdateAPIView(APIView):
         try:
             # Obtener el usuario autenticado
             user = request.user
-            
             data = request.data.copy()
             
             # Limpiar campos vacíos
@@ -472,7 +471,17 @@ class UserUpdateAPIView(APIView):
             if 'username' in data:
                 data['username'] = data['username'].lower()
             
-            serializer = UserSerializer(user, data=data, partial=True)  # Permitir actualizaciones parciales
+            # Validar que el correo sea de @gmail.com si se está actualizando el email
+            if 'email' in data:
+                email = data['email']
+                if not email.endswith('@gmail.com'):
+                    return Response(
+                        {'validation': {'email': 'El correo debe ser una dirección de @gmail.com.'}},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            # Crear el serializer y permitir actualizaciones parciales
+            serializer = UserSerializer(user, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'message': 'Usuario actualizado exitosamente.'}, status=status.HTTP_200_OK)
@@ -480,6 +489,7 @@ class UserUpdateAPIView(APIView):
                 return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return handle_exception(e)
+
         
 #-----------------------------------------------------------------------------------------------------
 # Actualizar Usuario 

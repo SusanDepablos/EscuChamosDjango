@@ -4,6 +4,7 @@ from .mixins import *
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.core.validators import MinLengthValidator
 
 #-----------------------------------------------------------------------------------------------------
 # País 
@@ -60,11 +61,22 @@ class UserManager(BaseUserManager):
 #-----------------------------------------------------------------------------------------------------
 
 class User(TimestampedMixin, SoftDeleteMixin, AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, unique=True, verbose_name='Usuario')
-    name = models.CharField(max_length=255, verbose_name='Nombre y Apellido')
+    username = models.CharField(
+        max_length=255,
+        unique=True,
+        verbose_name='Usuario',
+        validators=[MinLengthValidator(3)],
+        error_messages={
+            'unique': "Este nombre de usuario ya está en uso.",
+        }
+    )
+    name = models.CharField(max_length=255, verbose_name='Nombre y Apellido', validators=[MinLengthValidator(3)])
     biography = models.TextField(blank=True, null=True, verbose_name='Biografía')
     password = models.CharField(max_length=255, verbose_name='Contraseña')
-    email = models.EmailField(max_length=255, unique=True, verbose_name='Correo Electrónico')
+    email = models.EmailField(max_length=255, unique=True, verbose_name='Correo Electrónico', 
+        error_messages={
+            'unique': "Este correo electrónico ya está en uso.",
+        })
     is_email_verified = models.BooleanField(default=False, verbose_name='El correo está verificado')
     verification_code = models.CharField(max_length=10, blank=True, null=True, verbose_name='Código de verificación')
     phone_number = models.CharField(max_length=255, unique=True, blank=True, null=True, verbose_name='Número de teléfono')

@@ -378,15 +378,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         if len(value) < 8:
             raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
         if not any(char.isdigit() for char in value) or not any(char.isalpha() for char in value):
-            raise serializers.ValidationError("La contraseña debe ser alfanumérica.")
+            raise serializers.ValidationError("La contraseña debe incluir tanto letras como números.")
+        return value
+
+    def validate_email(self, value):
+        if not value.endswith('@gmail.com'):
+            raise serializers.ValidationError("El correo debe ser una dirección de @gmail.com.")
         return value
 
     def validate_birthdate(self, value):
-        # Verifica si el campo birthdate está vacío
         if not value:
             raise serializers.ValidationError("Este campo no puede estar en blanco.")
-
-        # Verifica el formato si el valor no está vacío
         try:
             datetime.strptime(value, '%Y-%m-%d')
         except ValueError:
@@ -429,6 +431,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             'birthdate': {'required': False},
             'checkbox': {'required': True},
         }
+
 #-----------------------------------------------------------------------------------------------------
 # Estados
 #-----------------------------------------------------------------------------------------------------
