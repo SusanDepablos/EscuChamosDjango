@@ -428,11 +428,11 @@ class RecoverAccountChangePasswordAPIView(APIView):
 class UserIndexAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    # required_permissions = 'view_user'
 
     def get(self, request):
         try:
-            users = User.objects.all()
+            # Obtiene todos los usuarios excepto el usuario autenticado
+            users = User.objects.exclude(id=request.user.id)
 
             user_filter = UserFilter(request.query_params, queryset=users)
             filtered_users = user_filter.qs
@@ -442,10 +442,10 @@ class UserIndexAPIView(APIView):
                 paginated_users = pagination.paginate_queryset(filtered_users, request)
                 serializer = UserSerializer(paginated_users, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
-            
+
             serializer = UserSerializer(filtered_users, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             return handle_exception(e)
 
