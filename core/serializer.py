@@ -261,9 +261,11 @@ class ReportGroupedSerializer(serializers.Serializer):
 
         # Verificar el tipo de objeto relacionado
         if isinstance(related_object, Comment):
-            comment_representation = CommentSerializer(related_object).data
+            # Pasar solo el request al serializer de comentarios
+            comment_representation = CommentSerializer(related_object, context={'request': self.context['request']}).data
         elif isinstance(related_object, Post):
-            post_representation = PostSerializer(related_object).data
+            # Pasar solo el request al serializer de publicaciones
+            post_representation = PostSerializer(related_object, context={'request': self.context['request']}).data
 
         # Formatear la respuesta con las relaciones
         return {
