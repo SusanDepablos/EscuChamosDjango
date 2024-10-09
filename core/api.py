@@ -1106,11 +1106,11 @@ class ReportIndexGroupedPIView(APIView):
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_reports = pagination.paginate_queryset(reports, request)
-                serializer = ReportGroupedSerializer(paginated_reports, many=True, context={'request': request})  # Usa el nuevo serializer
+                serializer = ReportGroupedSerializer(paginated_reports, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
 
             # Serializar los reportes
-            serializer = ReportGroupedSerializer(reports, many=True, context={'request': request})  # Usa el nuevo serializer
+            serializer = ReportGroupedSerializer(reports, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
         except Exception as e:
