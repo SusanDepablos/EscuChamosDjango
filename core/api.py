@@ -100,12 +100,17 @@ def update_object_status(content_type_id, object_id, status_id):
             # Obtener el nuevo estado
             new_status = Status.objects.get(id=status_id)
 
-            # Lógica especial si el estado es "bloqueado"
-            if new_status.name.lower() == 'bloqueado':
-                handle_blocked_status(obj)  # Llamar a la función para manejar el bloqueo
-
             obj.status = new_status  # Actualiza el estado del objeto
             obj.save()
+            
+            if new_status.name.lower() in ['resuelto', 'bloqueado']:
+                # Eliminar todos los reportes asociados al objeto
+                obj.reports.all().delete()
+
+            # Lógica especial si el estado es "bloqueado"
+            if new_status.name.lower() == 'bloqueado':
+                handle_blocked_status(obj)
+                
             return Response({'message': 'Reporte creado exitosamente.'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'El objeto no tiene un campo de estado.'}, status=status.HTTP_404_NOT_FOUND)
