@@ -1103,11 +1103,11 @@ class ReportIndexGroupedPIView(APIView):
             # Aplicar filtrado por tipo de objeto si se proporciona
             if object_type:
                 if object_type == 'post':
-                    reports = reports.filter(content_type__model='post')
+                    reports = reports.filter(content_type__model='post', post__post_id__isnull=True)
                 elif object_type == 'comment':
                     reports = reports.filter(content_type__model='comment')
                 elif object_type == 'repost':
-                    reports = reports.filter(content_type__model='post')  # Asumiendo que el repost se almacena como 'post'
+                    reports = reports.filter(content_type__model='post', post__post_id__isnull=False)
 
             # Agrupar y contar reportes
             reports = (
