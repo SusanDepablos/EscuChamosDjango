@@ -7,10 +7,11 @@ from babel.dates import format_datetime
 def index(request):
     return render(request, 'index.html')
 
-def recoverAcount(request):
-    return render(request, 'recover_account_email.html', {
+def verify(request):
+    return render(request, 'verify_email.html', {
             'username': 'valentina',
-            'verification_code': 555555
+            'verification_code': 555555,
+            'user_email': "valentina@gmail.com"
         })
     
 def error(request, exception=None):

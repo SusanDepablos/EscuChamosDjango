@@ -6,19 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EscuChamos - Verificación de Correo Electrónico</title>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f2f2f2; padding: 20px; margin: 0; color: #000;">
-    <div style="background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-        <p style="font-size: 16px;">¡Bienvenido a EscuChamos!</p>
-        <p style="font-size: 16px;">Hola {{ username }},</p>
-        <p style="font-size: 16px;">Por favor, utiliza el siguiente código para verificar tu dirección de correo electrónico:</p>
-        <div style="text-align: center; margin-bottom: 20px;">
-            <p style="font-size: 24px; font-weight: bold; color: #5f6b9f;">{{ verification_code }}</p>
+<body style="font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; padding: 20px; margin: 0; color: #000;">
+    <div style="background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); text-align: center;">
+        <div style="background-color: #1d24ca; padding: 20px; border-radius: 12px;">
+            <img src="https://asociacioncivilescuchamos.onrender.com/static/img/logo-white.png" alt="Logo de EscuChamos" style="height: 80px; width: 80px; border-radius: 50%; display: block; margin: 0 auto;">
         </div>
-        <p style="font-size: 16px;">Si no solicitaste este correo electrónico, puedes ignorarlo de forma segura.</p>
-        <p style="font-size: 16px;">Tu dirección de correo electrónico: {{ user_email }}</p>
+        <h1 style="color: #000020; font-size: 24px; margin: 20px 0;">¡Bienvenido a EscuChamos!</h1>
+        <p style="font-size: 18px; color: #333;">Hola <strong><em>{{ username }}</em></strong>,</p>
+        <p style="font-size: 18px; color: #333;">Por favor, utiliza el siguiente código para verificar tu dirección de correo electrónico:</p>
+        <div style="text-align: center; margin: 20px 0;">
+            <p style="font-size: 32px; font-weight: bold; color: #ef1414; padding: 10px; display: inline-block; border-radius: 12px; background-color: #f9f9f9; ">
+                {{ verification_code }}
+            </p>
+        </div>
+        <p style="font-size: 18px; color: #333;">Si no solicitaste este correo electrónico, puedes ignorarlo de forma segura.</p>
+        <p style="font-size: 18px; color: #333;">Tu dirección de correo electrónico: <strong style="color: #000020; text-decoration: none;">{{ user_email }}</strong></p>
         <div class="footer" style="margin-top: 20px;">
-            <p class="text" style="font-size: 16px;">Si tienes alguna pregunta, no dudes en contactarnos en escuchamos2024@gmail.com</p>
+            <p class="text" style="font-size: 18px; color: #333;">Si tienes alguna pregunta, no dudes en contactarnos en <strong><a href="mailto:escuchamos2024@gmail.com" style=" color: 1d24ca; text-decoration: none;">escuchamos2024@gmail.com</a></strong></p>
         </div>
+        <footer style="margin-top: 20px; font-size: 18px; color: #333;">
+            <p style="line-height: 1.6; margin: 10px 0;">Saludos,</p>
+            <table style="margin: 0 auto;">
+                <tr>
+                    <td style="line-height: 1.6; margin: 10px 0;">
+                        El equipo de
+                    </td>
+                    <td>
+                        <img src="https://asociacioncivilescuchamos.onrender.com/static/img/banner.png" alt="Logo de EscuChamos" style="max-width: 150px; border-radius: 12px;">
+                    </td>
+                </tr>
+            </table>
+        </footer>
     </div>
 </body>
 </html>
