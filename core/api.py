@@ -1099,15 +1099,9 @@ class ReportIndexGroupedPIView(APIView):
 
             # Filtrar los reportes, agrupándolos por content_type y object_id, y contando los reportes
             reports = Report.objects.filter(object_id__in=combined_ids)
-
-            # Aplicar filtrado por tipo de objeto si se proporciona
-            if object_type:
-                if object_type == 'post':
-                    reports = reports.filter(content_type__model='post', post__post_id__isnull=True)
-                elif object_type == 'comment':
-                    reports = reports.filter(content_type__model='comment')
-                elif object_type == 'repost':
-                    reports = reports.filter(content_type__model='post', post__post_id__isnull=False)
+            
+            report_filter = ReportGroupedFilter(request.query_params, queryset=reports)
+            reports = report_filter.qs  # Obtiene el queryset filtrado
 
             # Agrupar y contar reportes
             reports = (

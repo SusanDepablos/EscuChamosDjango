@@ -149,6 +149,28 @@ class ReportFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
         apply_icontains_filter(self)
         
+class ReportGroupedFilter(django_filters.FilterSet):
+    object_type = django_filters.CharFilter(method='filter_by_object_type')
+
+    class Meta:
+        model = Report
+        fields = ['object_type']
+
+    def filter_by_object_type(self, queryset, name, value):
+        if value:
+            if value == 'post':
+                # Excluye los posts que tienen un post_id asociado (reposts)
+                return queryset.filter(
+                    content_type__model='post',
+                    object_id__in=Post.objects.filter(post__isnull=True).values_list('id', flat=True)
+                )
+            elif value == 'comment':
+                return queryset.filter(content_type__model='comment')
+            elif value == 'repost':
+                # Solo incluir los reposts que tienen un post_id asociado
+                return queryset.filter(content_type__model='post').exclude(object_id__in=Post.objects.filter(post__isnull=True).values_list('id', flat=True))
+        return queryset
+        
 #-----------------------------------------------------------------------------------------------------
 # Publicaciones
 #-----------------------------------------------------------------------------------------------------
