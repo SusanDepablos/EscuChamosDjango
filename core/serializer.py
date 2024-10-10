@@ -237,6 +237,7 @@ class ReportGroupedSerializer(serializers.Serializer):
     content_type = serializers.IntegerField()
     object_id = serializers.IntegerField()
     reports_count = serializers.IntegerField()
+    object_type = serializers.CharField()  # Campo adicional para el tipo de objeto
 
     def to_representation(self, instance):
         content_type_id = instance['content_type']
@@ -258,14 +259,22 @@ class ReportGroupedSerializer(serializers.Serializer):
         # Definir las relaciones para 'post' y 'comment'
         post_representation = None
         comment_representation = None
+        object_type = None  # Tipo de objeto
 
         # Verificar el tipo de objeto relacionado
         if isinstance(related_object, Comment):
             # Pasar solo el request al serializer de comentarios
             comment_representation = CommentSerializer(related_object, context={'request': self.context['request']}).data
+            object_type = 'comment'  # Tipo de objeto
+
         elif isinstance(related_object, Post):
             # Pasar solo el request al serializer de publicaciones
             post_representation = PostSerializer(related_object, context={'request': self.context['request']}).data
+            object_type = 'post'  # Tipo de objeto
+
+            # Verificar si es un repost
+            if related_object.post:  # Si hay un post original, es un repost
+                object_type = 'repost'  # Tipo de objeto como repost
 
         # Formatear la respuesta con las relaciones
         return {
@@ -273,6 +282,7 @@ class ReportGroupedSerializer(serializers.Serializer):
                 'content_type': content_type_id,
                 'object_id': object_id,
                 'reports_count': instance['reports_count'],
+                'object_type': object_type,  # Agregar el nuevo campo
             },
             'relationships': {
                 'post': post_representation,

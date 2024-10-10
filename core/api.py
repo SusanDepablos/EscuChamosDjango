@@ -1094,10 +1094,24 @@ class ReportIndexGroupedPIView(APIView):
             # Combinar los IDs de comentarios y publicaciones
             combined_ids = list(reported_comments_ids) + list(reported_posts_ids)
 
-            # Obtener los reportes, agrupándolos por content_type y object_id, y contando los reportes
+            # Obtener el tipo de objeto desde los parámetros de la consulta (opcional)
+            object_type = request.query_params.get('type', None)
+
+            # Filtrar los reportes, agrupándolos por content_type y object_id, y contando los reportes
+            reports = Report.objects.filter(object_id__in=combined_ids)
+
+            # Aplicar filtrado por tipo de objeto si se proporciona
+            if object_type:
+                if object_type == 'post':
+                    reports = reports.filter(content_type__model='post')
+                elif object_type == 'comment':
+                    reports = reports.filter(content_type__model='comment')
+                elif object_type == 'repost':
+                    reports = reports.filter(content_type__model='post')  # Asumiendo que el repost se almacena como 'post'
+
+            # Agrupar y contar reportes
             reports = (
-                Report.objects
-                .filter(object_id__in=combined_ids)  # Filtra los reportes por los IDs combinados
+                reports
                 .values('content_type', 'object_id')
                 .annotate(reports_count=Count('id'))  # Cuenta los reportes para cada combinación
                 .order_by('-reports_count')  # Ordena por el conteo de reportes de forma descendente
@@ -1115,6 +1129,7 @@ class ReportIndexGroupedPIView(APIView):
 
         except Exception as e:
             return handle_exception(e)
+
         
 class ReportIndexCreateAPIView(APIView):
     authentication_classes = [TokenAuthentication]
