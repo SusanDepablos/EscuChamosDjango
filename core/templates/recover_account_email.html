@@ -1,14 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EscuChamos - Recupera tu cuenta</title>
 </head>
-<body>
-    <p>Hola {{ username }},</p>
-    <p>Recibimos una solicitud para recuperar tu cuenta. Tu nuevo código de verificación es:</p>
-    <h2>{{ verification_code }}</h2>
-    <p>Si no solicitaste este cambio, por favor ignora este correo.</p>
-    <p>Saludos,</p>
-    <p>El equipo de EscuChamos</p>
+<body style="font-family: 'Arial', sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: #333;">
+    <div style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); padding: 30px; width: 90%; max-width: 600px; text-align: center;">
+        
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="vertical-align: top; width: 25%;">
+                    <img src="https://asociacioncivilescuchamos.onrender.com/static/img/logo-gmail.png" alt="Logo de EscuChamos" style="max-width: 150px; margin-bottom: 20px;">
+                </td>
+                <td style="vertical-align: top; width: 50%; text-align: left;"> <!-- Alineado a la izquierda -->
+                    <h1 style="color: #000020; font-size: 28px; margin: 20px 0;">Recuperar cuenta</h1>
+                </td>
+
+            </tr>
+        </table>
+        <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">Hola <strong><em>{{ username }}</em></strong>,</p>
+        <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">Recibimos una solicitud para recuperar tu cuenta. Tu nuevo código de verificación es:</p>
+        <div style="font-size: 32px; font-weight: bold; color: #d80032; margin: 20px 0; padding: 10px;  display: inline-block;">{{ verification_code }}</div>
+        <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">Si no solicitaste recuperar tus credenciales de inicio de sesión, por favor ignora este correo electrónico.</p>
+        <footer style="margin-top: 20px; font-size: 16px; color: #555;">
+             <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">Saludos,</p>
+             <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">El equipo de <img src="https://asociacioncivilescuchamos.onrender.com/static/img/banner.png" alt="Logo de EscuChamos" style="max-width: 150px; margin-bottom: 20px;">
+             </p>
+    </div>
 </body>
 </html>

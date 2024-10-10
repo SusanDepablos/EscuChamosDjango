@@ -7,6 +7,12 @@ from babel.dates import format_datetime
 def index(request):
     return render(request, 'index.html')
 
+def recoverAcount(request):
+    return render(request, 'recover_account_email.html', {
+            'username': 'valentina',
+            'verification_code': 555555
+        })
+
 def posts(request):
     try:
         group = Group.objects.get(id=1)
