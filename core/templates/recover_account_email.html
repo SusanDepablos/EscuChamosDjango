@@ -5,38 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EscuChamos - Recupera tu cuenta</title>
 </head>
-<body style="font-family: 'Arial', sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: #333;">
-    <div style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); padding: 30px; width: 90%; max-width: 600px; text-align: center;">
+<body style="background-color: #f3f4f6; color: #333; font-family: 'Helvetica Neue', Arial, sans-serif; padding: 0; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    <div style="background-color: #ffffff; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); width: 90%; max-width: 500px; border-radius: 12px; overflow: hidden; text-align: center; padding: 20px;">
+        <div style="background-color: #1d24ca; padding: 20px; display: flex; justify-content: center; align-items: center;">
+            <img src="https://asociacioncivilescuchamos.onrender.com/static/img/logo-white.png" alt="Logo de EscuChamos" style="height: 80px; width: 80px; border-radius: 50%; display: block; margin: 0 auto;">
+        </div>
+        <h1 style="color: #000020; font-size: 24px; margin: 20px 0;">Recuperar cuenta</h1>
         
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td style="vertical-align: top; width: 25%;">
-                    <img src="https://asociacioncivilescuchamos.onrender.com/static/img/logo-red.png" alt="Logo de EscuChamos" style="width: 100px; height:100px; margin-top: 20px;">
-                </td>
-                <td style="vertical-align: top; width: 50%; text-align: left;"> <!-- Alineado a la izquierda -->
-                    <h1 style="color: #000020; font-size: 28px; margin: 20px 0;"><br>Recuperar cuenta</h1>
-                </td>
-
-            </tr>
-        </table>
-        <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">Hola <strong><em>{{ username }}</em></strong>,</p>
-        <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">Recibimos una solicitud para recuperar tu cuenta. Tu nuevo código de verificación es:</p>
-        <div style="font-size: 32px; font-weight: bold; color: #ef1414; margin: 20px 0; padding: 10px;  display: inline-block;">{{ verification_code }}</div>
-        <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">Si no solicitaste recuperar tus credenciales de inicio de sesión, por favor ignora este correo electrónico.</p>
-        <footer style="margin-top: 20px; font-size: 16px; color: #555;">
-             <p style="line-height: 1.5; font-size: 18px; margin: 10px 0;">Saludos,</p>
-             <table style="margin: 0 auto;">
+        <p style="line-height: 1.6; font-size: 18px; margin: 10px 0; color: #333;">Hola <strong><em>{{ username }}</em></strong>,</p>
+        <p style="line-height: 1.6; font-size: 18px; margin: 10px 0; color: #333;">Recibimos una solicitud para recuperar tu cuenta. Tu nuevo código de verificación es:</p>
+        <div style="font-size: 32px; font-weight: bold; color: #ef1414; margin: 20px 0; padding: 10px; display: inline-block; border-radius: 12px; background-color: #f9f9f9;">
+            {{ verification_code }}
+        </div>
+        <p style="line-height: 1.6; font-size: 18px; margin: 10px 0; color: #333;">Si no solicitaste recuperar tus credenciales de inicio de sesión, por favor ignora este correo electrónico.</p>
+        <footer style="margin-top: 20px; font-size: 18px; color: #333;">
+            <p style="line-height: 1.6; margin: 10px 0;">Saludos,</p>
+            <table style="margin: 0 auto;">
                 <tr>
-                  <td style="line-height: 1.5; font-size: 18px; margin: 10px 0;">
-                    El equipo de
-                  </td>
-                  <td>
-                    <img src="https://asociacioncivilescuchamos.onrender.com/static/img/banner.png" alt="Logo de EscuChamos" style="max-width: 150px;">
-                  </td>
+                    <td style="line-height: 1.6; margin: 10px 0;">
+                        El equipo de
+                    </td>
+                    <td>
+                        <img src="https://asociacioncivilescuchamos.onrender.com/static/img/banner.png" alt="Logo de EscuChamos" style="max-width: 100px; border-radius: 12px;">
+                    </td>
                 </tr>
-              </table>
-              
-              
+            </table>
+        </footer>
     </div>
 </body>
 </html>
