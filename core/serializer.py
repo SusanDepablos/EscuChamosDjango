@@ -537,6 +537,10 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_replies_count(self, obj):
         # Método para contar la cantidad de respuestas que no estén bloqueadas
         return obj.replies.exclude(status__name__iexact='bloqueado').count()
+    
+    def get_reactions_count(self, obj):
+        # Método para contar la cantidad de reacciones
+        return obj.reactions.count()
 
     def get_reports_count(self, obj):
         # Método para contar la cantidad de reportes
