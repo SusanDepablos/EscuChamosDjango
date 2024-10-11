@@ -1696,21 +1696,21 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
             stories = Story.objects.exclude(status__name__iexact='bloqueado').order_by('-created_at') 
 
             story_filter = StoryFilter(request.query_params, queryset=stories)
-            filtered_histories = story_filter.qs
+            filtered_stories = story_filter.qs
             
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_histories = pagination.paginate_queryset(filtered_histories, request)
-                serializer = StorySerializer(paginated_histories, many=True, context={'request': request})
+                paginated_stories = pagination.paginate_queryset(filtered_stories, request)
+                serializer = StorySerializer(paginated_stories, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = StorySerializer(filtered_histories, many=True, context={'request': request})
+            serializer = StorySerializer(filtered_stories, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
             return handle_exception(e)
             
-    def post(self, request):
+    def post(self, request):# Esto te ayudará a ver qué datos estás recibiendo
         try:
             # Separar el archivo y otros datos
             file_data = request.FILES.get('file')  
@@ -1749,7 +1749,7 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
                 # Si hay un archivo, procesarlo y guardarlo
                 if file_data:
                     # Lógica para guardar el archivo usando FileUploadMixin
-                    file_info = self.put_file(file_data, 'histories')
+                    file_info = self.put_file(file_data, 'stories')
 
                     # Crear instancia de File asociada a la historia
                     File.objects.create(

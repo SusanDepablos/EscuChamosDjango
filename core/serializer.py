@@ -733,7 +733,6 @@ class StorySerializer(serializers.ModelSerializer):
                 'content', 
                 'archive',
                 'user_id', 
-                'user',
                 'status_id',
                 'status', 
                 'post_id',
