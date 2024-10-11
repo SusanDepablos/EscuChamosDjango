@@ -533,14 +533,10 @@ class CommentSerializer(serializers.ModelSerializer):
             'updated_at',
             'deleted_at',
         ]
-    
-    def get_replies_count(self, obj):
-        # Método para contar la cantidad de respuestas
-        return obj.replies.count()
 
-    def get_reactions_count(self, obj):
-        # Método para contar la cantidad de reacciones
-        return obj.reactions.count()
+    def get_replies_count(self, obj):
+        # Método para contar la cantidad de respuestas que no estén bloqueadas
+        return obj.replies.exclude(status__name__iexact='bloqueado').count()
 
     def get_reports_count(self, obj):
         # Método para contar la cantidad de reportes
@@ -628,12 +624,12 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.reactions.count()
 
     def get_comments_count(self, obj):
-        # Método para contar la cantidad de comentarios
-        return obj.comments.count()
+        # Método para contar la cantidad de comentarios que no estén bloqueados
+        return obj.comments.exclude(status__name__iexact='bloqueado').count()
 
     def get_reposts_count(self, obj):
-        # Método para contar la cantidad de reposts
-        return obj.reposts.count()
+        # Método para contar la cantidad de reposts que no estén bloqueados
+        return obj.reposts.exclude(status__name__iexact='bloqueado').count()
 
     def get_shares_count(self, obj):
         # Método para contar la cantidad de shares
