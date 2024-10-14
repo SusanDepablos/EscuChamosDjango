@@ -272,3 +272,25 @@ class StoryFilter(django_filters.FilterSet):
             'user_id',
             'status_id'
             ]
+        
+#-----------------------------------------------------------------------------------------------------
+# Seguimientos
+#-----------------------------------------------------------------------------------------------------
+
+# class NotificationFilter(django_filters.FilterSet):
+#     receiver_user_id = django_filters.CharFilter(method='filter_receiver_user')
+
+#     class Meta:
+#         model = Notification
+#         fields = [
+#             'receiver_user_id',
+#         ]
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         apply_icontains_filter(self)
+
+#     def filter_receiver_user(self, queryset, name, value):
+#         if value.lower() == 'null':
+#             return queryset.filter(receiver_user__isnull=True)
+#         return queryset.filter(receiver_user=value)

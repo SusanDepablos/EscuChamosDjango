@@ -779,3 +779,108 @@ class StorySerializer(serializers.ModelSerializer):
                 'reports_count': representation['reports_count'],
             }
         }
+    
+#-----------------------------------------------------------------------------------------------------
+# Simple serialser comentario
+#----------------------------------------------------------------------------------------------------- 
+class CommentSimpleSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), write_only=True, source='post')
+    comment_id = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), write_only=True, source='comment', required=False, allow_null=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            'id',
+            'comment_id',
+            'post_id',
+            'user_id',
+            'created_at',
+            'updated_at',
+        ]
+
+    def to_representation(self, instance):
+        user_representation = get_user_with_profile_photo(instance.user, self.context)
+        representation = super().to_representation(instance)
+
+        # Verificar si el comentario tiene un comentario padre
+        parent_comment_id = instance.comment.id if instance.comment else None
+
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'post_id': instance.post.id,
+                'user_id': instance.user.id,  
+                'comment_id': parent_comment_id,  # Incluir el ID del comentario padre si existe
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+        }
+    
+#-----------------------------------------------------------------------------------------------------
+# Simple serialser Reaccion
+#----------------------------------------------------------------------------------------------------- 
+#-----------------------------------------------------------------------------------------------------
+# Notificacion
+#----------------------------------------------------------------------------------------------------- 
+
+# class NotificationSerializer(serializers.ModelSerializer):
+#     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+#     receiver_user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='receiver_user', allow_null=True)
+
+#     class Meta:
+#         model = Notification
+#         fields = (
+#             'id',
+#             'user_id',
+#             'content_type',
+#             'object_id',
+#             'receiver_user_id',
+#             'message',
+#             'type',
+#             'is_read',
+#             'created_at',
+#             'updated_at'
+#         )
+
+#     def to_representation(self, instance):
+#         user_representation = get_user_with_profile_photo(instance.user, self.context)
+#         receiver_user_representation = None
+#         if instance.receiver_user:
+#             receiver_user_representation = get_user_with_profile_photo(instance.receiver_user, self.context)
+        
+#         comment_representation = None
+#         reaction_representation = None
+#         object_type = None
+        
+#         if isinstance(instance.content_object, Comment):
+#             comment_representation = CommentSimpleSerializer(instance.content_object).data
+#             object_type = 'comment'
+#         elif isinstance(instance.content_object, Reaction):
+#             reaction_representation = ReactionSerializer(instance.content_object, context={'request': self.context['request']}).data
+#             object_type = 'reaction'
+        
+#         representation = super().to_representation(instance)
+        
+#         return {
+#             'id': representation['id'],
+#             'attributes': {
+#                 'content_type': representation['content_type'],
+#                 'object_id': representation['object_id'],
+#                 'user_id': instance.user.id,
+#                 'receiver_user_id': instance.receiver_user.id if instance.receiver_user else None,
+#                 'message': representation['message'],
+#                 'type': representation['type'],
+#                 'is_read': representation['is_read'],
+#                 'created_at': representation['created_at'],
+#                 'updated_at': representation['updated_at'],
+#                 'object_type': object_type
+#             },
+#             'relationships': {
+#                 'user': user_representation,
+#                 'receiver_user': receiver_user_representation,
+#                 'comment': comment_representation,
+#                 'reaction': reaction_representation
+#             }
+#         }
+

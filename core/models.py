@@ -295,3 +295,26 @@ class SessionInfo(models.Model):
 
     def __str__(self):
         return f"User: {self.user.username}, Session Key: {self.session_key}, Token Key: {self.token_key}, Device: {self.device_info}"
+    
+
+#-----------------------------------------------------------------------------------------------------
+# Notificaciones
+#-----------------------------------------------------------------------------------------------------  
+
+class Notification(TimestampedMixin, models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario', related_name='sent_notifications')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
+    object_id = models.PositiveIntegerField(verbose_name='ID del objeto')
+    content_object = GenericForeignKey('content_type', 'object_id')
+    message = models.TextField(verbose_name='Mensaje')
+    type = models.TextField(verbose_name='Tipo')
+    receiver_user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, verbose_name='Usuario receptor', related_name='received_notifications')
+    is_read = models.BooleanField(default=False, verbose_name='Lectura')
+
+    class Meta:
+        db_table = 'notifications'
+        verbose_name = 'Notificación'
+        verbose_name_plural = 'Notificaciones'
+
+    def __str__(self):
+        return f"Notificación de {self.user} para {self.receiver_user}"

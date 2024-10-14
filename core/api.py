@@ -990,7 +990,7 @@ class ReactionIndexCreateAPIView(APIView):
     def get(self, request):
         try:
             reactions = Reaction.objects.all()
-            
+
             reaction_filter = ReactionFilter(request.query_params, queryset=reactions)
             filtered_reactions = reaction_filter.qs
 
@@ -1837,3 +1837,27 @@ class StoryDetailAPIView(APIView, FileUploadMixin):
         except Exception as e:
             return handle_exception(e) 
         
+#-----------------------------------------------------------------------------------------------------
+# Notificaciones
+#-----------------------------------------------------------------------------------------------------
+
+# class NotificationIndexAPIView(APIView):
+#     authentication_classes = [TokenAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             notifications = Notification.objects.all()
+#             notification_filter = NotificationFilter(request.GET, queryset=notifications)
+
+#             if 'pag' in request.query_params:
+#                 pagination = CustomPagination()
+#                 paginated_notifications = pagination.paginate_queryset(notification_filter.qs, request)
+#                 serializer = NotificationSerializer(paginated_notifications, many=True, context={'request': request})
+#                 return pagination.get_paginated_response({'data': serializer.data})
+
+#             serializer = NotificationSerializer(notification_filter.qs, many=True, context={'request': request})
+#             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+#         except Exception as e:
+#             return handle_exception(e)
