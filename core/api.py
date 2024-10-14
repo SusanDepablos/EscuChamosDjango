@@ -1841,23 +1841,23 @@ class StoryDetailAPIView(APIView, FileUploadMixin):
 # Notificaciones
 #-----------------------------------------------------------------------------------------------------
 
-# class NotificationIndexAPIView(APIView):
-#     authentication_classes = [TokenAuthentication]
-#     permission_classes = [IsAuthenticated]
+class NotificationIndexAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
-#     def get(self, request):
-#         try:
-#             notifications = Notification.objects.all()
-#             notification_filter = NotificationFilter(request.GET, queryset=notifications)
+    def get(self, request):
+        try:
+            notifications = Notification.objects.all()
+            notification_filter = NotificationFilter(request.GET, queryset=notifications)
 
-#             if 'pag' in request.query_params:
-#                 pagination = CustomPagination()
-#                 paginated_notifications = pagination.paginate_queryset(notification_filter.qs, request)
-#                 serializer = NotificationSerializer(paginated_notifications, many=True, context={'request': request})
-#                 return pagination.get_paginated_response({'data': serializer.data})
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_notifications = pagination.paginate_queryset(notification_filter.qs, request)
+                serializer = NotificationSerializer(paginated_notifications, many=True, context={'request': request})
+                return pagination.get_paginated_response({'data': serializer.data})
 
-#             serializer = NotificationSerializer(notification_filter.qs, many=True, context={'request': request})
-#             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+            serializer = NotificationSerializer(notification_filter.qs, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
-#         except Exception as e:
-#             return handle_exception(e)
+        except Exception as e:
+            return handle_exception(e)

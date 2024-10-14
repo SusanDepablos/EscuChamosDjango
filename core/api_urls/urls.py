@@ -105,5 +105,5 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
 # Notificaciones
 #--------------------------------------------------------------------------------------------------#
-    # path('notifications/', NotificationIndexAPIView.as_view(), name='notification-index'),
+    path('notifications/', NotificationIndexAPIView.as_view(), name='notification-index'),
 ]
