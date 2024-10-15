@@ -16,37 +16,31 @@ function closeModal() {
 function toggleMap() {
     const map = document.getElementById('map');
     if (map.style.display === 'none') {
-        map.style.display = 'block'; // Muestra el mapa
+        map.style.display = 'block'; 
     } else {
-        map.style.display = 'none'; // Oculta el mapa
+        map.style.display = 'none';
     }
 }
 
 // descargar app
 
-// Obtener el modal
 var modal = document.getElementById("myModal");
 
-// Obtener el botón que abre el modal
 var btn = document.getElementById("openModal");
 
-// Obtener el elemento <span> que cierra el modal
 var span = document.getElementsByClassName("close")[0];
 
-// Cuando el usuario hace clic en el botón, se abre el modal y se deshabilita el scroll
 btn.onclick = function(event) {
-    event.preventDefault(); // Prevenir la acción por defecto del enlace
+    event.preventDefault(); 
     modal.style.display = "block";
     document.body.classList.add("no-scroll");
 }
 
-// Cuando el usuario hace clic en <span> (x), se cierra el modal y se habilita el scroll
 span.onclick = function() {
     modal.style.display = "none";
     document.body.classList.remove("no-scroll");
 }
 
-// Cuando el usuario hace clic en cualquier parte fuera del modal, se cierra y se habilita el scroll
 window.onclick = function(event) {
     if (event.target == modal) {
         modal.style.display = "none";
@@ -54,23 +48,45 @@ window.onclick = function(event) {
     }
 }
 
-
 // ServicIOS
 $(document).ready(function() {
     var $section = $('.service_section');
-    var sectionOffset = $section.offset().top; // Obtener la posición de la sección
-    var shown = false; // Variable para controlar si la sección está visible
+    var sectionOffset = $section.offset().top; 
+    var shown = false; 
 
     $(window).on('scroll', function() {
-        var scrollTop = $(this).scrollTop(); // Posición actual del scroll
+        var scrollTop = $(this).scrollTop(); 
 
-        // Verificar si el scroll está en la sección
         if (scrollTop + $(window).height() > sectionOffset && !shown) {
-            shown = true; // Marcar como mostrado
-            $section.addClass('visible'); // Agregar clase para mostrar
+            shown = true; 
+            $section.addClass('visible'); 
         } else if (scrollTop + $(window).height() <= sectionOffset && shown) {
-            shown = false; // Marcar como oculto
-            $section.removeClass('visible'); // Quitar clase para ocultar
+            shown = false; 
+            $section.removeClass('visible'); 
         }
     });
 });
+
+// carousel 
+let currentCaption = 1;
+
+function showCaption(number) {
+    // Oculta todos los captions
+    document.querySelectorAll('.caption').forEach(caption => {
+        caption.style.display = 'none';
+    });
+
+    document.getElementById(`caption-${number}`).style.display = 'block';
+
+    document.querySelectorAll('.nav-btn').forEach((btn, index) => {
+        if (index === number - 1) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    currentCaption = number;
+}
+
+showCaption(1);
