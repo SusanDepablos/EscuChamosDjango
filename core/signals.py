@@ -180,22 +180,27 @@ def notification_post(sender, instance, created, **kwargs):
     if created:
         try:
             content_type_id = ContentType.objects.get(model='post').id
-            Type_post_id = TypePost.objects.get(name='Republicado').id
-            repost_user_id = Post.objects.get(id=instance.post_id).user_id
 
-            if repost_user_id != instance.user_id and instance.type_post_id == Type_post_id:
-                
-                if instance.post_id is not None:
-                    type = 'repost'
-                    message = 'ha reposteado tu publicación'
-                    receiver_user_id = repost_user_id
+            if instance.type_post_id == TypePost.objects.get(name='Republicado').id:
+                repost_user_id = Post.objects.get(id=instance.post_id).user_id
+                    
+                if instance.post_id is not None and repost_user_id != instance.user_id:
 
                     Notification.objects.create(
                         object_id=instance.id,
-                        message=message,
-                        type=type,
+                        message='ha reposteado tu publicación',
+                        type='repost',
                         content_type_id=content_type_id,
-                        receiver_user_id=receiver_user_id,
+                        receiver_user_id=repost_user_id,
+                        user_id=instance.user_id,
+                    )
+            elif instance.type_post_id == TypePost.objects.get(name='Escuchamos').id:
+
+                    Notification.objects.create(
+                        object_id=instance.id,
+                        message='ha subido una nueva publicacion',
+                        type='notification_escuchamos',
+                        content_type_id=content_type_id,
                         user_id=instance.user_id,
                     )
 
