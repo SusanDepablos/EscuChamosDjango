@@ -134,26 +134,10 @@ class FollowSerializer(serializers.ModelSerializer):
                 )
 
     def get_following_user(self, obj):
-        return self.get_user_with_profile_photo(obj.following_user)
+        return get_user_with_profile_photo(obj.following_user, self.context)
 
     def get_followed_user(self, obj):
-        return self.get_user_with_profile_photo(obj.followed_user)
-
-    def get_user_with_profile_photo(self, user):
-        # Obtener el archivo de perfil del usuario
-        profile_file = user.files.filter(type='profile').first()
-        profile_photo_url = None
-        if profile_file:
-            request = self.context.get('request')
-            if request:
-                profile_photo_url = request.build_absolute_uri(settings.MEDIA_URL + profile_file.path)
-        
-        return {
-            'id': user.id,
-            'username': user.username,
-            'name': user.name,
-            'profile_photo_url': profile_photo_url
-        }
+        return get_user_with_profile_photo(obj.followed_user, self.context)
         
     def to_representation(self, instance):
         representation = super().to_representation(instance)
