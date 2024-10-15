@@ -810,7 +810,7 @@ class CommentSimpleSerializer(serializers.ModelSerializer):
 #----------------------------------------------------------------------------------------------------- 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user', allow_null=True)
     receiver_user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='receiver_user', allow_null=True)
 
     class Meta:
@@ -829,10 +829,8 @@ class NotificationSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
-        user_representation = get_user_with_profile_photo(instance.user, self.context)
-        receiver_user_representation = None
-        if instance.receiver_user:
-            receiver_user_representation = get_user_with_profile_photo(instance.receiver_user, self.context)
+        user_representation = get_user_with_profile_photo(instance.user, self.context) if instance.user else None
+        receiver_user_representation = get_user_with_profile_photo(instance.receiver_user, self.context) if instance.receiver_user else None
         
         comment_representation = None
         reaction_representation = None
@@ -843,13 +841,13 @@ class NotificationSerializer(serializers.ModelSerializer):
             reaction_representation = ReactionSerializer(instance.content_object, context={'request': self.context['request']}).data
         
         representation = super().to_representation(instance)
-        
+
         return {
             'id': representation['id'],
             'attributes': {
                 'content_type': representation['content_type'],
                 'object_id': representation['object_id'],
-                'user_id': instance.user.id,
+                'user_id': instance.user.id if instance.user else None,
                 'receiver_user_id': instance.receiver_user.id if instance.receiver_user else None,
                 'message': representation['message'],
                 'type': representation['type'],
@@ -864,4 +862,6 @@ class NotificationSerializer(serializers.ModelSerializer):
                 'reaction': reaction_representation
             }
         }
+
+
 

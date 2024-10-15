@@ -1230,6 +1230,8 @@ class ReportShowAPIView(APIView):
             return handle_exception(e)
         
 class UpdateStatusAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         data = request.data.copy()

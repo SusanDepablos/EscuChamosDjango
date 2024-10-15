@@ -302,7 +302,7 @@ class SessionInfo(models.Model):
 #-----------------------------------------------------------------------------------------------------  
 
 class Notification(TimestampedMixin, models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario', related_name='sent_notifications')
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, verbose_name='Usuario', related_name='sent_notifications')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='Tipo de contenido')
     object_id = models.PositiveIntegerField(verbose_name='ID del objeto')
     content_object = GenericForeignKey('content_type', 'object_id')
