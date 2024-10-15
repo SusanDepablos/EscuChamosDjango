@@ -113,7 +113,8 @@ def get_user_with_profile_photo(user, context):
         'id': user.id,
         'username': user.username,
         'name': user.name,
-        'profile_photo_url': profile_photo_url
+        'profile_photo_url': profile_photo_url,
+        'group_id': user.groups.values_list('id', flat=True)
     }
     
 #-----------------------------------------------------------------------------------------------------
@@ -851,14 +852,11 @@ class NotificationSerializer(serializers.ModelSerializer):
         
         comment_representation = None
         reaction_representation = None
-        object_type = None
         
         if isinstance(instance.content_object, Comment):
             comment_representation = CommentSimpleSerializer(instance.content_object).data
-            object_type = 'comment'
         elif isinstance(instance.content_object, Reaction):
             reaction_representation = ReactionSerializer(instance.content_object, context={'request': self.context['request']}).data
-            object_type = 'reaction'
         
         representation = super().to_representation(instance)
         
@@ -874,7 +872,6 @@ class NotificationSerializer(serializers.ModelSerializer):
                 'is_read': representation['is_read'],
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
-                'object_type': object_type
             },
             'relationships': {
                 'user': user_representation,
