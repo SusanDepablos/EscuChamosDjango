@@ -18,15 +18,15 @@ def notification_reaction(sender, instance, created, **kwargs):
             if model_name == 'comment':
                 comment = Comment.objects.get(id=instance.object_id)
 
-            if comment.user_id != instance.user_id:
-                Notification.objects.create(
-                    object_id=instance.id,
-                    message='reacciono a tu comentario',
-                    type='reaction_comment',
-                    content_type_id=content_type_id,
-                    receiver_user_id=comment.user_id,
-                    user_id=instance.user_id,
-                )
+                if comment.user_id != instance.user_id:
+                    Notification.objects.create(
+                        object_id=instance.id,
+                        message='reacciono a tu comentario',
+                        type='reaction_comment',
+                        content_type_id=content_type_id,
+                        receiver_user_id=comment.user_id,
+                        user_id=instance.user_id,
+                    )
 
             elif model_name == 'post':
                 post = Post.objects.get(id=instance.object_id)
