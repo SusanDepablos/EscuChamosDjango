@@ -145,7 +145,10 @@ def notification_comment_update(sender, instance, created, **kwargs):
             content_type_id = ContentType.objects.get(model='comment').id
             status_id = Status.objects.get(name='Bloqueado').id    
             
-            if instance.status_id == status_id and not Notification.objects.filter(object_id=instance.id, content_type_id=content_type_id).exists():
+            if (instance.status_id == status_id and
+                not Notification.objects.filter(object_id=instance.id, 
+                    content_type_id=content_type_id).exists()):
+
                 Notification.objects.create(
                     object_id=instance.id,
                     message='Tu comentario ha sido bloqueado',
@@ -157,6 +160,52 @@ def notification_comment_update(sender, instance, created, **kwargs):
         except Exception as e:
             print(f"Error al manejar la actualización: {e}")
 
+@receiver(post_save, sender=Comment)
+def notification_comment_update(sender, instance, created, **kwargs):
+    if not created:
+        try:
+            content_type_id = ContentType.objects.get(model='comment').id
+            blocked_id = Status.objects.get(name='Bloqueado').id
+            report_id = Status.objects.get(name='Reportado').id
+            resolved_id = Status.objects.get(name='Resuelto').id
+
+            if instance.status_id == report_id and not Notification.objects.filter(
+                object_id=instance.id, content_type_id=content_type_id, type__in=['report_comment', 'blocked_comment'] #prefuntarle a susan
+                        ).exists():
+                Notification.objects.create(
+                    object_id=instance.id,
+                    message='Reporte de comentario',
+                    type='report_comment',
+                    content_type_id=content_type_id,
+                )
+
+            elif instance.status_id == blocked_id and not Notification.objects.filter(
+                object_id=instance.id, content_type_id=content_type_id, type='blocked_comment'
+            ).exists():
+                Notification.objects.create(
+                    object_id=instance.id,
+                    message='Tu comentario ha sido bloqueado',
+                    type='blocked_comment',
+                    content_type_id=content_type_id,
+                    receiver_user_id=instance.user_id,
+                )
+
+                Notification.objects.filter(
+                    content_type_id=content_type_id,
+                    object_id=instance.id,
+                    type='report_comment'
+                ).delete()
+
+            elif instance.status_id == resolved_id:
+                
+                Notification.objects.filter(
+                    content_type_id=content_type_id,
+                    object_id=instance.id,
+                    type='report_comment'
+                ).delete()
+
+        except Exception as e:
+            print(f"Error al manejar la actualización: {e}")
 
 @receiver(post_delete, sender=Comment)
 def notification_comment_delete(sender, instance, **kwargs):
@@ -213,10 +262,23 @@ def notification_post_update(sender, instance, created, **kwargs):
     if not created:
         try:
             content_type_id = ContentType.objects.get(model='post').id
-            status_id = Status.objects.get(name='Bloqueado').id    
-            
-            if instance.status_id == status_id and not Notification.objects.filter(object_id=instance.id, content_type_id=content_type_id).exists():
+            blocked_id = Status.objects.get(name='Bloqueado').id
+            report_id = Status.objects.get(name='Reportado').id
+            resolved_id = Status.objects.get(name='Resuelto').id
 
+            if instance.status_id == report_id and not Notification.objects.filter(
+                object_id=instance.id, content_type_id=content_type_id, type__in=['report_post', 'blocked_post'] #prefuntarle a susan
+                        ).exists():
+                Notification.objects.create(
+                    object_id=instance.id,
+                    message='Reporte de publicación',
+                    type='report_post',
+                    content_type_id=content_type_id,
+                )
+
+            elif instance.status_id == blocked_id and not Notification.objects.filter(
+                object_id=instance.id, content_type_id=content_type_id, type='blocked_post'
+            ).exists():
                 Notification.objects.create(
                     object_id=instance.id,
                     message='Tu publicación ha sido bloqueada',
@@ -224,7 +286,21 @@ def notification_post_update(sender, instance, created, **kwargs):
                     content_type_id=content_type_id,
                     receiver_user_id=instance.user_id,
                 )
-            
+
+                Notification.objects.filter(
+                    content_type_id=content_type_id,
+                    object_id=instance.id,
+                    type='report_post'
+                ).delete()
+
+            elif instance.status_id == resolved_id:
+                
+                Notification.objects.filter(
+                    content_type_id=content_type_id,
+                    object_id=instance.id,
+                    type='report_post'
+                ).delete()
+
         except Exception as e:
             print(f"Error al manejar la actualización: {e}")
 
@@ -282,6 +358,52 @@ def notification_share_delete(sender, instance, **kwargs):
             content_type_id=content_type_id,
             object_id=instance.id
         ).delete()
+
+    except Exception as e:
+        print(f"Error al eliminar la notificación: {e}")
+
+#-----------------------------------------------------------------------------------------------------
+# Report
+#----------------------------------------------------------------------------------------------------- 
+
+@receiver(post_delete, sender=Report)
+def notification_delete(sender, instance, **kwargs):
+    try:
+        resuelt_id = Status.objects.get(name='Resuelto').id
+        blocked_id = Status.objects.get(name='Bloqueado').id
+        content_type = ContentType.objects.get(id=instance.content_type_id)
+        model_name = content_type.model
+
+        if model_name == 'comment':
+            comment = Comment.objects.get(id=instance.object_id)
+
+            if comment.status_id == resuelt_id:
+                type  = 'blocked_comment_report'
+                message = 'Tu reporte ha sido recibido, pero el comentario no será eliminada tras su revisión'
+
+            elif comment.status_id == blocked_id:
+                type  = 'resolved_comment'
+                message = 'Tu reporte ha sido recibido, el comentario ah sido bloqueado'
+
+        elif model_name == 'post':
+            post = Post.objects.get(id=instance.object_id)
+
+            if post.status_id == blocked_id:
+                type = 'blocked_post'
+                message = 'Tu reporte ha sido recibido, la publicación ha sido bloqueada'
+            elif post.status_id == resuelt_id:
+                type = 'resolved_post'
+                message = 'Tu reporte ha sido recibido, pero la publicación no será eliminada tras su revisión'
+
+
+
+        Notification.objects.create(
+            object_id=instance.object_id,
+            message=message,
+            type=type,
+            content_type_id=instance.content_type_id,
+            receiver_user_id=instance.user_id,
+        )
 
     except Exception as e:
         print(f"Error al eliminar la notificación: {e}")
