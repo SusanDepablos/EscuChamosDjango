@@ -395,8 +395,6 @@ def notification_delete(sender, instance, **kwargs):
                 type = 'resolved_post'
                 message = 'Tu reporte ha sido recibido, pero la publicación no será eliminada tras su revisión'
 
-
-
         Notification.objects.create(
             object_id=instance.object_id,
             message=message,
