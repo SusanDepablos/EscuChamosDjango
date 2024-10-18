@@ -2,6 +2,7 @@ from django.urls import path
 from core.api import *
 
 urlpatterns = [
+    path('long-poll/', LongPollView.as_view(), name='long_poll'),
 #--------------------------------------------------------------------------------------------------#
 # Autenticación
 #--------------------------------------------------------------------------------------------------#
