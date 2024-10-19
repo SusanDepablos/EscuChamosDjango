@@ -411,17 +411,17 @@ def notification_delete(sender, instance, **kwargs):
 # Notificaciones
 #----------------------------------------------------------------------------------------------------- 
 
-@receiver(post_save, sender=Notification)
-def notification_created(sender, instance, created, **kwargs):
-    user_id = instance.receiver_user.id
-    if created:
-        send_notification(user_id)
-    else:
-        if instance.is_read:
-            send_notification(user_id)
+# @receiver(post_save, sender=Notification)
+# def notification_created(sender, instance, created, **kwargs):
+#     user_id = instance.receiver_user.id
+#     if created:
+#         send_notification(user_id)
+#     else:
+#         if instance.is_read:
+#             send_notification(user_id)
 
-def send_notification(user_id):
-    if user_id in clients:
-        unread_count = Notification.objects.filter(receiver_user_id=user_id, is_read=False).count()
-        for client in clients[user_id]:
-            client.send(f"data: {{ 'notifications': {unread_count} }}\n\n")
+# def send_notification(user_id):
+#     if user_id in clients:
+#         unread_count = Notification.objects.filter(receiver_user_id=user_id, is_read=False).count()
+#         for client in clients[user_id]:
+#             client.send(f"data: {{ 'notifications': {unread_count} }}\n\n")
