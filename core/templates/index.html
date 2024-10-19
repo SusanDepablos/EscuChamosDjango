@@ -32,9 +32,9 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="languageDropdown">
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="?lang=es">Español</a>
-                            <a class="dropdown-item" href="?lang=en">Inglés</a>
-                            <a class="dropdown-item" href="?lang=pt">Portugués</a>
+                            <a class="dropdown-item" href="#" data-lang="es">Español</a>
+                            <a class="dropdown-item" href="#" data-lang="en">Inglés</a>
+                            <a class="dropdown-item" href="#" data-lang="pt">Portugués</a>
                             <div class="dropdown-divider"></div>
                         </div>
                     </li>
@@ -51,7 +51,7 @@
         <div class="container"></div>
             <div class="content">
                 <h1>Asociación Civil EscuChamos</h1>
-                <p class="text-style">Somos una iniciativa de educomunicación que promueve el liderazgo de mujeres y jóvenes. Utilizamos herramientas prácticas para analizar y mejorar su entorno.</p>
+                <p id="slogan" class="text-style">Somos una iniciativa de educomunicación que promueve el liderazgo de mujeres y jóvenes. Utilizamos herramientas prácticas para analizar y mejorar su entorno.</p>
                 <div class="social-media">
                     <a href="https://www.facebook.com/share/t9L19WXeFZsipg2s/" target="_blank" class="social-icon facebook">
                         <img src="{% static 'img/icon-1.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">
@@ -76,19 +76,19 @@
                                 <tr>
                                     <td>
                                         <div class="button-container">
-                                            <a href="https://drive.usercontent.google.com/download?id=1liaLxa8tjZhVsaV3rDlLUdlJJQt2mOy4&export=download&authuser=0&confirm=t&uuid=823f74b0-bf1f-489e-8ec6-b792cc2183a2&at=AN_67v0kpkBIsVstiRxaUICo_Y7i%3A1728499645140" target="_blank" class="download-button android-button">
+                                            <a href="https://drive.google.com/file/d/1liaLxa8tjZhVsaV3rDlLUdlJJQt2mOy4/view?usp=sharing" target="_blank" class="download-button android-button">
                                                 <img src="{% static 'img/android.png' %}" alt="Android" class="os-icon"> Android
                                             </a>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
+                                {% comment %} <tr>
                                     <td>
                                         <div class="google-play-container">
                                             <span class="google-play-text">PRÓXIMAMENTE EN <br> <img src="{% static 'img/playstore.png' %}" alt="Google Play" class="os-icon"> Google Play</span>
                                         </div>
                                     </td>
-                                </tr>
+                                </tr> {% endcomment %}
                             </table>
                             
                             
@@ -435,6 +435,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/map.js' %}"></script>
+    <script src="{% static 'js/translate.js' %}"></script>
 
     </body>
 </html>

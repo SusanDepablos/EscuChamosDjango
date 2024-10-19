@@ -738,7 +738,6 @@ class StorySerializer(serializers.ModelSerializer):
         return obj.reports.count()
 
     def to_representation(self, instance):
-        user_representation = get_user_with_profile_photo(instance.user, self.context)
         representation = super().to_representation(instance)
         
         post_id = instance.post.id if instance.post else None
@@ -755,7 +754,6 @@ class StorySerializer(serializers.ModelSerializer):
                 'updated_at': representation['updated_at'],
             },
             'relationships': {
-                'user': user_representation,
                 'status': representation['status'],
                 'post': representation['post'],
                 'file': representation['file'],

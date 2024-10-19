@@ -743,6 +743,17 @@ class FollowUserIndexCreateAPIView(APIView):
             follow_filter = FollowFilter(request.query_params, queryset=follows)
             filtered_follows = follow_filter.qs
             
+            # Verificar si se ha pasado un id para mostrar primero
+            highlight_id = request.query_params.get('highlight_id')  # ID a resaltar
+            if highlight_id:
+                try:
+                    specific_follow = filtered_follows.get(id=highlight_id)
+                    filtered_follows = filtered_follows.exclude(id=highlight_id)  # Excluirlo de la lista
+                    # Agregar el seguimiento específico al principio
+                    filtered_follows = [specific_follow] + list(filtered_follows)
+                except Follow.DoesNotExist:
+                    pass  # Si no existe, simplemente ignorar
+            
             # Aplicar paginación si se requiere
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
@@ -993,7 +1004,18 @@ class ReactionIndexCreateAPIView(APIView):
 
             reaction_filter = ReactionFilter(request.query_params, queryset=reactions)
             filtered_reactions = reaction_filter.qs
-
+            
+            # Verificar si se ha pasado un id para mostrar primero
+            highlight_id = request.query_params.get('highlight_id')  # ID a resaltar
+            if highlight_id:
+                try:
+                    specific_reaction = filtered_reactions.get(id=highlight_id)
+                    filtered_reactions = filtered_reactions.exclude(id=highlight_id)  # Excluirlo de la lista
+                    # Agregar la reacción específica al principio
+                    filtered_reactions = [specific_reaction] + list(filtered_reactions)
+                except Reaction.DoesNotExist:
+                    pass  # Si no existe, simplemente ignorar
+                
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_reactions = pagination.paginate_queryset(filtered_reactions, request)
@@ -1528,24 +1550,34 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
     def get(self, request):
         try:
             comments = Comment.objects.exclude(
-                status__name__iexact='bloqueado' # Excluir comentarios de publicaciones bloqueadas
+                status__name__iexact='bloqueado'  # Excluir comentarios de publicaciones bloqueadas
             ).annotate(
                 reactions_count=Count('reactions')
             ).order_by('-reactions_count', '-created_at')  # Ordenar por reacciones y luego por fecha de creación
 
-
             comment_filter = CommentFilter(request.query_params, queryset=comments)
             filtered_comments = comment_filter.qs
+
+            # Verificar si se ha pasado un id para mostrar primero
+            highlight_id = request.query_params.get('highlight_id')  # Asumiendo que el ID se pasará como 'id'
+            if highlight_id:
+                try:
+                    specific_comment = filtered_comments.get(id=highlight_id)
+                    filtered_comments = filtered_comments.exclude(id=highlight_id)  # Excluirlo de la lista
+                    # Agregar el comentario específico al principio
+                    filtered_comments = [specific_comment] + list(filtered_comments)
+                except Comment.DoesNotExist:
+                    pass  # Si no existe, simplemente ignorar
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
                 paginated_comments = pagination.paginate_queryset(filtered_comments, request)
                 serializer = CommentSerializer(paginated_comments, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
-            
+
             serializer = CommentSerializer(filtered_comments, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             return handle_exception(e)
             
@@ -1695,20 +1727,37 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            stories = Story.objects.exclude(status__name__iexact='bloqueado').order_by('-created_at') 
+            stories = Story.objects.exclude(status__name__iexact='bloqueado').order_by('-created_at')
 
+            # Filtrar historias según los parámetros de la solicitud
             story_filter = StoryFilter(request.query_params, queryset=stories)
             filtered_stories = story_filter.qs
+
+            # Agrupar historias por usuario
+            grouped_stories = {}
+            for story in filtered_stories:
+                user_id = story.user.id
+                if user_id not in grouped_stories:
+                    grouped_stories[user_id] = {
+                        'user': get_user_with_profile_photo(story.user, {'request': request}),
+                        'stories': []
+                    }
+                
+                # Serializar la historia y añadirla a la lista de historias del usuario
+                serialized_story = StorySerializer(story, context={'request': request}).data
+                grouped_stories[user_id]['stories'].append(serialized_story)
             
+            # Convertir el diccionario a una lista si es necesario o devolverlo tal cual
+            grouped_stories_list = list(grouped_stories.values())
+
+            # Verificar si se requiere paginación
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_stories = pagination.paginate_queryset(filtered_stories, request)
-                serializer = StorySerializer(paginated_stories, many=True, context={'request': request})
-                return pagination.get_paginated_response({'data': serializer.data})
+                paginated_stories = pagination.paginate_queryset(grouped_stories_list, request)
+                return pagination.get_paginated_response({'data': paginated_stories})
             
-            serializer = StorySerializer(filtered_stories, many=True, context={'request': request})
-            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-        
+            return Response({'data': grouped_stories_list}, status=status.HTTP_200_OK)
+
         except Exception as e:
             return handle_exception(e)
             

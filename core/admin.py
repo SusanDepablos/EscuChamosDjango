@@ -3,7 +3,7 @@ from .models import *
 from django.utils.html import format_html, format_html_join
 
 
-admin.site.site_header = "Sitio de Administrativo Asociación Civel EscuChamos"
+admin.site.site_header = "Sitio de Administrativo Asociación Civil EscuChamos"
 admin.site.index_title = "EscuChamos"
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
