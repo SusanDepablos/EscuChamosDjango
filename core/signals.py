@@ -113,28 +113,38 @@ def notification_comment(sender, instance, created, **kwargs):
     if created:
         try:
             content_type_id = ContentType.objects.get(model='comment').id
-            post_user_id = Post.objects.get(id=instance.post_id).user_id
-            comment_user_id = Comment.objects.get(id=instance.post_id).user_id
+            post = Post.objects.get(id=instance.post_id)
+            post_user_id = post.user_id  # El autor de la publicación
 
-            if post_user_id != instance.user_id and comment_user_id != instance.user_id:
-                
-                if instance.comment_id is None:
-                    type = 'comment_post'
-                    message = 'ha comentado tu publicación'
-                    receiver_user_id = post_user_id
-                else:
-                    type = 'comment_reply'
-                    message = 'ha respondido tu comentario'
-                    receiver_user_id = comment_user_id
+            # Obtener el autor del comentario original si es una respuesta
+            if instance.comment_id:
+                original_comment = Comment.objects.get(id=instance.comment_id)
+                comment_user_id = original_comment.user_id  # El autor del comentario original
+            else:
+                comment_user_id = None
 
+            # Si es un comentario a la publicación, notificar al autor de la publicación
+            if post_user_id != instance.user_id and instance.comment_id is None:
                 Notification.objects.create(
                     object_id=instance.id,
-                    message=message,
-                    type=type,
+                    message='ha comentado tu publicación',
+                    type='comment_post',
                     content_type_id=content_type_id,
-                    receiver_user_id=receiver_user_id,
+                    receiver_user_id=post_user_id,
                     user_id=instance.user_id,
                 )
+
+            # Si es una respuesta, notificar al autor del comentario original
+            if instance.comment_id and comment_user_id and comment_user_id != instance.user_id:
+                Notification.objects.create(
+                    object_id=instance.id,
+                    message='ha respondido tu comentario',
+                    type='comment_reply',
+                    content_type_id=content_type_id,
+                    receiver_user_id=comment_user_id,
+                    user_id=instance.user_id,
+                )
+
         except Exception as e:
             print(f"Error al crear la notificación: {e}")
 
