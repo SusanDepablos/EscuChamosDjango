@@ -19,8 +19,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from core.models import HistoricalUser
 import random
 import string
-from threading import Event
-from django.http import JsonResponse
 
 #-----------------------------------------------------------------------------------------------------
 # Funciones Auxiliares
@@ -1865,39 +1863,3 @@ class NotificationIndexAPIView(APIView):
 
         except Exception as e:
             return handle_exception(e)
-
-class LongPollView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    clients = {}  # Diccionario de clientes que esperan notificaciones
-    events = {}   # Eventos asociados a cada usuario
-
-    def get(self, request, *args, **kwargs):
-        user_id = request.user.id  # ID del usuario autenticado
-        print(f"Cliente conectado: {user_id}")  # Para depuración
-
-        client_event = Event()
-        self.clients[user_id] = client_event  # Guarda el evento para el usuario
-
-        try:
-            # Esperar hasta que se active el evento o hasta 30 segundos
-            client_event.wait(timeout=30)
-            # Obtener el mensaje para el usuario
-            message = self.events.pop(user_id, None)  # Usa el ID del usuario para obtener su mensaje
-            print(f"Mensaje recibido para {user_id}: {message}")  # Para depuración
-            if message:
-                return JsonResponse({'message': message})
-            return JsonResponse({'message': 'No new notifications'}, status=204)
-        finally:
-            # Limpiar la lista de clientes al desconectar
-            del self.clients[user_id]
-
-    @classmethod
-    def notify(cls, user_id, message):
-        # Almacena el mensaje en el diccionario de eventos
-        cls.events[user_id] = message
-        print(f"Evento agregado para {user_id}: {message}")  # Para depuración
-
-        # Notifica al cliente correspondiente
-        if user_id in cls.clients:
-            cls.clients[user_id].set()  # Activa el evento para que el cliente pueda continuar

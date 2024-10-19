@@ -1,8 +1,8 @@
 from django.urls import path
 from core.api import *
+from core.event import LiveNotification
 
 urlpatterns = [
-    path('long-poll/', LongPollView.as_view(), name='long_poll'),
 #--------------------------------------------------------------------------------------------------#
 # Autenticación
 #--------------------------------------------------------------------------------------------------#
@@ -107,4 +107,5 @@ urlpatterns = [
 # Notificaciones
 #--------------------------------------------------------------------------------------------------#
     path('notifications/', NotificationIndexAPIView.as_view(), name='notification-index'),
+    path('notifications/<int:user_id>/', LiveNotification.sse_endpoint, name='sse'),#-------> Tiempo real
 ]

@@ -2,14 +2,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from core.views import index, verify # Asegúrate de importar tu vista aquí
+from core.views import index, verify
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
     path('api/', include('core.api_urls.urls')),
     path('', index, name='index'), 
     path('verify/', verify, name='verify'),
-
 ] 
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

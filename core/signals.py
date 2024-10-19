@@ -1,8 +1,7 @@
 from django.db.models.signals import post_save , post_delete
 from django.dispatch import receiver
-from .api import LongPollView
 from .models import *
-import requests
+clients = {}
 
 #-----------------------------------------------------------------------------------------------------
 # Reaction
@@ -20,56 +19,44 @@ def notification_reaction(sender, instance, created, **kwargs):
                 comment = Comment.objects.get(id=instance.object_id)
 
                 if comment.user_id != instance.user_id:
-                    notification = Notification.objects.create(
+                    Notification.objects.create(
                         object_id=instance.id,
-                        message='reaccionó a tu comentario',
+                        message='reacciono a tu comentario',
                         type='reaction_comment',
                         content_type_id=content_type_id,
-                        receiver_user_id=comment.user_id,  # ID del usuario receptor
+                        receiver_user_id=comment.user_id,
                         user_id=instance.user_id,
                     )
-                    # Llama al Long Polling para notificar al usuario receptor
-                    notify_user(notification.receiver_user_id, notification.message)  # Usando receiver_user_id
 
             elif model_name == 'post':
                 post = Post.objects.get(id=instance.object_id)
 
                 if post.user_id != instance.user_id:
-                    notification = Notification.objects.create(
+                    Notification.objects.create(
                         object_id=instance.id,
-                        message='reaccionó a tu publicación',
+                        message='reacciono a tu publicacion',
                         type='reaction_post',
                         content_type_id=content_type_id,
-                        receiver_user_id=post.user_id,  # ID del usuario receptor
+                        receiver_user_id=post.user_id,
                         user_id=instance.user_id,
                     )
-                    # Llama al Long Polling para notificar al usuario receptor
-                    notify_user(notification.receiver_user_id, notification.message)  # Usando receiver_user_id
 
             elif model_name == 'story':
                 story = Story.objects.get(id=instance.object_id)
 
                 if story.user_id != instance.user_id:
-                    notification = Notification.objects.create(
+                    Notification.objects.create(
                         object_id=instance.id,
-                        message='reaccionó a tu historia',
+                        message='reacciono a tu historia',
                         type='reaction_story',
                         content_type_id=content_type_id,
-                        receiver_user_id=story.user_id,  # ID del usuario receptor
+                        receiver_user_id=story.user_id,
                         user_id=instance.user_id,
                     )
-                    # Llama al Long Polling para notificar al usuario receptor
-                    notify_user(notification.receiver_user_id, notification.message)  # Usando receiver_user_id
 
         except Exception as e:
             print(f"Error al crear la notificación: {e}")
 
-def notify_user(user_id, message):
-    try:
-        # Almacena la notificación en la vista Long Poll
-        LongPollView.notify(user_id, message)  # Notificar al usuario conectado
-    except Exception as e:
-        print(f"Error al notificar al usuario: {e}")
 
 @receiver(post_delete, sender=Reaction)
 def notification_delete_reaction(sender, instance, **kwargs):
@@ -419,3 +406,22 @@ def notification_delete(sender, instance, **kwargs):
 
     except Exception as e:
         print(f"Error al eliminar la notificación: {e}")
+
+#-----------------------------------------------------------------------------------------------------
+# Notificaciones
+#----------------------------------------------------------------------------------------------------- 
+
+@receiver(post_save, sender=Notification)
+def notification_created(sender, instance, created, **kwargs):
+    user_id = instance.receiver_user.id
+    if created:
+        send_notification(user_id)
+    else:
+        if instance.is_read:
+            send_notification(user_id)
+
+def send_notification(user_id):
+    if user_id in clients:
+        unread_count = Notification.objects.filter(receiver_user_id=user_id, is_read=False).count()
+        for client in clients[user_id]:
+            client.send(f"data: {{ 'notifications': {unread_count} }}\n\n")
