@@ -107,5 +107,5 @@ urlpatterns = [
 # Notificaciones
 #--------------------------------------------------------------------------------------------------#
     path('notifications/', NotificationIndexAPIView.as_view(), name='notification-index'),
-    #path('notifications/<int:user_id>/', LiveNotification.sse_endpoint, name='sse'),#-------> Tiempo real
+    path('notifications/<int:user_id>/', LiveNotification.sse_endpoint, name='sse'),#-------> Tiempo real
 ]

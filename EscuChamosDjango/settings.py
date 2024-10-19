@@ -78,6 +78,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'EscuChamosDjango.wsgi.application'
 
+ASGI_APPLICATION = "EscuChamosDjango.asgi.application"
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
