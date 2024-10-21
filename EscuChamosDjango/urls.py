@@ -6,7 +6,7 @@ from core.views import index, verify
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
-    path('api/', include('core.api_urls.urls')),
+    path('ac/api/', include('core.api_urls.urls')),
     path('', index, name='index'), 
     path('verify/', verify, name='verify'),
 ] 

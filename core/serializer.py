@@ -762,6 +762,31 @@ class StorySerializer(serializers.ModelSerializer):
                 'reports_count': representation['reports_count'],
             }
         }
+        
+class StoryViewSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+    story_id = serializers.PrimaryKeyRelatedField(queryset=Story.objects.all(), write_only=True, source='story')
+    
+    class Meta:
+        model = StoryView
+        fields = ('id',
+                'story_id',
+                'user_id', 
+                'created_at',
+                'updated_at', 
+                )
+        
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'story_id': instance.story.id,
+                'user_id': instance.user.id,
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            },
+        }
     
 #-----------------------------------------------------------------------------------------------------
 # Simple serialser comentario

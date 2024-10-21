@@ -318,3 +318,16 @@ class Notification(TimestampedMixin, models.Model):
 
     def __str__(self):
         return f"Notificación de {self.user} para {self.receiver_user}"
+    
+class StoryView(TimestampedMixin, models.Model):
+    story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='views', verbose_name='Historia')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='story_views', verbose_name='Usuario')
+
+    class Meta:
+        db_table = 'story_views'
+        verbose_name = 'Vista de Historia'
+        verbose_name_plural = 'Vistas de Historias'
+        unique_together = ('story', 'user') 
+
+    def __str__(self):
+        return f'Vista de {self.user} a la historia {self.story_id}'

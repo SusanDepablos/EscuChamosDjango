@@ -436,8 +436,8 @@ class UserIndexAPIView(APIView):
 
     def get(self, request):
         try:
-            # Obtiene todos los usuarios excepto el usuario autenticado
-            users = User.objects.exclude(id=request.user.id)
+            # Obtiene todos los usuarios excepto el usuario autenticado y que estén activos
+            users = User.objects.exclude(id=request.user.id).filter(is_active=True)
 
             user_filter = UserFilter(request.query_params, queryset=users)
             filtered_users = user_filter.qs
@@ -453,6 +453,7 @@ class UserIndexAPIView(APIView):
 
         except Exception as e:
             return handle_exception(e)
+
 
 #-----------------------------------------------------------------------------------------------------
 # Actualizar Usuario 
@@ -1727,11 +1728,18 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
 
     def get(self, request):
         try:
-            stories = Story.objects.exclude(status__name__iexact='bloqueado').order_by('-created_at')
+            # Obtener el usuario en sesión
+            current_user = request.user
+
+            # Excluir historias del usuario actual y que no estén bloqueadas
+            stories = Story.objects.exclude(user=current_user).exclude(status__name__iexact='bloqueado').order_by('-created_at')
 
             # Filtrar historias según los parámetros de la solicitud
             story_filter = StoryFilter(request.query_params, queryset=stories)
             filtered_stories = story_filter.qs
+
+            # Obtener todas las historias vistas por el usuario actual
+            viewed_story_ids = set(StoryView.objects.filter(user=current_user).values_list('story_id', flat=True))
 
             # Agrupar historias por usuario
             grouped_stories = {}
@@ -1740,23 +1748,43 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
                 if user_id not in grouped_stories:
                     grouped_stories[user_id] = {
                         'user': get_user_with_profile_photo(story.user, {'request': request}),
-                        'stories': []
+                        'stories': [],
                     }
-                
-                # Serializar la historia y añadirla a la lista de historias del usuario
+
+                # Serializar la historia y marcarla como leída o no
                 serialized_story = StorySerializer(story, context={'request': request}).data
+                serialized_story['is_read'] = story.id in viewed_story_ids
+
+                # Añadir la historia a la lista de historias del usuario
                 grouped_stories[user_id]['stories'].append(serialized_story)
-            
-            # Convertir el diccionario a una lista si es necesario o devolverlo tal cual
-            grouped_stories_list = list(grouped_stories.values())
+
+            # Convertir el diccionario a una lista para mantener el orden de los usuarios tal cual se obtuvieron
+            grouped_stories_list = []
+            for user_data in grouped_stories.values():
+                # Ordenar las historias de cada usuario de la más vieja a la más nueva (usando 'created_at')
+                user_data['stories'].sort(key=lambda x: x['attributes']['created_at'])
+
+                # Determinar si todas las historias del usuario están leídas
+                all_stories_read = all(story['is_read'] for story in user_data['stories'])
+                user_data['all_read'] = all_stories_read
+
+                # Añadir el dato procesado a la lista
+                grouped_stories_list.append(user_data)
+
+            # Separar los grupos según si todas las historias están leídas
+            unread_groups = [user_data for user_data in grouped_stories_list if not user_data['all_read']]
+            read_groups = [user_data for user_data in grouped_stories_list if user_data['all_read']]
+
+            # Combinar grupos de forma que los grupos no leídos estén primero
+            final_grouped_stories_list = unread_groups + read_groups
 
             # Verificar si se requiere paginación
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_stories = pagination.paginate_queryset(grouped_stories_list, request)
+                paginated_stories = pagination.paginate_queryset(final_grouped_stories_list, request)
                 return pagination.get_paginated_response({'data': paginated_stories})
-            
-            return Response({'data': grouped_stories_list}, status=status.HTTP_200_OK)
+
+            return Response({'data': final_grouped_stories_list}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return handle_exception(e)
@@ -1816,7 +1844,110 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
             return Response({'validation': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            # Manejo de excepciones
+            return handle_exception(e)
+
+class StoryViewIndexAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_storyview'
+
+    def get(self, request):
+        try:
+            storyViews = StoryView.objects.all()
+
+            if 'pag' in request.query_params:
+                pagination = CustomPagination()
+                paginated_countries = pagination.paginate_queryset(storyViews, request)
+                serializer = StoryViewSerializer(paginated_countries, many=True, context={'request': request})
+                return pagination.get_paginated_response({'data': serializer.data})
+            
+            serializer = StoryViewSerializer(storyViews, many=True, context={'request': request})
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return handle_exception(e)
+        
+    def post(self, request):
+        try:
+            # Obtener los datos de la solicitud
+            story_id = request.data.get('story_id')
+
+            # Obtener al usuario autenticado
+            user = request.user
+
+            # Obtener la historia
+            try:
+                story = Story.objects.get(id=story_id)
+            except ObjectDoesNotExist:
+                return Response({'error': f'Historia con ID {story_id} no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Verificar si la historia ya fue vista por el usuario
+            story_view_exists = StoryView.objects.filter(user=user, story=story).exists()
+
+            # Solo registrar la vista si no existe
+            if not story_view_exists:
+                StoryView.objects.create(user=user, story=story)
+                message = 'Vista de la historia registrada exitosamente.'
+                return Response({'message': message}, status=status.HTTP_201_CREATED)
+
+            # Si ya existe, simplemente omitir la creación sin mensaje adicional
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return handle_exception(e)
+        
+
+class StoryGroupedAPIView(APIView, FileUploadMixin):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    # required_permissions = 'view_story' 
+        
+    def get(self, request, user_id):
+        try:
+            # Excluir historias que estén bloqueadas
+            stories = Story.objects.exclude(status__name__iexact='bloqueado').order_by('-created_at')
+
+            # Filtrar historias para incluir solo las del usuario especificado
+            stories = stories.filter(user_id=user_id)
+
+            # Obtener el usuario en sesión
+            current_user = request.user
+            
+            # Obtener todas las historias vistas por el usuario actual
+            viewed_story_ids = set(StoryView.objects.filter(user=current_user).values_list('story_id', flat=True))
+
+            # Agrupar historias por usuario (solo se agrupa un usuario en este caso)
+            grouped_stories = {}
+            for story in stories:
+                user_id = story.user.id
+                if user_id not in grouped_stories:
+                    grouped_stories[user_id] = {
+                        'user': get_user_with_profile_photo(story.user, {'request': request}),
+                        'stories': [],
+                    }
+
+                # Serializar la historia y marcarla como leída o no
+                serialized_story = StorySerializer(story, context={'request': request}).data
+                serialized_story['is_read'] = story.id in viewed_story_ids
+
+                # Añadir la historia a la lista de historias del usuario
+                grouped_stories[user_id]['stories'].append(serialized_story)
+
+            # Convertir el diccionario a una lista (solo habrá un usuario en este caso)
+            grouped_stories_list = []
+            for user_data in grouped_stories.values():
+                # Ordenar las historias del usuario de la más vieja a la más nueva
+                user_data['stories'].sort(key=lambda x: x['attributes']['created_at'])
+
+                # Verificar si todas las historias del usuario están leídas
+                all_stories_read = all(story['is_read'] for story in user_data['stories'])
+                user_data['all_read'] = all_stories_read
+
+                grouped_stories_list.append(user_data)
+
+            return Response({'data': grouped_stories_list}, status=status.HTTP_200_OK)
+
+        except Exception as e:
             return handle_exception(e)
         
 #-----------------------------------------------------------------------------------------------------
@@ -1830,7 +1961,7 @@ class StoryDetailAPIView(APIView, FileUploadMixin):
     def get(self, request, pk):
         try:
             # Obtener la historia usando el pk
-            story = story.objects.get(pk=pk)
+            story = Story.objects.get(pk=pk)
 
             # Serializar los datos de la historia
             serializer = StorySerializer(story, context={'request': request})
