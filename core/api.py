@@ -2043,6 +2043,40 @@ class NotificationIndexAPIView(APIView):
 
         except Exception as e:
             return handle_exception(e)
+
+class NotificationViewIndexAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            model_name = request.data.get('model')
+            object_id = request.data.get('object_id')
+
+            try:
+                content_type = ContentType.objects.get(model=model_name.lower())
+            except ContentType.DoesNotExist:
+                return Response({'validation': f'El modelo "{model_name}" no existe.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                notification = Notification.objects.get(id=object_id, content_type_id=content_type.id)
+
+                if not notification.is_read:
+                    notification.is_read = True
+                    notification.save()
+                    return Response({'message': 'La notificación ha sido marcada como leída.'}, status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response({'message': 'La notificación ya está marcada como leída.'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            except ObjectDoesNotExist:
+                return Response({'error': f'Notification con ID {object_id} no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return handle_exception(e)
+
+
         
 #-----------------------------------------------------------------------------------------------------
 # Informacion de las sesiones
@@ -2062,3 +2096,5 @@ class SessionInfoAPI(APIView):
             return Response({'exists': False}, status=status.HTTP_200_OK)
         except Exception as e:
              return handle_exception(e)
+
+        

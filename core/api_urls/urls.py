@@ -108,9 +108,10 @@ urlpatterns = [
 # Notificaciones
 #--------------------------------------------------------------------------------------------------#
     path('notifications/', NotificationIndexAPIView.as_view(), name='notification-index'),
+    path('notifications/is-read/', NotificationViewIndexAPIView.as_view(), name='notification-is-read'),
     path('notifications/<int:user_id>/', LiveNotification.sse_endpoint, name='sse'),#-------> Tiempo real
 #--------------------------------------------------------------------------------------------------#
 # Informacion de las sesiones
 #--------------------------------------------------------------------------------------------------#
-    path('session/Info/', SessionInfoAPI.as_view(), name='session-Info'),
+    path('session/info/', SessionInfoAPI.as_view(), name='session-info'),
 ]
