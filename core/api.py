@@ -2043,3 +2043,22 @@ class NotificationIndexAPIView(APIView):
 
         except Exception as e:
             return handle_exception(e)
+        
+#-----------------------------------------------------------------------------------------------------
+# Informacion de las sesiones
+#-----------------------------------------------------------------------------------------------------
+
+class SessionInfoAPI(APIView):
+    def post(self, request):
+        try:
+            session_key = request.data.get('session_key')
+            user_id = request.data.get('user_id')
+            session_exists = SessionInfo.objects.filter(
+                session_key=session_key,
+                user_id=user_id
+            ).exists()
+            if session_exists:
+                return Response({'exists': True}, status=status.HTTP_200_OK)
+            return Response({'exists': False}, status=status.HTTP_200_OK)
+        except Exception as e:
+             return handle_exception(e)

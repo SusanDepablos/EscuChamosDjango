@@ -104,11 +104,13 @@ urlpatterns = [
     path('story-view/', StoryViewIndexAPIView.as_view(), name='story-view'),
     path('story/grouped/<int:user_id>/', StoryGroupedAPIView.as_view(), name='story-grouped'),
     path('story/<int:pk>/', StoryDetailAPIView.as_view(), name='story-detail'),
-    
-
 #--------------------------------------------------------------------------------------------------#
 # Notificaciones
 #--------------------------------------------------------------------------------------------------#
     path('notifications/', NotificationIndexAPIView.as_view(), name='notification-index'),
     path('notifications/<int:user_id>/', LiveNotification.sse_endpoint, name='sse'),#-------> Tiempo real
+#--------------------------------------------------------------------------------------------------#
+# Informacion de las sesiones
+#--------------------------------------------------------------------------------------------------#
+    path('session/Info/', SessionInfoAPI.as_view(), name='session-Info'),
 ]
