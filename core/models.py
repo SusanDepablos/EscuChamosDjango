@@ -310,6 +310,7 @@ class Notification(TimestampedMixin, models.Model):
     type = models.TextField(verbose_name='Tipo')
     receiver_user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, verbose_name='Usuario receptor', related_name='received_notifications')
     is_read = models.BooleanField(default=False, verbose_name='Lectura')
+    is_seen = models.BooleanField(default=False, verbose_name='Visto')
 
     class Meta:
         db_table = 'notifications'

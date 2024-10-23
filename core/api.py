@@ -2076,7 +2076,65 @@ class NotificationViewIndexAPIView(APIView):
         except Exception as e:
             return handle_exception(e)
 
+class ReadNotificationAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        try:
+            user = request.user
+
+            notifications = Notification.objects.filter(receiver_user=user, is_read=False)
+
+            if not notifications.exists():
+                return Response({'message': 'No hay notificaciones no leídas.'}, status=status.HTTP_204_NO_CONTENT)
+
+            notifications.update(is_read=True)
+
+            return Response({'message': 'Todas las notificaciones han sido marcadas como leídas.'}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
+
+class SeenNotificationAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+
+            # Obtener las notificaciones no vistas
+            notifications = Notification.objects.filter(receiver_user=user, is_seen=False)
+
+            if not notifications.exists():
+                return Response({'message': 'No hay notificaciones no vistas.'}, status=status.HTTP_204_NO_CONTENT)
+
+            # Marcar todas las notificaciones como vistas
+            notifications.update(is_seen=True)
+
+            return Response({'message': 'Todas las notificaciones han sido marcadas como vistas.'}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
+
+class NotificationDeleteAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        try:
+            notification = Notification.objects.get(id=pk)
+
+            notification.delete()
+
+            return Response({'message': 'Notificación eliminada exitosamente.'}, status=status.HTTP_202_ACCEPTED)
+
+        except Notification.DoesNotExist:
+            return Response({'error': f'Notificación con ID {pk} no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return handle_exception(e)
         
 #-----------------------------------------------------------------------------------------------------
 # Informacion de las sesiones

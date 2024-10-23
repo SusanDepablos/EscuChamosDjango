@@ -27,7 +27,7 @@ class LiveNotification:
 
     @staticmethod
     async def get_count(user_id):
-        return await Notification.objects.filter(receiver_user_id=user_id, is_read=False).acount()
+        return await Notification.objects.filter(receiver_user_id=user_id, is_seen=False).acount()
 
     @staticmethod
     def sse_endpoint(req, user_id):

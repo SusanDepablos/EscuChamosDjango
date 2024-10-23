@@ -871,7 +871,8 @@ class NotificationSerializer(serializers.ModelSerializer):
             'type',
             'is_read',
             'created_at',
-            'updated_at'
+            'updated_at',
+            'is_seen',
         )
 
     def to_representation(self, instance):
@@ -913,6 +914,7 @@ class NotificationSerializer(serializers.ModelSerializer):
                 'message': representation['message'],
                 'type': representation['type'],
                 'is_read': representation['is_read'],
+                'is_seen': representation['is_seen'],
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },

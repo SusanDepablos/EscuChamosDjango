@@ -432,6 +432,6 @@ def notification_created(sender, instance, created, **kwargs):
 
 def send_notification(user_id):
     if user_id in clients:
-        unread_count = Notification.objects.filter(receiver_user_id=user_id, is_read=False).count()
+        unread_count = Notification.objects.filter(receiver_user_id=user_id, is_seen=False).count()
         for client in clients[user_id]:
             client.send(f"data: {{ 'notifications': {unread_count} }}\n\n")
