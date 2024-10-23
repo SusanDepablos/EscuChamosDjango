@@ -284,6 +284,7 @@ class NotificationFilter(django_filters.FilterSet):
         model = Notification
         fields = [
             'receiver_user_id',
+            'type',
         ]
 
     def __init__(self, *args, **kwargs):
