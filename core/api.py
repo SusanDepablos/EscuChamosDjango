@@ -1906,10 +1906,10 @@ class StoryGroupedAPIView(APIView, FileUploadMixin):
     def get(self, request, user_id):
         try:
             # Excluir historias que estén bloqueadas
-            stories = Story.objects.exclude(status__name__iexact='bloqueado').order_by('-created_at')
+            stories = Story.objects.exclude(status__name__iexact='bloqueado').filter(user_id=user_id).order_by('-created_at')
 
-            # Filtrar historias para incluir solo las del usuario especificado
-            stories = stories.filter(user_id=user_id)
+            if not stories.exists():
+                return Response({'error': 'El usuario no tiene historias.'}, status=status.HTTP_404_NOT_FOUND)
 
             # Obtener el usuario en sesión
             current_user = request.user
