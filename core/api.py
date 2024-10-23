@@ -1897,6 +1897,7 @@ class StoryViewIndexAPIView(APIView):
             return handle_exception(e)
         
 
+
 class StoryGroupedAPIView(APIView, FileUploadMixin):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -1916,36 +1917,30 @@ class StoryGroupedAPIView(APIView, FileUploadMixin):
             # Obtener todas las historias vistas por el usuario actual
             viewed_story_ids = set(StoryView.objects.filter(user=current_user).values_list('story_id', flat=True))
 
-            # Agrupar historias por usuario (solo se agrupa un usuario en este caso)
-            grouped_stories = {}
-            for story in stories:
-                user_id = story.user.id
-                if user_id not in grouped_stories:
-                    grouped_stories[user_id] = {
-                        'user': get_user_with_profile_photo(story.user, {'request': request}),
-                        'stories': [],
-                    }
+            # Agrupar historias por el usuario especificado (solo hay un usuario)
+            grouped_stories = {
+                'user': get_user_with_profile_photo(stories.first().user, {'request': request}),
+                'stories': [],
+                'all_read': False
+            }
 
+            # Agregar cada historia del usuario al grupo
+            for story in stories:
                 # Serializar la historia y marcarla como leída o no
                 serialized_story = StorySerializer(story, context={'request': request}).data
                 serialized_story['is_read'] = story.id in viewed_story_ids
 
                 # Añadir la historia a la lista de historias del usuario
-                grouped_stories[user_id]['stories'].append(serialized_story)
+                grouped_stories['stories'].append(serialized_story)
 
-            # Convertir el diccionario a una lista (solo habrá un usuario en este caso)
-            grouped_stories_list = []
-            for user_data in grouped_stories.values():
-                # Ordenar las historias del usuario de la más vieja a la más nueva
-                user_data['stories'].sort(key=lambda x: x['attributes']['created_at'])
+            # Ordenar las historias del usuario de la más vieja a la más nueva
+            grouped_stories['stories'].sort(key=lambda x: x['attributes']['created_at'])
 
-                # Verificar si todas las historias del usuario están leídas
-                all_stories_read = all(story['is_read'] for story in user_data['stories'])
-                user_data['all_read'] = all_stories_read
+            # Verificar si todas las historias del usuario están leídas
+            grouped_stories['all_read'] = all(story['is_read'] for story in grouped_stories['stories'])
 
-                grouped_stories_list.append(user_data)
-
-            return Response({'data': grouped_stories_list}, status=status.HTTP_200_OK)
+            # Devolver el objeto como respuesta, no como lista
+            return Response({'data': grouped_stories}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return handle_exception(e)
