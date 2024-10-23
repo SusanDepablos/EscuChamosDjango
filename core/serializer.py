@@ -789,7 +789,7 @@ class StoryViewSerializer(serializers.ModelSerializer):
         }
     
 #-----------------------------------------------------------------------------------------------------
-# Simple serialser comentario
+# Simple serialser
 #----------------------------------------------------------------------------------------------------- 
 class CommentSimpleSerializer(serializers.ModelSerializer):
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
@@ -824,10 +824,33 @@ class CommentSimpleSerializer(serializers.ModelSerializer):
                 'updated_at': representation['updated_at'],
             },
         }
+                
+class ShareSimpleSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True, source='user')
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), write_only=True, source='post')
+
+    class Meta:
+        model = Share
+        fields = [
+            'id',
+            'user_id',
+            'post_id',
+            'created_at',
+            'updated_at',
+        ]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return {
+            'id': representation['id'],
+            'attributes': {
+                'user_id': instance.user.id,
+                'post_id': instance.post.id,
+                'created_at': representation['created_at'],
+                'updated_at': representation['updated_at'],
+            }
+        }
     
-#-----------------------------------------------------------------------------------------------------
-# Simple serialser Reaccion
-#----------------------------------------------------------------------------------------------------- 
 #-----------------------------------------------------------------------------------------------------
 # Notificacion
 #----------------------------------------------------------------------------------------------------- 
@@ -857,11 +880,25 @@ class NotificationSerializer(serializers.ModelSerializer):
         
         comment_representation = None
         reaction_representation = None
-        
+        share_representation = None
+
+        # Obtener el nombre del modelo de content_object
+        model_name = None
+        try:
+            content_type = instance.content_type
+            if content_type:
+                model_class = content_type.model_class()
+                related_object = model_class.objects.filter(id=instance.object_id).first()
+                model_name = model_class._meta.model_name if related_object else None
+        except ContentType.DoesNotExist:
+            model_name = None
+
         if isinstance(instance.content_object, Comment):
             comment_representation = CommentSimpleSerializer(instance.content_object).data
         elif isinstance(instance.content_object, Reaction):
             reaction_representation = ReactionSerializer(instance.content_object, context={'request': self.context['request']}).data
+        elif isinstance(instance.content_object, Share):
+            share_representation = ShareSimpleSerializer(instance.content_object).data
         
         representation = super().to_representation(instance)
 
@@ -869,6 +906,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             'id': representation['id'],
             'attributes': {
                 'content_type': representation['content_type'],
+                'model_name': model_name,
                 'object_id': representation['object_id'],
                 'user_id': instance.user.id if instance.user else None,
                 'receiver_user_id': instance.receiver_user.id if instance.receiver_user else None,
@@ -882,9 +920,11 @@ class NotificationSerializer(serializers.ModelSerializer):
                 'user': user_representation,
                 'receiver_user': receiver_user_representation,
                 'comment': comment_representation,
-                'reaction': reaction_representation
+                'reaction': reaction_representation,
+                'share': share_representation
             }
         }
+
 
 
 
