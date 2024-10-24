@@ -2061,15 +2061,17 @@ class NotificationViewIndexAPIView(APIView):
                     notification.save()
                     return Response({'message': 'La notificación ha sido marcada como leída.'}, status=status.HTTP_202_ACCEPTED)
                 else:
-                    return Response({'message': 'La notificación ya está marcada como leída.'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'message': 'La notificación ya está marcada como leída.'}, status=status.HTTP_202_ACCEPTED)
                 
             except ObjectDoesNotExist:
                 return Response({'error': f'Notification con ID {object_id} no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            # Esta línea ha sido eliminada
+            # return Response(status=status.HTTP_204_NO_CONTENT)
 
         except Exception as e:
             return handle_exception(e)
+
 
 class ReadNotificationAPIView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -2082,7 +2084,7 @@ class ReadNotificationAPIView(APIView):
             notifications = Notification.objects.filter(receiver_user=user, is_read=False)
 
             if not notifications.exists():
-                return Response({'message': 'No hay notificaciones no leídas.'}, status=status.HTTP_204_NO_CONTENT)
+                return Response({'message': 'No hay notificaciones no leídas.'}, status=status.HTTP_202_ACCEPTED)
 
             notifications.update(is_read=True)
 
@@ -2103,7 +2105,7 @@ class SeenNotificationAPIView(APIView):
             notifications = Notification.objects.filter(receiver_user=user, is_seen=False)
 
             if not notifications.exists():
-                return Response({'message': 'No hay notificaciones no vistas.'}, status=status.HTTP_204_NO_CONTENT)
+                return Response({'message': 'No hay notificaciones no vistas.'}, status=status.HTTP_202_ACCEPTED)
 
             # Marcar todas las notificaciones como vistas
             notifications.update(is_seen=True)
