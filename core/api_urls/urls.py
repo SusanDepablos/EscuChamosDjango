@@ -107,12 +107,12 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
 # Notificaciones
 #--------------------------------------------------------------------------------------------------#
-    path('notifications/', NotificationIndexAPIView.as_view(), name='notification-index'),
-    path('notifications/delete/<int:pk>/', NotificationDeleteAPIView.as_view(), name='notification-delete'),
-    path('notifications/is-read/', NotificationViewIndexAPIView.as_view(), name='notification-is-read'),
-    path('notifications/read/', ReadNotificationAPIView.as_view(), name='notification-is-read'),
-    path('notifications/seen/', SeenNotificationAPIView.as_view(), name='notification-is-seen'),
-    path('notifications/<int:pk>/', NotificationShowAPIView.as_view(), name='notification-show'),
+    path('notification/', NotificationIndexAPIView.as_view(), name='notification-index'),
+    path('notification/delete/<int:pk>/', NotificationDeleteAPIView.as_view(), name='notification-delete'),
+    path('notification/is-read/', NotificationViewIndexAPIView.as_view(), name='notification-is-read'),
+    path('notification/read/', ReadNotificationAPIView.as_view(), name='notification-is-read'),
+    path('notification/seen/', SeenNotificationAPIView.as_view(), name='notification-is-seen'),
+    path('notification/<int:pk>/', NotificationShowAPIView.as_view(), name='notification-show'),
     path('notifications/<int:user_id>/', LiveNotification.sse_endpoint, name='sse'),#-------> Tiempo real
 #--------------------------------------------------------------------------------------------------#
 # Informacion de las sesiones
