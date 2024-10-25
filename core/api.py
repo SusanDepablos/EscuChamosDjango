@@ -2017,6 +2017,22 @@ class StoryDetailAPIView(APIView, FileUploadMixin):
 #-----------------------------------------------------------------------------------------------------
 # Notificaciones
 #-----------------------------------------------------------------------------------------------------
+class NotificationShowAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            notification = Notification.objects.get(pk=pk)
+
+            serializer = NotificationSerializer(notification, context={'request': request})
+
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        except Notification.DoesNotExist:
+            return Response({'error': 'La notificacion no está registrada.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return handle_exception(e)
 
 class NotificationIndexAPIView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -2085,7 +2101,7 @@ class ReadNotificationAPIView(APIView):
             notifications = Notification.objects.filter(receiver_user=user, is_read=False)
 
             if not notifications.exists():
-                return Response({'message': 'No hay notificaciones no leídas.'}, status=status.HTTP_202_ACCEPTED)
+                return Response({'message': 'No hay notificaciones por leer.'}, status=status.HTTP_202_ACCEPTED)
 
             notifications.update(is_read=True)
 
