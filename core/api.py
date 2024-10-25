@@ -2045,6 +2045,7 @@ class NotificationViewIndexAPIView(APIView):
 
     def post(self, request):
         try:
+            id = request.data.get('id')
             model_name = request.data.get('model')
             object_id = request.data.get('object_id')
 
@@ -2054,7 +2055,7 @@ class NotificationViewIndexAPIView(APIView):
                 return Response({'validation': f'El modelo "{model_name}" no existe.'}, status=status.HTTP_400_BAD_REQUEST)
 
             try:
-                notification = Notification.objects.get(id=object_id, content_type_id=content_type.id)
+                notification = Notification.objects.get(object_id=object_id, content_type_id=content_type.id, id=id)
 
                 if not notification.is_read:
                     notification.is_read = True
@@ -2101,13 +2102,11 @@ class SeenNotificationAPIView(APIView):
         try:
             user = request.user
 
-            # Obtener las notificaciones no vistas
             notifications = Notification.objects.filter(receiver_user=user, is_seen=False)
 
             if not notifications.exists():
                 return Response({'message': 'No hay notificaciones no vistas.'}, status=status.HTTP_202_ACCEPTED)
 
-            # Marcar todas las notificaciones como vistas
             notifications.update(is_seen=True)
 
             return Response({'message': 'Todas las notificaciones han sido marcadas como vistas.'}, status=status.HTTP_200_OK)
