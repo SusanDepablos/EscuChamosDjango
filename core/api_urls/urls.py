@@ -113,6 +113,7 @@ urlpatterns = [
     path('notification/read/', ReadNotificationAPIView.as_view(), name='notification-is-read'),
     path('notification/seen/', SeenNotificationAPIView.as_view(), name='notification-is-seen'),
     path('notification/<int:pk>/', NotificationShowAPIView.as_view(), name='notification-show'),
+    path('notification/count/', NotificationCountAPIView.as_view(), name='notification-count'),
     path('notifications/<int:user_id>/', LiveNotification.sse_endpoint, name='sse'),#-------> Tiempo real
 #--------------------------------------------------------------------------------------------------#
 # Informacion de las sesiones

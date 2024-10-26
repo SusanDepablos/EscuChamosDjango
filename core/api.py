@@ -2055,6 +2055,25 @@ class NotificationIndexAPIView(APIView):
         except Exception as e:
             return handle_exception(e)
 
+class NotificationCountAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            type = request.data.get('type')
+
+            if not type:
+                return Response({'error': 'El parámetro "type" es requerido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            count = Notification.objects.filter(type__startswith=type).count()
+
+            return Response({'count': count}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
+
+
 class NotificationViewIndexAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

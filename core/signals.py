@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save , post_delete
 from django.dispatch import receiver
+from django.db.models import Q
 from .models import *
 clients = {}
 
@@ -406,13 +407,22 @@ def notification_delete(sender, instance, **kwargs):
                 type = 'resolved_post'
                 message = 'Tu reporte ha sido recibido, pero la publicación no será eliminada tras su revisión'
 
-        Notification.objects.create(
-            object_id=instance.object_id,
-            message=message,
-            type=type,
-            content_type_id=instance.content_type_id,
-            receiver_user_id=instance.user_id,
-        )
+        notification_exists = Notification.objects.filter(
+            Q(object_id=instance.object_id) &
+            Q(message=message) &
+            Q(type=type) &
+            Q(content_type_id=instance.content_type_id) &
+            Q(receiver_user_id=instance.user_id)
+        ).exists()
+
+        if not notification_exists:
+            Notification.objects.create(
+                object_id=instance.object_id,
+                message=message,
+                type=type,
+                content_type_id=instance.content_type_id,
+                receiver_user_id=instance.user_id,
+            )
 
     except Exception as e:
         print(f"Error al eliminar la notificación: {e}")
