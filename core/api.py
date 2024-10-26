@@ -2040,7 +2040,7 @@ class NotificationIndexAPIView(APIView):
 
     def get(self, request):
         try:
-            notifications = Notification.objects.all()
+            notifications = Notification.objects.all().order_by('-created_at')
             notification_filter = NotificationFilter(request.GET, queryset=notifications)
 
             if 'pag' in request.query_params:
