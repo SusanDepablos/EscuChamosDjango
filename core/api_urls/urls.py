@@ -102,6 +102,7 @@ urlpatterns = [
 #--------------------------------------------------------------------------------------------------#
     path('story/', StoryIndexCreateAPIView.as_view(), name='story'),
     path('story-view/', StoryViewIndexAPIView.as_view(), name='story-view'),
+    path('story-view/count/', StoryViewCountAPIView.as_view(), name='story-view-count'),
     path('story/grouped/<int:user_id>/', StoryGroupedAPIView.as_view(), name='story-grouped'),
     path('story/<int:pk>/', StoryDetailAPIView.as_view(), name='story-detail'),
 #--------------------------------------------------------------------------------------------------#

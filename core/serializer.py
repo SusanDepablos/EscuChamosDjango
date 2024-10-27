@@ -777,6 +777,7 @@ class StoryViewSerializer(serializers.ModelSerializer):
                 )
         
     def to_representation(self, instance):
+        user_representation = get_user_with_profile_photo(instance.user, self.context)
         representation = super().to_representation(instance)
         return {
             'id': representation['id'],
@@ -786,6 +787,9 @@ class StoryViewSerializer(serializers.ModelSerializer):
                 'created_at': representation['created_at'],
                 'updated_at': representation['updated_at'],
             },
+            'relationships' :{
+                'user': user_representation,
+            }
         }
     
 #-----------------------------------------------------------------------------------------------------

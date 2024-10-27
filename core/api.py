@@ -70,18 +70,21 @@ def send_email(subject, template_name, context, recipient_list):
 #-----------------------------------------------------------------------------------------------------
             
 def validate_and_update_password(user, new_password):
-    # Validar nueva contraseña
-    if len(new_password) < 8:
-        return {'validation': 'La nueva contraseña debe tener al menos 8 caracteres.'}, status.HTTP_400_BAD_REQUEST
+    # Validar que la nueva contraseña no sea la misma que la anterior
+    if check_password(new_password, user.password):
+        return {'validation': {'new_password': ['La nueva contraseña no puede ser igual a la anterior.']}}, status.HTTP_400_BAD_REQUEST
 
+    # Validación de longitud y contenido de la contraseña
+    if len(new_password) < 8:
+        return {'validation': {'new_password': ['La contraseña debe tener al menos 8 caracteres.']}}, status.HTTP_400_BAD_REQUEST
     if not any(char.isdigit() for char in new_password) or not any(char.isalpha() for char in new_password):
-        return {'validation': 'La nueva contraseña debe ser alfanumérica.'}, status.HTTP_400_BAD_REQUEST
+        return {'validation': {'new_password': ['La contraseña debe ser alfanumérica.']}}, status.HTTP_400_BAD_REQUEST
 
     # Actualizar la contraseña
-    user.password = make_password(new_password)
+    user.set_password(new_password)
     user.save()
-    
     return {'message': 'Contraseña actualizada exitosamente.'}, status.HTTP_200_OK
+
 
 #-----------------------------------------------------------------------------------------------------
 # Función para cambiar estado de un modelo
@@ -576,13 +579,16 @@ class UserChangePasswordAPIView(APIView):
             try:
                 self.validate_password(new_password)
             except serializers.ValidationError as e:
-                # Extraer el mensaje de error y agregarlo a la lista de errores
                 errors['new_password'] = [str(msg) for msg in e.detail]
+
+        # Validación adicional para comprobar que la nueva contraseña no sea igual a la anterior
+        if new_password == old_password:
+            errors['new_password'] = ['La nueva contraseña no puede ser igual a la anterior.']
 
         # Si hay errores, se devuelven
         if errors:
             return Response({'validation': errors}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             # Validar la contraseña actual
             if not check_password(old_password, user.password):
@@ -1853,15 +1859,17 @@ class StoryViewIndexAPIView(APIView):
 
     def get(self, request):
         try:
-            storyViews = StoryView.objects.all()
+            storyViews = StoryView.objects.all().order_by('-created_at')
+            storyViews_filter= StoryViewFilter(request.query_params, queryset=storyViews)
+            filtered_storyViews = storyViews_filter.qs
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_countries = pagination.paginate_queryset(storyViews, request)
+                paginated_countries = pagination.paginate_queryset(filtered_storyViews, request)
                 serializer = StoryViewSerializer(paginated_countries, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
-            serializer = StoryViewSerializer(storyViews, many=True, context={'request': request})
+            serializer = StoryViewSerializer(filtered_storyViews, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -1870,33 +1878,59 @@ class StoryViewIndexAPIView(APIView):
     def post(self, request):
         try:
             # Obtener los datos de la solicitud
-            story_id = request.data.get('story_id')
+            story_ids = request.data.get('story_ids', [])
 
             # Obtener al usuario autenticado
             user = request.user
 
-            # Obtener la historia
-            try:
-                story = Story.objects.get(id=story_id)
-            except ObjectDoesNotExist:
-                return Response({'error': f'Historia con ID {story_id} no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
+            # Lista para almacenar las historias que fueron vistas exitosamente
+            registered_stories = []
 
-            # Verificar si la historia ya fue vista por el usuario
-            story_view_exists = StoryView.objects.filter(user=user, story=story).exists()
+            for story_id in story_ids:
+                # Obtener la historia
+                try:
+                    story = Story.objects.get(id=story_id)
+                except ObjectDoesNotExist:
+                    # Omitir la historia si no se encuentra
+                    continue
 
-            # Solo registrar la vista si no existe
-            if not story_view_exists:
-                StoryView.objects.create(user=user, story=story)
-                message = 'Vista de la historia registrada exitosamente.'
+                # Verificar si la historia ya fue vista por el usuario
+                story_view_exists = StoryView.objects.filter(user=user, story=story).exists()
+
+                # Solo registrar la vista si no existe
+                if not story_view_exists:
+                    StoryView.objects.create(user=user, story=story)
+                    registered_stories.append(story_id)
+
+            # Comprobar si se registraron vistas
+            if registered_stories:
+                message = f'Vistas de las historias {registered_stories} registradas exitosamente.'
                 return Response({'message': message}, status=status.HTTP_201_CREATED)
 
-            # Si ya existe, simplemente omitir la creación sin mensaje adicional
+            # Si no se registró ninguna vista nueva
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         except Exception as e:
             return handle_exception(e)
-        
 
+
+class StoryViewCountAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            story = request.data.get('story_id')
+
+            if not story:
+                return Response({'validation': 'La historia es requerida.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            count = StoryView.objects.filter(story__id=story).count()
+
+            return Response({'message': count}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return handle_exception(e)
 
 class StoryGroupedAPIView(APIView, FileUploadMixin):
     authentication_classes = [TokenAuthentication]
@@ -2064,7 +2098,7 @@ class NotificationCountAPIView(APIView):
             type = request.data.get('type')
 
             if not type:
-                return Response({'error': 'El parámetro "type" es requerido.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'validation': 'El parámetro "type" es requerido.'}, status=status.HTTP_400_BAD_REQUEST)
 
             count = Notification.objects.filter(type__startswith=type).count()
 
@@ -2184,6 +2218,6 @@ class SessionInfoAPI(APIView):
                 return Response({'exists': True}, status=status.HTTP_200_OK)
             return Response({'exists': False}, status=status.HTTP_200_OK)
         except Exception as e:
-             return handle_exception(e)
+            return handle_exception(e)
 
         

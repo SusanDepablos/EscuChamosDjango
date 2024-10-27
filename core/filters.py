@@ -261,7 +261,10 @@ class FollowFilter(django_filters.FilterSet):
         return queryset.filter(
             Q(following_user__username__icontains=value) | Q(following_user__name__icontains=value)
         )
-        
+
+#-----------------------------------------------------------------------------------------------------
+# Historias
+#-----------------------------------------------------------------------------------------------------
 class StoryFilter(django_filters.FilterSet):
     user_id = django_filters.NumberFilter(field_name='user__id', lookup_expr='exact')
     status_id = django_filters.NumberFilter(field_name='status__id', lookup_expr='exact')
@@ -274,7 +277,21 @@ class StoryFilter(django_filters.FilterSet):
             ]
         
 #-----------------------------------------------------------------------------------------------------
-# Seguimientos
+# Historias
+#-----------------------------------------------------------------------------------------------------
+class StoryViewFilter(django_filters.FilterSet):
+    user_id = django_filters.NumberFilter(field_name='user__id', lookup_expr='exact')
+    story_id = django_filters.NumberFilter(field_name='story__id', lookup_expr='exact')
+
+    class Meta:
+        model = StoryView
+        fields = [
+            'user_id',
+            'story_id'
+            ]
+        
+#-----------------------------------------------------------------------------------------------------
+# Notificaciones
 #-----------------------------------------------------------------------------------------------------
 
 class NotificationFilter(django_filters.FilterSet):
