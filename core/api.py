@@ -2030,7 +2030,7 @@ class NotificationShowAPIView(APIView):
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
         except Notification.DoesNotExist:
-            return Response({'error': 'La notificacion no está registrada.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'La notificación no está registrada.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
 
@@ -2120,7 +2120,7 @@ class ReadNotificationAPIView(APIView):
             notifications = Notification.objects.filter(receiver_user=user, is_read=False)
 
             if not notifications.exists():
-                return Response({'message': 'No hay notificaciones por leer.'}, status=status.HTTP_202_ACCEPTED)
+                return Response({'message': 'No hay notificaciones pendientes por leer.'}, status=status.HTTP_202_ACCEPTED)
 
             notifications.update(is_read=True)
 
@@ -2140,7 +2140,7 @@ class SeenNotificationAPIView(APIView):
             notifications = Notification.objects.filter(receiver_user=user, is_seen=False)
 
             if not notifications.exists():
-                return Response({'message': 'No hay notificaciones no vistas.'}, status=status.HTTP_202_ACCEPTED)
+                return Response({'message': 'No hay notificaciones sin ver.'}, status=status.HTTP_202_ACCEPTED)
 
             notifications.update(is_seen=True)
 
