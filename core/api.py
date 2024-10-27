@@ -2068,7 +2068,7 @@ class NotificationCountAPIView(APIView):
 
             count = Notification.objects.filter(type__startswith=type).count()
 
-            return Response({'count': count}, status=status.HTTP_200_OK)
+            return Response({'message': count}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return handle_exception(e)
