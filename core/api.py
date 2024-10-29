@@ -17,6 +17,8 @@ from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import ObjectDoesNotExist
 from core.models import HistoricalUser
+from django.utils import timezone
+from datetime import timedelta
 import random
 import string
 
@@ -439,6 +441,10 @@ class UserIndexAPIView(APIView):
 
     def get(self, request):
         try:
+            time_threshold = timezone.now() - timedelta(hours=24)
+
+            User.objects.filter(created_at__lt=time_threshold, is_email_verified=False).delete()
+
             # Obtiene todos los usuarios excepto el usuario autenticado y que estén activos
             users = User.objects.exclude(id=request.user.id).filter(is_active=True)
 
@@ -1737,6 +1743,9 @@ class StoryIndexCreateAPIView(APIView, FileUploadMixin):
             # Obtener el usuario en sesión
             current_user = request.user
 
+            limit_date = timezone.now() - timedelta(hours=24)
+            Story.objects.filter(created_at__lt=limit_date).delete()
+
             # Excluir historias del usuario actual y que no estén bloqueadas
             stories = Story.objects.exclude(user=current_user).exclude(status__name__iexact='bloqueado').order_by('-created_at')
 
@@ -1859,59 +1868,61 @@ class StoryViewIndexAPIView(APIView):
 
     def get(self, request):
         try:
+            # Obtener todas las vistas de historia, excluyendo al usuario creador
             storyViews = StoryView.objects.all().order_by('-created_at')
-            storyViews_filter= StoryViewFilter(request.query_params, queryset=storyViews)
+            storyViews_filter = StoryViewFilter(request.query_params, queryset=storyViews)
             filtered_storyViews = storyViews_filter.qs
+
+            # Obtener los IDs de las historias vistas
+            story_ids = filtered_storyViews.values_list('story_id', flat=True).distinct()
+
+            # Obtener los IDs de los creadores de las historias
+            creators = Story.objects.filter(id__in=story_ids).values_list('user_id', flat=True)
+
+            # Filtrar las vistas para excluir las del creador
+            filtered_storyViews = filtered_storyViews.exclude(user__id__in=creators)
 
             if 'pag' in request.query_params:
                 pagination = CustomPagination()
-                paginated_countries = pagination.paginate_queryset(filtered_storyViews, request)
-                serializer = StoryViewSerializer(paginated_countries, many=True, context={'request': request})
+                paginated_storyViews = pagination.paginate_queryset(filtered_storyViews, request)
+                serializer = StoryViewSerializer(paginated_storyViews, many=True, context={'request': request})
                 return pagination.get_paginated_response({'data': serializer.data})
             
             serializer = StoryViewSerializer(filtered_storyViews, many=True, context={'request': request})
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             return handle_exception(e)
         
     def post(self, request):
         try:
-            # Obtener los datos de la solicitud
             story_ids = request.data.get('story_ids', [])
 
-            # Obtener al usuario autenticado
             user = request.user
 
-            # Lista para almacenar las historias que fueron vistas exitosamente
             registered_stories = []
 
             for story_id in story_ids:
-                # Obtener la historia
                 try:
                     story = Story.objects.get(id=story_id)
                 except ObjectDoesNotExist:
-                    # Omitir la historia si no se encuentra
                     continue
 
-                # Verificar si la historia ya fue vista por el usuario
                 story_view_exists = StoryView.objects.filter(user=user, story=story).exists()
 
-                # Solo registrar la vista si no existe
                 if not story_view_exists:
                     StoryView.objects.create(user=user, story=story)
                     registered_stories.append(story_id)
 
-            # Comprobar si se registraron vistas
             if registered_stories:
                 message = f'Vistas de las historias {registered_stories} registradas exitosamente.'
                 return Response({'message': message}, status=status.HTTP_201_CREATED)
 
-            # Si no se registró ninguna vista nueva
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         except Exception as e:
             return handle_exception(e)
+
 
 
 class StoryViewCountAPIView(APIView):
@@ -1920,17 +1931,24 @@ class StoryViewCountAPIView(APIView):
 
     def post(self, request):
         try:
-            story = request.data.get('story_id')
+            story_id = request.data.get('story_id')
 
-            if not story:
+            if not story_id:
                 return Response({'validation': 'La historia es requerida.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            count = StoryView.objects.filter(story__id=story).count()
+            # Obtener la historia para acceder al user_id del propietario
+            story = Story.objects.get(id=story_id)
+
+            # Contar las visualizaciones, excluyendo al propietario
+            count = StoryView.objects.filter(story__id=story_id).exclude(user_id=story.user_id).count()
 
             return Response({'message': count}, status=status.HTTP_200_OK)
 
+        except Story.DoesNotExist:
+            return Response({'validation': 'La historia no existe.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return handle_exception(e)
+
 
 class StoryGroupedAPIView(APIView, FileUploadMixin):
     authentication_classes = [TokenAuthentication]

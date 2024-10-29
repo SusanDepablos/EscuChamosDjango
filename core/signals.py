@@ -395,7 +395,7 @@ def notification_delete(sender, instance, **kwargs):
 
             elif comment.status_id == blocked_id:
                 type  = 'blocked_comment_report'
-                message = 'Tu reporte ha sido recibido, el comentario ah sido bloqueado'
+                message = 'Tu reporte ha sido recibido, el comentario ha sido bloqueado'
 
         elif model_name == 'post':
             post = Post.objects.get(id=instance.object_id)
