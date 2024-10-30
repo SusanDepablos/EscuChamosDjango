@@ -5,6 +5,74 @@ from .models import *
 clients = {}
 
 #-----------------------------------------------------------------------------------------------------
+# Funciones para eliminar al bloquear
+#----------------------------------------------------------------------------------------------------- 
+
+def delete_related_notifications_post(instance, content_type_id):
+
+    Notification.objects.filter(
+        object_id__in=Reaction.objects.filter(
+            content_type_id=content_type_id,
+            object_id=instance.id
+        ).values_list('id', flat=True),
+        content_type_id=ContentType.objects.get(model='reaction').id,
+        type='reaction_post',
+    ).delete()
+
+    Notification.objects.filter(
+        object_id__in=Comment.objects.filter(
+            post_id=instance.id,
+            comment_id__isnull=True
+        ).values_list('id', flat=True),
+        content_type_id=ContentType.objects.get(model='comment').id,
+        type='comment_post',
+    ).delete()
+
+    Notification.objects.filter(
+        object_id__in=Post.objects.filter(
+            post_id=instance.id,
+        ).values_list('id', flat=True),
+        content_type_id=ContentType.objects.get(model='post').id,
+        type='repost',
+    ).delete()
+
+
+def delete_related_notifications_comment(content_type_id, instance_id):
+
+    Notification.objects.filter(
+        object_id__in=Reaction.objects.filter(
+            content_type_id=content_type_id,
+            object_id=instance_id
+        ).values_list('id', flat=True),
+        content_type_id=ContentType.objects.get(model='reaction').id,
+        type='reaction_comment',
+    ).delete()
+
+    Notification.objects.filter(
+        object_id__in=Comment.objects.filter(
+            comment_id=instance_id,
+        ).values_list('id', flat=True),
+        content_type_id=ContentType.objects.get(model='comment').id,
+        type='comment_reply',
+    ).delete()
+
+#-----------------------------------------------------------------------------------------------------
+# Share
+#----------------------------------------------------------------------------------------------------- 
+
+@receiver(post_delete, sender=Share)
+def notification_delete_share(sender, instance, **kwargs):
+    content_type_id = ContentType.objects.get(model='share').id
+
+    try:
+        Notification.objects.filter(
+            content_type_id=content_type_id,
+            object_id=instance.post_id
+        ).delete()
+    except Exception as e:
+        print(f"Error al eliminar la notificación: {e}")
+
+#-----------------------------------------------------------------------------------------------------
 # Reaction
 #----------------------------------------------------------------------------------------------------- 
 
@@ -149,29 +217,6 @@ def notification_comment(sender, instance, created, **kwargs):
         except Exception as e:
             print(f"Error al crear la notificación: {e}")
 
-
-@receiver(post_save, sender=Comment)
-def notification_comment_update(sender, instance, created, **kwargs):
-    if not created:
-        try:
-            content_type_id = ContentType.objects.get(model='comment').id
-            status_id = Status.objects.get(name='Bloqueado').id    
-            
-            if (instance.status_id == status_id and
-                not Notification.objects.filter(object_id=instance.id, 
-                    content_type_id=content_type_id).exists()):
-
-                Notification.objects.create(
-                    object_id=instance.id,
-                    message='Tu comentario ha sido bloqueado',
-                    type='blocked_comment',
-                    content_type_id=content_type_id,
-                    receiver_user_id=instance.user_id,
-                )
-            
-        except Exception as e:
-            print(f"Error al manejar la actualización: {e}")
-
 @receiver(post_save, sender=Comment)
 def notification_comment_update(sender, instance, created, **kwargs):
     if not created:
@@ -207,6 +252,8 @@ def notification_comment_update(sender, instance, created, **kwargs):
                     object_id=instance.id,
                     type='report_comment'
                 ).delete()
+
+                delete_related_notifications_comment(content_type_id, instance.id)
 
             elif instance.status_id == resolved_id:
                 
@@ -279,8 +326,7 @@ def notification_post_update(sender, instance, created, **kwargs):
             resolved_id = Status.objects.get(name='Resuelto').id
 
             if instance.status_id == report_id and not Notification.objects.filter(
-                object_id=instance.id, content_type_id=content_type_id, type__in=['report_post', 'blocked_post'] #prefuntarle a susan
-                        ).exists():
+                object_id=instance.id, content_type_id=content_type_id, type__in=['report_post', 'blocked_post']).exists():
                 Notification.objects.create(
                     object_id=instance.id,
                     message='Reporte de publicación',
@@ -291,6 +337,7 @@ def notification_post_update(sender, instance, created, **kwargs):
             elif instance.status_id == blocked_id and not Notification.objects.filter(
                 object_id=instance.id, content_type_id=content_type_id, type='blocked_post'
             ).exists():
+                reaction_content_type_id = ContentType.objects.get(model='reaction').id
                 Notification.objects.create(
                     object_id=instance.id,
                     message='Tu publicación ha sido bloqueada',
@@ -304,6 +351,8 @@ def notification_post_update(sender, instance, created, **kwargs):
                     object_id=instance.id,
                     type='report_post'
                 ).delete()
+
+                delete_related_notifications_post(instance, content_type_id)
 
             elif instance.status_id == resolved_id:
                 

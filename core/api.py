@@ -1050,12 +1050,17 @@ class ReactionIndexCreateAPIView(APIView):
         object_id = data.get('object_id')  # ID del objeto relacionado
 
         try:
+            blocked_id = Status.objects.get(name='Bloqueado').id
             # Verificar que el modelo exista en ContentType
             content_type = ContentType.objects.get(model=model_name.lower())
 
             # Verificar que el objeto relacionado exista
             model_class = content_type.model_class()
             obj = model_class.objects.get(id=object_id)
+
+        
+            if obj.status_id == blocked_id:
+                return Response(status=status.HTTP_204_NO_CONTENT)
 
             # Agregar el content_type_id al diccionario de datos
             data['content_type'] = content_type.id
@@ -1317,6 +1322,7 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
             
     def post(self, request):
         try:
+            blocked_id = Status.objects.get(name='Bloqueado').id
             # Obtener el post_id de la publicación padre desde request.data
             post_id = request.data.get('post_id')
             
@@ -1325,6 +1331,11 @@ class PostIndexCreateAPIView(APIView, FileUploadMixin):
                     {'error': 'El ID de la publicación no está registrado.'}, 
                     status=status.HTTP_404_NOT_FOUND
                 )
+            
+            if post_id:
+                post = Post.objects.get(id=post_id)
+                if post.status_id == blocked_id:
+                    return Response(status=status.HTTP_204_NO_CONTENT)
 
             # Separar archivos y otros datos
             file_list = request.FILES.getlist('file')  # Obtiene la lista de archivos, si existen
@@ -1496,8 +1507,16 @@ class ShareIndexCreateAPIView(APIView, FileUploadMixin):
             
     def post(self, request):
         try:
+            blocked_id = Status.objects.get(name='Bloqueado').id
+
             data = request.data.copy()
             data['user_id'] = request.user.id
+            post_id = request.data.get('post_id')
+
+            if post_id:
+                post = Post.objects.get(id=post_id)
+                if post.status_id == blocked_id:
+                    return Response(status=status.HTTP_204_NO_CONTENT)
 
             # Serializar los datos de entrada
             serializer = ShareSerializer(data=data, context={'request': request})
@@ -1597,6 +1616,7 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
     def post(self, request):
         try:
             comment_id = request.data.get('comment_id')
+            post_id = request.data.get('post_id')
             if comment_id and not Comment.objects.filter(pk=comment_id).exists():
                 return Response(
                     {'error': 'El ID del comentario no está registrado.'}, 
@@ -1608,6 +1628,20 @@ class CommentIndexCreateAPIView(APIView, FileUploadMixin):
 
             # Asignar datos adicionales al diccionario
             try:
+                blocked_id = Status.objects.get(name='Bloqueado').id
+
+                # Verificar si el post está bloqueado
+                if post_id:
+                    post = Post.objects.get(id=post_id)
+                    if post.status_id == blocked_id:
+                        return Response(status=status.HTTP_204_NO_CONTENT)
+                
+                # Verificar si el comment está bloqueado
+                if comment_id:
+                    comment = Comment.objects.get(id=comment_id)
+                    if comment.status_id == blocked_id:
+                        return Response(status=status.HTTP_204_NO_CONTENT)
+
                 # Buscar el ID del estado cuyo nombre es 'Activo'
                 active_status = Status.objects.get(name__iexact='activo')
                 other_data['status_id'] = active_status.id
