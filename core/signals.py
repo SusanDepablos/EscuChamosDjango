@@ -5,7 +5,7 @@ from .models import *
 clients = {}
 
 #-----------------------------------------------------------------------------------------------------
-# Funciones para eliminar al bloquear
+# Funciones para eliminar notificaciones al bloquear
 #----------------------------------------------------------------------------------------------------- 
 
 def delete_related_notifications_post(instance, content_type_id):
@@ -19,15 +19,17 @@ def delete_related_notifications_post(instance, content_type_id):
         type='reaction_post',
     ).delete()
 
+    # Eliminar notificaciones de los comentarios de primer nivel
     Notification.objects.filter(
         object_id__in=Comment.objects.filter(
             post_id=instance.id,
-            comment_id__isnull=True
+            comment_id__isnull=True,
         ).values_list('id', flat=True),
         content_type_id=ContentType.objects.get(model='comment').id,
         type='comment_post',
     ).delete()
 
+    # Eliminar notificaciones de reposts
     Notification.objects.filter(
         object_id__in=Post.objects.filter(
             post_id=instance.id,
@@ -37,21 +39,23 @@ def delete_related_notifications_post(instance, content_type_id):
     ).delete()
 
 
-def delete_related_notifications_comment(content_type_id, instance_id):
+def delete_notifications_for_comment(content_type_id, instance_id):
 
+    reactions_ids = Reaction.objects.filter(
+        content_type_id=content_type_id,
+        object_id=instance_id
+    ).values_list('id', flat=True)
+
+    # Eliminar notificaciones de reacciones del comentario actual
     Notification.objects.filter(
-        object_id__in=Reaction.objects.filter(
-            content_type_id=content_type_id,
-            object_id=instance_id
-        ).values_list('id', flat=True),
+        object_id__in=reactions_ids,
         content_type_id=ContentType.objects.get(model='reaction').id,
         type='reaction_comment',
     ).delete()
 
+    # Eliminar notificaciones del comentario en sí
     Notification.objects.filter(
-        object_id__in=Comment.objects.filter(
-            comment_id=instance_id,
-        ).values_list('id', flat=True),
+        object_id=instance_id,
         content_type_id=ContentType.objects.get(model='comment').id,
         type='comment_reply',
     ).delete()
@@ -253,8 +257,6 @@ def notification_comment_update(sender, instance, created, **kwargs):
                     type='report_comment'
                 ).delete()
 
-                delete_related_notifications_comment(content_type_id, instance.id)
-
             elif instance.status_id == resolved_id:
                 
                 Notification.objects.filter(
@@ -265,6 +267,43 @@ def notification_comment_update(sender, instance, created, **kwargs):
 
         except Exception as e:
             print(f"Error al manejar la actualización: {e}")
+#-----------------------------------------------------------------------------------------------------
+# Remover comentarios
+#-----------------------------------------------------------------------------------------------------
+
+def block_comments_recursively(comment_id, blocked_id):
+
+    Comment.objects.filter(comment_id=comment_id).update(status_id=blocked_id)
+
+    # Obtener todos los comentarios hijos
+    child_comments = Comment.objects.filter(comment_id=comment_id)
+
+    # Llamar a la función recursivamente para bloquear los comentarios hijos
+    for child in child_comments:
+        block_comments_recursively(child.id, blocked_id)
+
+@receiver(post_save, sender=Comment)
+def notification_comment_update_blocked(sender, instance, created, **kwargs):
+    if not created:  # Solo ejecuta si no es una creación
+        content_type_id = ContentType.objects.get(model='comment').id
+        blocked_id = Status.objects.get(name='Bloqueado').id
+
+        # Verificar si el comentario fue bloqueado
+        if instance.status_id == blocked_id:
+            # Eliminar notificaciones del comentario bloqueado
+            delete_notifications_for_comment(content_type_id, instance.id)
+
+            # Bloquear el comentario actual y todos sus hijos
+            block_comments_recursively(instance.id, blocked_id)
+
+            # Bloquear también los comentarios que están respondidos a este comentario
+            child_comments = Comment.objects.filter(comment_id=instance.id)
+            for child in child_comments:
+                # Dispara el signal para que los hijos también sean bloqueados
+                notification_comment_update_blocked(sender=Comment, instance=child, created=False)
+
+#-----------------------------------------------------------------------------------------------------
+
 
 @receiver(post_delete, sender=Comment)
 def notification_comment_delete(sender, instance, **kwargs):
@@ -352,8 +391,6 @@ def notification_post_update(sender, instance, created, **kwargs):
                     type='report_post'
                 ).delete()
 
-                delete_related_notifications_post(instance, content_type_id)
-
             elif instance.status_id == resolved_id:
                 
                 Notification.objects.filter(
@@ -365,6 +402,26 @@ def notification_post_update(sender, instance, created, **kwargs):
         except Exception as e:
             print(f"Error al manejar la actualización: {e}")
 
+
+@receiver(post_save, sender=Post)
+def notification_post_update_blocked(sender, instance, created, **kwargs):
+    if not created:  # Solo ejecuta si no es una creación
+        content_type_id = ContentType.objects.get(model='post').id
+        blocked_id = Status.objects.get(name='Bloqueado').id
+
+        # Verificar si el post fue bloqueado
+        if instance.status_id == blocked_id:
+            # Bloquear solo los comentarios de primer nivel
+            Comment.objects.filter(post_id=instance.id, comment_id__isnull=True).update(status_id=blocked_id)
+
+            # Llamar a la función para eliminar notificaciones relacionadas al post
+            delete_related_notifications_post(instance, content_type_id)
+
+            # Bloquear los comentarios de primer nivel disparando el signal
+            top_level_comments = Comment.objects.filter(post_id=instance.id, comment_id__isnull=True)
+            for comment in top_level_comments:
+                # Disparar el signal para que se bloqueen sus respuestas
+                notification_comment_update_blocked(sender=Comment, instance=comment, created=False)
 
 
 @receiver(post_delete, sender=Post)

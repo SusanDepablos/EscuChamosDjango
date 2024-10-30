@@ -130,15 +130,12 @@ def handle_blocked_status(obj):
     if isinstance(obj, Post):
         # Si el objeto es un post, bloquea todos los reposts de ese post
         reposts = Post.objects.filter(post=obj)  # Filtra todos los reposts del post original
-        reposts.update(status=Status.objects.get(name__iexact='bloqueado'))  # Cambia el estado a "bloqueado"
         
-        shares = Share.objects.filter(post=obj)  # Filtra todos los shares del post
-        shares.delete()  # Elimina todos los shares
+        reposts.update(status=Status.objects.get(name__iexact='bloqueado'))  # Cambia el estado a "bloqueado"
 
-    elif isinstance(obj, Comment):
-        # Si el objeto es un comentario, bloquea todas las respuestas a ese comentario
-        replies = Comment.objects.filter(comment=obj)  # Filtra todas las respuestas al comentario
-        replies.update(status=Status.objects.get(name__iexact='bloqueado'))  # Cambia el estado a "bloqueado"
+        shares = Share.objects.filter(post=obj)  # Filtra todos los shares del post
+        
+        shares.delete()  # Elimina todos los share
 
     # Agrega cualquier otra lógica que necesites aquí
     print('Estado bloqueado manejado correctamente.')
