@@ -197,20 +197,6 @@ h1 {
     align-items: center;
 }
 
-/* Estilo para el botón de descarga */
-.download-button {
-    display: inline-block;
-    background-color: #007bff; 
-    color: #fff;
-    padding: 12px 25px;
-    border-radius: 30px;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.3s;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
 .download-button:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
@@ -222,7 +208,6 @@ h1 {
     color: #000020; 
     font-size: 32px; 
     margin-top: 15px;
-    margin-bottom: 15px;
     text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1); 
     letter-spacing: 1px; 
     font-weight: 600; 
@@ -247,7 +232,6 @@ h1 {
     display: flex;
     justify-content: center;
     gap: 15px; 
-    margin-top: 20px; 
 }
 
 .download-button {
@@ -268,7 +252,8 @@ h1 {
 
 .android-button {
     background-color: #34b54b; 
-    width: 60%; 
+    width: 50%; /* Cambia el valor para ajustar el ancho del botón */ 
+    margin-bottom: 10px;
 }
 
 .download-button:hover {
@@ -287,6 +272,9 @@ h1 {
     margin-right: 10px; 
 }
 
+.qr-icon {
+    width: 60%; 
+}
 
 .coming-soon {
     margin-top: 15px;
@@ -296,21 +284,11 @@ h1 {
     text-align: center; 
 }
 
-.google-play-container {
-    background-color: #0d110e;
-    border-radius: 30px; 
-    padding: 10px 10px;
-    margin: 15px auto; 
-    color: white; 
+.qr-container { 
     justify-content: center; 
     display: flex; 
     align-items: center;
-    width: 60%; 
-}
-
-.google-play-text {
-    font-weight: bold;
-    font-size: 16px; 
+    margin-bottom: 10px;
 }
 
 .no-scroll {
@@ -800,7 +778,7 @@ nav {
     font-weight: bold;
     font-size: 1.5em; 
     margin: 10px 0;
-    color: #1d24ca;
+    color: #d80032; 
 }
 
 .brand-name2 {
@@ -809,7 +787,7 @@ nav {
     color: d80032;
     font-size: 1.3em;
     margin: 5px 0; 
-    color: #d80032; 
+    color: #1d24ca; 
 }
 
 .footer_section p {

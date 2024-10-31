@@ -69,26 +69,25 @@
                     <div id="myModal" class="modal">
                         <div class="modal-content">
                             <span class="close">&times;</span>
-                            <h2 id= "download">¡Descarga nuestra App!</h2>
-                            <p id= "text-download">Haz clic en el botón para descargar la aplicación de EscuChamos, donde encontrarás información importante y podrás interactuar con nuestra comunidad.</p>
-                            
+                            <h2 id= "download">¡Descarga ó Escanea nuestra App!</h2>
                             <table>
                                 <tr>
                                     <td>
+                                        <div class="qr-container">
+                                            <img src="{% static 'img/EscuChamosQr.jpg' %}" alt="qr" class="qr-icon">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
                                         <div class="button-container">
-                                            <a href="https://drive.google.com/file/d/1liaLxa8tjZhVsaV3rDlLUdlJJQt2mOy4/view?usp=sharing" target="_blank" class="download-button android-button">
+                                            <a href="https://drive.google.com/file/d/1Dc19yIOvldlNQ-p8FVpdxTmojS6pDlkA/view?usp=sharing" target="_blank" class="download-button android-button">
                                                 <img src="{% static 'img/android.png' %}" alt="Android" class="os-icon"> Android
                                             </a>
                                         </div>
                                     </td>
                                 </tr>
-                                {% comment %} <tr>
-                                    <td>
-                                        <div class="google-play-container">
-                                            <span class="google-play-text">PRÓXIMAMENTE EN <br> <img src="{% static 'img/playstore.png' %}" alt="Google Play" class="os-icon"> Google Play</span>
-                                        </div>
-                                    </td>
-                                </tr> {% endcomment %}
+                                
                             </table>
                         </div>
                     </div>

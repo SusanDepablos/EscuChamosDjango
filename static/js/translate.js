@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const sloganElement = document.getElementById("slogan");
     const titleElement = document.getElementById("title");
     const downloadElement = document.getElementById("download");
-    const textdownloadElement = document.getElementById("text-download");
     const esElement = document.getElementById("es");
     const enElement = document.getElementById("en");
     const ptElement = document.getElementById("pt");
@@ -52,8 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
             case "es":
                 sloganElement.textContent = "Somos una iniciativa de educomunicación que promueve el liderazgo de mujeres y jóvenes. Utilizamos herramientas prácticas para analizar y mejorar su entorno.";
                 titleElement.textContent = "Asociación Civil EscuChamos";
-                downloadElement.textContent = "¡Descarga nuestra App!";
-                textdownloadElement.textContent = "Haz clic en el botón para descargar la aplicación de EscuChamos, donde encontrarás información importante y podrás interactuar con nuestra comunidad.";
+                downloadElement.textContent = "¡Descarga ó Escanea nuestra App!";
                 esElement.textContent = "Español";
                 enElement.textContent = "Inglés";
                 ptElement.textContent = "Portugués";
@@ -100,8 +98,7 @@ document.addEventListener("DOMContentLoaded", function() {
             case "en":
                 sloganElement.textContent = "We are an educommunication initiative that promotes the leadership of women and young people. We use practical tools to analyze and improve their environment.";
                 titleElement.textContent = "Civil Association EscuChamos";
-                downloadElement.textContent = "Download our App!";
-                textdownloadElement.textContent = "Click the button to download the EscuChamos app, where you will find important information and can interact with our community.";
+                downloadElement.textContent = "Download or Scan our App!";
                 esElement.textContent = "Spanish";
                 enElement.textContent = "English";
                 ptElement.textContent = "Portuguese";
@@ -149,8 +146,7 @@ document.addEventListener("DOMContentLoaded", function() {
             case "pt":
                 sloganElement.textContent = "Somos uma iniciativa de educomunicação que promove a liderança de mulheres e jovens. Utilizamos ferramentas práticas para analisar e melhorar seu entorno.";
                 titleElement.textContent = "Associação Civil EscuChamos";
-                downloadElement.textContent = "Baixe nosso App!";
-                textdownloadElement.textContent = "Clique no botão para baixar o aplicativo EscuChamos, onde você encontrará informações importantes e poderá interagir com nossa comunidade.";
+                downloadElement.textContent = "Baixe ou Escaneie nosso App!";
                 esElement.textContent = "Espanhol";
                 enElement.textContent = "Inglês";
                 ptElement.textContent = "Português";
