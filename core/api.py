@@ -488,7 +488,11 @@ class UserUpdateAPIView(APIView):
                 email = data['email']
                 if not email.endswith('@gmail.com'):
                     return Response(
-                        {'validation': {'email': 'El correo debe ser una dirección de @gmail.com.'}},
+                        {'validation': {
+                            'email': [
+                                'El correo debe ser una dirección de @gmail.com.'
+                            ]
+                        }},
                         status=status.HTTP_400_BAD_REQUEST
                     )
             
